@@ -12,10 +12,10 @@ const getBatiments = async (req, res) => {
 const addBatiment = async (req, res) => {
     const batiment = req.body;
     try {
-        const result = await Batiment.createBatiment(batiment);
+        const createdBatiment = await Batiment.createBatiment(batiment);
         res.status(201).json({
             message: "Batiment créée avec succès",
-            Batiment: result
+            Batiment: createdBatiment
         });
     } catch (err) {
         res.status(500).json(err);
@@ -26,10 +26,10 @@ const updateBatiment = async (req, res) => {
     const { idBat } = req.params;
     const batiment = req.body;
     try {
-        const result = await Batiment.updateBatiment(idBat, batiment);
+        const updatedBatiment = await Batiment.updateBatiment(idBat, batiment);
         res.status(201).json({
             message: "Batiment mis à jour avec succès",
-            Batiment: result
+            Batiment: updatedBatiment
         });
     } catch (err) {
         res.status(500).json(err);
@@ -41,7 +41,8 @@ const deleteBatiment = async (req, res) => {
     try {
         await Batiment.deleteBatiment(idBat);
         res.status(201).json({
-            message: "Batiment supprimé avec succès"
+            message: "Batiment supprimé avec succès",
+            IdBat: idBat
         });
     } catch (err) {
         res.status(500).json(err);

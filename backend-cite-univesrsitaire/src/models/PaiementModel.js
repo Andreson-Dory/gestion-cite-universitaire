@@ -5,6 +5,11 @@ const getAllPaiements = async () => {
     return rows;
 };
 
+const findPaiementById = async (idPai) => {
+    const [rows] = await db.query("SELECT * FROM Paiement WHERE IdPai = ?", [idPai]);
+    return rows[0] || null;
+};
+
 const createPaiement = async (paiement) => {
     const query =
         `INSERT INTO Paiement (MontantPai, Typepai, ModePai, StatutPai, IdEtu) VALUES (?, ?, ?, ?, ?);`;
@@ -16,7 +21,8 @@ const createPaiement = async (paiement) => {
         paiement.IdEtu
     ];
     const [result] = await db.query(query, values);
-    return result;
+    const insertedId = result.insertId;
+    return await findPaiementById(insertedId);
 };
 
 const deletePaiement = async (IdPai) => {
@@ -27,5 +33,6 @@ const deletePaiement = async (IdPai) => {
 module.exports = {
     getAllPaiements,
     createPaiement,
-    deletePaiement
+    deletePaiement,
+    findPaiementById
 };

@@ -12,10 +12,10 @@ const getEtudiants = async (req, res) => {
 const addEtudiant = async (req, res) => {
     const etudiant = req.body;
     try {
-        const result = await Etudiant.createEtudiant(etudiant);
+        const createdEtudiant = await Etudiant.createEtudiant(etudiant);
         res.status(201).json({
             message: "Etudiant créée avec succès",
-            Etudiant: result
+            Etudiant: createdEtudiant
         });
     } catch (err) {
         res.status(500).json(err);
@@ -26,10 +26,10 @@ const updateEtudiant = async (req, res) => {
     const { idEtu } = req.params;
     const etudiant = req.body;
     try {
-        const result = await Etudiant.updateEtudiant(idEtu, etudiant);
+        const updatedEtudiant = await Etudiant.updateEtudiant(idEtu, etudiant);
         res.status(201).json({
             message: "Etudiant mis à jour avec succès",
-            Etudiant: result
+            Etudiant: updatedEtudiant
         });
     } catch (err) {
         res.status(500).json(err);
@@ -41,7 +41,8 @@ const deleteEtudiant = async (req, res) => {
     try {
         await Etudiant.deleteEtudiant(idEtu);
         res.status(201).json({
-            message: "Etudiant supprimé avec succès"
+            message: "Etudiant supprimé avec succès",
+            IdEtu: idEtu
         });
     } catch (err) {
         res.status(500).json(err);

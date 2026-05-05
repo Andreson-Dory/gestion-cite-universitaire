@@ -16,7 +16,7 @@ const paiementSlice = createSlice({
             })
             .addCase(fetchPaiement.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                state.data = action.payload;
+                state.paiements = action.payload;
             })
             .addCase(fetchPaiement.rejected, (state, action) => {
                 state.status = "failed";
@@ -24,11 +24,11 @@ const paiementSlice = createSlice({
             })
             //create Paiement
             .addCase(addPaiement.fulfilled, (state, action) => {
-                state.paiements.push(action.payload)
+                state.paiements.push(action.payload.Paiement)
             })
             //delete a Paiement
             .addCase(removePaiement.fulfilled, (state, action) => {
-                state.paiements = state.paiements.filter((r) => r.idPai !== action.payload.idPai)
+                state.paiements = state.paiements.filter((r) => r.IdPai !== Number(action.payload.IdPai))
             });
     }
 })

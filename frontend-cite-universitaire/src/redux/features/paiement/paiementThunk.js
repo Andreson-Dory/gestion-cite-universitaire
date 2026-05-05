@@ -5,22 +5,22 @@ export const fetchPaiement = createAsyncThunk(
     "baitments/fetchPaiements",
     async () => {
         const response = await getPaiements();
-        return response.data;
+        return response;
     }
 );
 
 export const addPaiement = createAsyncThunk(
     "paiements/createPaiement",
     async (data) => {
-        const response = await createPaiement();
-        return response.data;
+        const response = await createPaiement(data);
+        return response;
     }
 );
 
 export const removePaiement = createAsyncThunk(
     "paiements/deletePaiement",
-    async (idBat) => {
-        const response = await deletePaiement(idBat);
-        return response.data;
+    async (IdPai) => {
+        const response = await deletePaiement(IdPai);
+        return response;
     }
 )

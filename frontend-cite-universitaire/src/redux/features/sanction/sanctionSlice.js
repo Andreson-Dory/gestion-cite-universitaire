@@ -17,7 +17,7 @@ const sanctionSlice = createSlice({
             })
             .addCase(fetchSanction.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                state.data = action.payload;
+                state.sanctions = action.payload;
             })
             .addCase(fetchSanction.rejected, (state, action) => {
                 state.status = "failed";
@@ -25,18 +25,18 @@ const sanctionSlice = createSlice({
             })
             //create Sanction
             .addCase(addSanction.fulfilled, (state, action) => {
-                state.sanctions.push(action.payload)
+                state.sanctions.push(action.payload.Sanction)
             })
             //update a Sanction
             .addCase(editSanction.fulfilled, (state, action) => {
-                const index = state.sanctions.findIndex((r) => r.idSac === action.payload.idSac)
+                const index = state.sanctions.findIndex((r) => r.IdSac === action.payload.Sanction.IdSac)
                 if(index !== -1){
-                    state.sanctions[index] = {...state.sanctions[index], ...action.payload }
+                    state.sanctions[index] = {...state.sanctions[index], ...action.payload.Sanction }
                 }
             })
             //delete a Sanction
             .addCase(removeSanction.fulfilled, (state, action) => {
-                state.sanctions = state.sanctions.filter((r) => r.idSac !== action.payload.idSac)
+                state.sanctions = state.sanctions.filter((r) => r.IdSac !== Number(action.payload.IdSac))
             });
     }
 })

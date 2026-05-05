@@ -12,10 +12,10 @@ const getReclamations = async (req, res) => {
 const addReclamation = async (req, res) => {
     const reclamation = req.body;
     try {
-        const result = await Reclamation.createReclamation(reclamation);
+        const createdReclamation = await Reclamation.createReclamation(reclamation);
         res.status(201).json({
             message: "Reclamation créée avec succès",
-            Reclamation: result
+            Reclamation: createdReclamation
         });
     } catch (err) {
         res.status(500).json(err);
@@ -26,10 +26,10 @@ const updateReclamation = async (req, res) => {
     const { idRec } = req.params;
     const reclamation = req.body;
     try {
-        const result = await Reclamation.updateReclamation(idRec, reclamation);
+        const updatedReclamation = await Reclamation.updateReclamation(idRec, reclamation);
         res.status(201).json({
             message: "Reclamation mis à jour avec succès",
-            Reclamation: result
+            Reclamation: updatedReclamation
         });
     } catch (err) {
         res.status(500).json(err);
@@ -41,7 +41,8 @@ const deleteReclamation = async (req, res) => {
     try {
         await Reclamation.deleteReclamation(idRec);
         res.status(201).json({
-            message: "Reclamation supprimé avec succès"
+            message: "Reclamation supprimé avec succès",
+            IdRec: idRec
         });
     } catch (err) {
         res.status(500).json(err);

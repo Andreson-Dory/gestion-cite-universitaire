@@ -18,7 +18,7 @@ const reclamationSlice = createSlice({
             })
             .addCase(fetchReclamation.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                state.data = action.payload;
+                state.reclamations = action.payload;
             })
             .addCase(fetchReclamation.rejected, (state, action) => {
                 state.status = "failed";
@@ -26,18 +26,18 @@ const reclamationSlice = createSlice({
             })
             //create Reclamation
             .addCase(addReclamation.fulfilled, (state, action) => {
-                state.reclamations.push(action.payload)
+                state.reclamations.push(action.payload.Reclamation)
             })
             //update a Reclamation
             .addCase(editReclamation.fulfilled, (state, action) => {
-                const index = state.reclamations.findIndex((r) => r.idRec === action.payload.idRec)
+                const index = state.reclamations.findIndex((r) => r.IdRec === action.payload.Reclamation.IdRec)
                 if(index !== -1){
-                    state.reclamations[index] = {...state.reclamations[index], ...action.payload }
+                    state.reclamations[index] = {...state.reclamations[index], ...action.payload.Reclamation }
                 }
             })
             //delete a Reclamation
             .addCase(removeReclamation.fulfilled, (state, action) => {
-                state.reclamations = state.reclamations.filter((r) => r.idRec !== action.payload.idRec)
+                state.reclamations = state.reclamations.filter((r) => r.IdRec !== Number(action.payload.IdRec))
             });
     }
 })

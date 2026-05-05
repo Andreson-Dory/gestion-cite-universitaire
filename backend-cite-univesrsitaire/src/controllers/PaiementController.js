@@ -12,10 +12,10 @@ const getPaiements = async (req, res) => {
 const addPaiement = async (req, res) => {
     const paiement = req.body;
     try {
-        const result = await Paiement.createPaiement(paiement);
+        const createdPaiement = await Paiement.createPaiement(paiement);
         res.status(201).json({
             message: "Paiement créée avec succès",
-            Paiement: result
+            Paiement: createdPaiement
         });
     } catch (err) {
         res.status(500).json(err);
@@ -27,7 +27,8 @@ const deletePaiement = async (req, res) => {
     try {
         await Paiement.deletePaiement(idPai);
         res.status(201).json({
-            message: "Paiement supprimé avec succès"
+            message: "Paiement supprimé avec succès",
+            IdPai: idPai
         });
     } catch (err) {
         res.status(500).json(err);

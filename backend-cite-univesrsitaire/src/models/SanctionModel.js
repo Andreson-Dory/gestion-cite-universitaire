@@ -5,6 +5,11 @@ const getAllSanctions = async () => {
     return rows;
 };
 
+const findSanctionById = async (idSac) => {
+    const [rows] = await db.query("SELECT * FROM Sanction WHERE IdSac = ?", [idSac]);
+    return rows[0] || null;
+};
+
 const createSanction = async (sanction) => {
     const query =
         `INSERT INTO Sanction (Motif, DescriptionSac, MontantAmende, StatutSac, IdEtu) VALUES (?, ?, ?, ?, ?);`;
@@ -16,7 +21,8 @@ const createSanction = async (sanction) => {
         sanction.IdEtu
     ];
     const [result] = await db.query(query, values);
-    return result;
+    const insertedId = result.insertId;
+    return await findSanctionById(insertedId);
 };
 
 const updateSanction = async (idSac, sanction) => {
@@ -29,8 +35,8 @@ const updateSanction = async (idSac, sanction) => {
         sanction.StatutSac,
         idSac
     ];
-    const [result] = await db.query(query, values);
-    return result;
+    await db.query(query, values);
+    return await findSanctionById(idSac);
 };
 
 const deleteSanction = async (IdSac) => {
@@ -42,5 +48,6 @@ module.exports = {
     getAllSanctions,
     createSanction,
     updateSanction,
-    deleteSanction
+    deleteSanction,
+    findSanctionById
 };

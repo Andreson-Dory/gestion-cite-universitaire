@@ -18,7 +18,7 @@ const batimentSlice = createSlice({
             })
             .addCase(fetchBatiment.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                state.data = action.payload;
+                state.batiments = action.payload;
             })
             .addCase(fetchBatiment.rejected, (state, action) => {
                 state.status = "failed";
@@ -26,18 +26,18 @@ const batimentSlice = createSlice({
             })
             //create Batiment
             .addCase(addBatiment.fulfilled, (state, action) => {
-                state.batiments.push(action.payload)
+                state.batiments.push(action.payload.Batiment)
             })
             //update a Batiment
             .addCase(editBatiment.fulfilled, (state, action) => {
-                const index = state.batiments.findIndex((r) => r.idBat === action.payload.idBat)
+                const index = state.batiments.findIndex((r) => r.IdBat === action.payload.Batiment.IdBat)
                 if(index !== -1){
-                    state.batiments[index] = {...state.batiments[index], ...action.payload }
+                    state.batiments[index] = {...state.batiments[index], ...action.payload.Batiment }
                 }
             })
             //delete a Batiment
-            .addCase(removeBatiment.fulfilled, (state, action) => {
-                state.batiments = state.batiments.filter((r) => r.idBat !== action.payload.idBat)
+            .addCase(removeBatiment.fulfilled, (state, action) => {   
+                state.batiments = state.batiments.filter((r) => r.IdBat !== Number(action.payload.IdBat))
             });
     }
 })

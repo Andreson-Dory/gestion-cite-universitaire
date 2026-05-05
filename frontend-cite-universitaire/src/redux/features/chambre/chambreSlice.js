@@ -15,9 +15,9 @@ const chambreSlice = createSlice({
             .addCase(fetchChambre.pending, (state) => {
                 state.status = "loading";
             })
-            .addCase(fetchChambre.fulfilled, (state, action) => {
+            .addCase(fetchChambre.fulfilled, (state, action) => {          
                 state.status = "succeeded";
-                state.data = action.payload;
+                state.chambres = action.payload;
             })
             .addCase(fetchChambre.rejected, (state, action) => {
                 state.status = "failed";
@@ -25,18 +25,18 @@ const chambreSlice = createSlice({
             })
             //create Chambre
             .addCase(addChambre.fulfilled, (state, action) => {
-                state.chambres.push(action.payload)
+                state.chambres.push(action.payload.Chambre)
             })
             //update a Chambre
             .addCase(editChambre.fulfilled, (state, action) => {
-                const index = state.chambres.findIndex((r) => r.idCha === action.payload.idCha)
+                const index = state.chambres.findIndex((r) => r.IdCha === action.payload.Chambre.IdCha)
                 if(index !== -1){
-                    state.chambres[index] = {...state.chambres[index], ...action.payload }
+                    state.chambres[index] = {...state.chambres[index], ...action.payload.Chambre }
                 }
             })
             //delete a Chambre
             .addCase(removeChambre.fulfilled, (state, action) => {
-                state.chambres = state.chambres.filter((r) => r.idCha !== action.payload.idCha)
+                state.chambres = state.chambres.filter((r) => r.IdCha !== Number(action.payload.IdCha))
             });
     }
 })

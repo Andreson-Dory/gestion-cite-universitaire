@@ -17,7 +17,7 @@ const attribuerSlice = createSlice({
             })
             .addCase(fetchAttribuer.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                state.data = action.payload;
+                state.attribuers = action.payload;
             })
             .addCase(fetchAttribuer.rejected, (state, action) => {
                 state.status = "failed";
@@ -25,18 +25,18 @@ const attribuerSlice = createSlice({
             })
             //create Attribuer
             .addCase(addAttribuer.fulfilled, (state, action) => {
-                state.attribuers.push(action.payload)
+                state.attribuers.push(action.payload.Attribuer)
             })
             //update a Attribuer
             .addCase(editAttribuer.fulfilled, (state, action) => {
-                const index = state.attribuers.findIndex((r) => r.idAtt === action.payload.idAtt)
+                const index = state.attribuers.findIndex((r) => r.IdAtt === action.payload.Attribuer.IdAtt)
                 if(index !== -1){
-                    state.attribuers[index] = {...state.attribuers[index], ...action.payload }
+                    state.attribuers[index] = {...state.attribuers[index], ...action.payload.Attribuer }
                 }
             })
             //delete a Attribuer
             .addCase(removeAttribuer.fulfilled, (state, action) => {
-                state.attribuers = state.attribuers.filter((r) => r.idAtt !== action.payload.idAtt)
+                state.attribuers = state.attribuers.filter((r) => r.IdAtt !== Number(action.payload.IdAtt))
             });
     }
 })

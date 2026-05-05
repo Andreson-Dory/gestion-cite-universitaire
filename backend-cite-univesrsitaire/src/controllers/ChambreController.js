@@ -12,10 +12,10 @@ const getChambres = async (req, res) => {
 const addChambre = async (req, res) => {
     const chambre = req.body;
     try {
-        const result = await Chambre.createChambre(chambre);
+        const createdChambre = await Chambre.createChambre(chambre);
         res.status(201).json({
             message: "Chambre créée avec succès",
-            Chambre: result
+            Chambre: createdChambre
         });
     } catch (err) {
         res.status(500).json(err);
@@ -26,10 +26,10 @@ const updateChambre = async (req, res) => {
     const { idCha } = req.params;
     const chambre = req.body;
     try {
-        const result = await Chambre.updateChambre(idCha, chambre);
+        const updatedChambre = await Chambre.updateChambre(idCha, chambre);
         res.status(201).json({
             message: "Chambre mis à jour avec succès",
-            Chambre: result
+            Chambre: updatedChambre
         });
     } catch (err) {
         res.status(500).json(err);
@@ -41,7 +41,8 @@ const deleteChambre = async (req, res) => {
     try {
         await Chambre.deleteChambre(idCha);
         res.status(201).json({
-            message: "Chambre supprimé avec succès"
+            message: "Chambre supprimé avec succès",
+            IdCha: idCha
         });
     } catch (err) {
         res.status(500).json(err);

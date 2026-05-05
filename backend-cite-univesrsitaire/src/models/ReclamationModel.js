@@ -5,6 +5,11 @@ const getAllReclamations = async () => {
     return rows;
 };
 
+const findReclamationById = async (idRec) => {
+    const [rows] = await db.query("SELECT * FROM Reclamation WHERE IdRec = ?", [idRec]);
+    return rows[0] || null;
+};
+
 const createReclamation = async (reclamation) => {
     const query =
         `INSERT INTO Reclamation (Sujet, DescriptionRec, StatutRec, Priorite, IdEtu) VALUES (?, ?, ?, ?, ?);`;
@@ -16,7 +21,8 @@ const createReclamation = async (reclamation) => {
         reclamation.IdEtu
     ];
     const [result] = await db.query(query, values);
-    return result;
+    const insertedId = result.insertId;
+    return await findReclamationById(insertedId);
 };
 
 const updateReclamation = async (idRec, reclamation) => {
@@ -29,8 +35,8 @@ const updateReclamation = async (idRec, reclamation) => {
         reclamation.Priorite,
         idRec
     ];
-    const [result] = await db.query(query, values);
-    return result;
+    await db.query(query, values);
+    return await findReclamationById(idRec);
 };
 
 const deleteReclamation = async (IdRec) => {
@@ -42,5 +48,6 @@ module.exports = {
     getAllReclamations,
     createReclamation,
     updateReclamation,
-    deleteReclamation
+    deleteReclamation,
+    findReclamationById
 };
