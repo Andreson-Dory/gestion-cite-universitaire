@@ -334,7 +334,27 @@ export default function BatimentPage() {
                   
                   <div>
                     <label className="text-sm font-medium">Type</label>
-                    <Input name="TypeCha" placeholder="Simple, Double, Triple" value={chambre.TypeCha} onChange={handleInputChambreChange} />
+                    <Select 
+                      name="TypeCha" 
+                      value={chambre.TypeCha} 
+                      onValueChange={(value) =>
+                        {
+                          setChambre((prev) => ({
+                            ...prev,
+                            TypeCha: value,
+                          }));
+                        }
+                      } 
+                      required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner le type du chambre" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Simple">Simple</SelectItem>
+                        <SelectItem value="Double">Double</SelectItem>
+                        <SelectItem value="Triple">Triple</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   
                   <div>
@@ -346,12 +366,15 @@ export default function BatimentPage() {
                     <label className="text-sm font-medium">Bâtiment</label>
                     <Select 
                       name="IdBat" 
-                      value={String(chambre.IdBat)} 
+                      value={chambre.IdBat ? String(chambre.IdBat) : ""} 
                       onValueChange={(value) =>
-                        setChambre((prev) => ({
-                          ...prev,
-                          IdBat: Number(value),
-                        }))
+                        {
+                          setChambre((prev) => ({
+                            ...prev,
+                            IdBat: Number(value),
+                          }));
+                          setSelectedBatiment(batiments.find((b) => b.IdBat === Number(value)));
+                        }
                       } 
                       required>
                       <SelectTrigger>
@@ -369,7 +392,35 @@ export default function BatimentPage() {
                   
                   <div>
                     <label className="text-sm font-medium">Étage</label>
-                    <Input name="Etage" type="number" required placeholder="1" value={chambre.Etage} onChange={handleInputChambreChange} />
+                     <Select 
+                      name="Etage" 
+                      value={chambre.Etage ? String(chambre.Etage) : ""} 
+                      onValueChange={(value) =>
+                        {
+                          setChambre((prev) => ({
+                            ...prev,
+                            Etage: Number(value),
+                          }));
+                        }
+                      } 
+                      required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner l'étage" />
+                        </SelectTrigger>
+                      <SelectContent>
+                        {
+                          Array.from(
+                            {length: selectedBatiment?.NbEtage || 1},
+                            (_, index) => (
+                              <SelectItem key={index + 1} value={String(index + 1)}>
+                                {index + 1}
+                              </SelectItem>
+                            )
+                          )
+                        }
+                      </SelectContent>
+                    </Select>
+                    
                   </div>
                   
                   <div>
