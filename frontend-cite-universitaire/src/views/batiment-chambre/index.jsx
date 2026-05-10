@@ -19,8 +19,22 @@ export default function BatimentPage() {
     const [isOpenModalChambre, setIsOpenModalChambre] = useState(false);
     const [editingBatimentId, setEditingBatimentId] = useState(null);
     const [editingChambreId, setEditingChambreId] = useState(null);
-    const [batiment, setBatiment] = useState({});
-    const [chambre, setChambre] = useState({});
+    const [batiment, setBatiment] = useState({
+      IdBat: "",
+      NomBat: "",
+      TypeBat: "",
+      NbEtage: "0",
+      Description: ""
+    });
+    const [chambre, setChambre] = useState({
+      IdCha: "",
+      NumCha: "",
+      TypeCha: "",
+      Capacite: 0,
+      Etage: 0,
+      StatutCha: "",
+      IdBat: ""
+    });
     const [selectedBatiment, setSelectedBatiment] = useState({});
     const dispatch = useDispatch();
     const { batiments, status : statusBatiment } = useSelector((state) => state.batiment);
@@ -39,7 +53,13 @@ export default function BatimentPage() {
           .then(() => {
             toast.success("Batiment mis à jour avec succès !");
             setEditingBatimentId(null);
-            setBatiment({});
+            setBatiment({
+              IdBat: "",
+              NomBat: "",
+              TypeBat: "",
+              NbEtage: 0,
+              Description: ""
+            });
             setIsOpenModalBatiment(false);
           })
           .catch((error) => {
@@ -50,7 +70,13 @@ export default function BatimentPage() {
           dispatch(addBatiment(batiment)).unwrap()
           .then(() => {
             toast.success("Batiment ajouté avec succès !");
-            setBatiment({});
+            setBatiment({
+              IdBat: "",
+              NomBat: "",
+              TypeBat: "",
+              NbEtage: 0,
+              Description: ""
+            });
             setIsOpenModalBatiment(false);
           })
           .catch((error) => {
@@ -68,7 +94,15 @@ export default function BatimentPage() {
           .then(() => {
             toast.success("Chambre mis à jour avec succès !");
             setEditingChambreId(null);
-            setChambre({});
+            setChambre({
+              IdCha: "",
+              NumCha: "",
+              TypeCha: "",
+              Capacite: 0,
+              Etage: 0,
+              StatutCha: "",
+              IdBat: ""
+            });
             setIsOpenModalChambre(false);
           })
           .catch((error) => {
@@ -79,7 +113,15 @@ export default function BatimentPage() {
           dispatch(addChambre(chambre)).unwrap()
           .then(() => {
             toast.success("Chambre ajouté avec succès !");
-            setChambre({});
+            setChambre({
+              IdCha: "",
+              NumCha: "",
+              TypeCha: "",
+              Capacite: 0,
+              Etage: 0,
+              StatutCha: "",
+              IdBat: ""
+            });
             setIsOpenModalChambre(false);
           })
           .catch((error) => {
@@ -102,6 +144,7 @@ export default function BatimentPage() {
     };
 
     const handleDeleteBatiment = (idBat) => {
+      if (confirm('Êtes-vous sûr?')) {
         dispatch(removeBatiment(idBat)).unwrap()
         .then(() => {
           toast.success("Suppresion de batiment réussit !")
@@ -110,9 +153,11 @@ export default function BatimentPage() {
           console.error(error);
           toast.error("Erreur survenue lors de la suppression du batiment !");
         })
+      }
     }
 
     const handleDeleteChambre = (idCha) => {
+      if (confirm('Êtes-vous sûr?')) {
         dispatch(removeChambre(idCha)).unwrap()
         .then(() => {
           toast.success("Suppresion de chambre réussit !")
@@ -121,6 +166,7 @@ export default function BatimentPage() {
           console.error(error);
           toast.error("Erreur survenue lors de la suppression du chambre !");
         })
+      }
     }
 
     const handleInputBatimentChange = (e) => {

@@ -20,7 +20,7 @@ const createEtudiant = async (etudiant) => {
         etudiant.DateNaissance,
         etudiant.Telephone,
         etudiant.Email,
-        etudiant.Fillier,
+        etudiant.Filiere,
         etudiant.Niveau,
         etudiant.Universite
     ];
@@ -31,7 +31,7 @@ const createEtudiant = async (etudiant) => {
 
 const updateEtudiant = async (idEtu, etudiant) => {
     const query =
-        `UPDATE Etudiant SET Matricule= ?, Nom= ?, Sexe= ?, DateNaissance= ?, Telephone= ?, Email= ?, Filiere= ?, Niveau= ?, Universite= ? WHERE IdEtu= ?;`;
+        `UPDATE Etudiant SET Matricule= ?, Nom= ?, Sexe= ?, DateNaissance= DATE(?), Telephone= ?, Email= ?, Filiere= ?, Niveau= ?, Universite= ? WHERE IdEtu= ?;`;
     const values = [
         etudiant.Matricule,
         etudiant.Nom,
@@ -39,7 +39,7 @@ const updateEtudiant = async (idEtu, etudiant) => {
         etudiant.DateNaissance,
         etudiant.Telephone,
         etudiant.Email,
-        etudiant.Fillier,
+        etudiant.Filiere,
         etudiant.Niveau,
         etudiant.Universite,
         idEtu
