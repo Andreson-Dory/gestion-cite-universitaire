@@ -4,8 +4,8 @@ import { Routes, Route } from 'react-router-dom';
 import { Toaster } from "sonner";
 import TableauBord from './views/talbkeau-bord/index.jsx';
 import BatimentChambre from './views/batiment-chambre/index.jsx';
-import Etudiant from './views/etudiant/index.jsx';
 import ReclamationSanction from './views/reclamation-sanction/index.jsx';
+import EtudiantPage from './views/etudiant/index.jsx';
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
           <Routes>
             <Route path="/" element={<TableauBord />} />
             <Route path="/batiment-chambre" element={<BatimentChambre />} />
-            <Route path="/etudiant" element={<Etudiant />} />
+            <Route path="/etudiant" element={<EtudiantPage />} />
             <Route path="/reclamation-sanction" element={<ReclamationSanction />} />
           </Routes>
         </main>

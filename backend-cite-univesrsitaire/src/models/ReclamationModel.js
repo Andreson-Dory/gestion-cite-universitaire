@@ -12,11 +12,12 @@ const findReclamationById = async (idRec) => {
 
 const createReclamation = async (reclamation) => {
     const query =
-        `INSERT INTO Reclamation (Sujet, DescriptionRec, StatutRec, Priorite, IdEtu) VALUES (?, ?, ?, ?, ?);`;
+        `INSERT INTO Reclamation (DateRec, Sujet, DescriptionRec, StatusRec, Priorite, IdEtu) VALUES (?, ?, ?, ?, ?, ?);`;
     const values = [
+        reclamation.DateRec,
         reclamation.Sujet,
-        reclamation.DecriptionRec,
-        reclamation.StatutRec,
+        reclamation.DescriptionRec,
+        reclamation.StatusRec,
         reclamation.Priorite,
         reclamation.IdEtu
     ];
@@ -27,11 +28,11 @@ const createReclamation = async (reclamation) => {
 
 const updateReclamation = async (idRec, reclamation) => {
     const query =
-        `UPDATE Reclamation SET Sujet= ?, DescriptionRec= ?, StatutRec= ?, Priorite= ? WHERE IdRec= ?;`;
+        `UPDATE Reclamation SET Sujet= ?, DescriptionRec= ?, StatusRec= ?, Priorite= ? WHERE IdRec= ?;`;
     const values = [
         reclamation.Sujet,
-        reclamation.DecriptionRec,
-        reclamation.StatutRec,
+        reclamation.DescriptionRec,
+        reclamation.StatusRec,
         reclamation.Priorite,
         idRec
     ];

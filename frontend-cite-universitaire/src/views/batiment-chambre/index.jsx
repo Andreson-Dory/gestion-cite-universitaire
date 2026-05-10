@@ -147,7 +147,7 @@ export default function BatimentPage() {
       if (confirm('Êtes-vous sûr?')) {
         dispatch(removeBatiment(idBat)).unwrap()
         .then(() => {
-          toast.success("Suppresion de batiment réussit !")
+          toast.success("Suppression de batiment réussit !")
         })
         .catch((error) => {
           console.error(error);
@@ -160,7 +160,7 @@ export default function BatimentPage() {
       if (confirm('Êtes-vous sûr?')) {
         dispatch(removeChambre(idCha)).unwrap()
         .then(() => {
-          toast.success("Suppresion de chambre réussit !")
+          toast.success("Suppression de chambre réussit !")
         })
         .catch((error) => {
           console.error(error);

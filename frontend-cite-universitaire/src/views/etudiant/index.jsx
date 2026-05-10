@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addEtudiant, editEtudiant, fetchEtudiant, removeEtudiant } from '@/redux/features/Etudiant/etudiantThunk';
 import { toast } from 'sonner';
 
-export default function etudiantsPage() {
+export default function EtudiantPage() {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

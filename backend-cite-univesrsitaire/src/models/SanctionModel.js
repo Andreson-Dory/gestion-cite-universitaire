@@ -12,12 +12,13 @@ const findSanctionById = async (idSac) => {
 
 const createSanction = async (sanction) => {
     const query =
-        `INSERT INTO Sanction (Motif, DescriptionSac, MontantAmende, StatutSac, IdEtu) VALUES (?, ?, ?, ?, ?);`;
+        `INSERT INTO Sanction (DateSac, Motif, DescriptionSac, MontantAmende, StatusSac, IdEtu) VALUES (?, ?, ?, ?, ?, ?);`;
     const values = [
+        sanction.DateSac,
         sanction.Motif,
         sanction.DescriptionSac,
         sanction.MontantAmende,
-        sanction.StatutSac,
+        sanction.StatusSac,
         sanction.IdEtu
     ];
     const [result] = await db.query(query, values);
@@ -27,12 +28,12 @@ const createSanction = async (sanction) => {
 
 const updateSanction = async (idSac, sanction) => {
     const query =
-        `UPDATE Sanction SET Motif= ?, DescriptionSac= ?, MontantAmende= ?, StatutSac= ? WHERE IdSac= ?;`;
+        `UPDATE Sanction SET Motif= ?, DescriptionSac= ?, MontantAmende= ?, StatusSac= ? WHERE IdSac= ?;`;
     const values = [
         sanction.Motif,
         sanction.DescriptionSac,
         sanction.MontantAmende,
-        sanction.StatutSac,
+        sanction.StatusSac,
         idSac
     ];
     await db.query(query, values);
