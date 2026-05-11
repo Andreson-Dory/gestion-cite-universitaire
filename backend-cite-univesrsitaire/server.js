@@ -10,6 +10,7 @@ const paiementRoutes = require("./src/routes/paiementRoutes");
 const reclamationRoutes = require("./src/routes/reclamationRoutes");
 const sanctionRoutes = require("./src/routes/sanctionRoutes");
 const attribuerRoutes = require("./src/routes/attribuerRoutes");
+const statistiqueRoutes = require("./src/routes/statistiqueRoutes");
 
 const PORT = process.env.PORT || 5000;
 
@@ -20,6 +21,7 @@ app.use("/api/v1", paiementRoutes);
 app.use("/api/v1", reclamationRoutes);
 app.use("/api/v1", sanctionRoutes);
 app.use("/api/v1", attribuerRoutes);
+app.use("/api/v1", statistiqueRoutes);
 
 app.listen(PORT, () => {
     console.log(`Serveur lancé sur le port ${PORT}`);

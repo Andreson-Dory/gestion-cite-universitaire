@@ -6,6 +6,7 @@ import etudiantReducer from "./features/Etudiant/etudiantSlice";
 import paiementReducer from "./features/paiement/paiementSlice";
 import reclamationReducer from "./features/reclamation/reclamationSlice";
 import sanctionReducer from "./features/sanction/sanctionSlice";
+import statistiqueReducer from "./features/statistique/statistiqueSlice";
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     etudiant: etudiantReducer,
     paiement: paiementReducer,
     reclamation: reclamationReducer,
-    sanction: sanctionReducer
+    sanction: sanctionReducer,
+    statistique: statistiqueReducer
   },
 });

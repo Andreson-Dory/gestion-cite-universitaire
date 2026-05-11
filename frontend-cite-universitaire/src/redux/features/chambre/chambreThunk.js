@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createChambre, deleteChambre, getChambres, updateChambre } from "../../../services/chambreService";
 
 export const fetchChambre = createAsyncThunk(
-    "baitments/fetchChambres",
+    "chambres/fetchChambres",
     async () => {
         const response = await getChambres();
         return response;

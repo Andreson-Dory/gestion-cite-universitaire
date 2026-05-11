@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createPaiement, deletePaiement, getPaiements } from "../../../services/paiementService";
 
 export const fetchPaiement = createAsyncThunk(
-    "baitments/fetchPaiements",
+    "paiements/fetchPaiements",
     async () => {
         const response = await getPaiements();
         return response;

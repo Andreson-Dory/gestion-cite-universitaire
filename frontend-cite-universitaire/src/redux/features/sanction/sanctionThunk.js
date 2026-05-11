@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createSanction, deleteSanction, getSanctions, updateSanction } from "../../../services/sanctionService";
 
 export const fetchSanction = createAsyncThunk(
-    "baitments/fetchSanctions",
+    "sanctions/fetchSanctions",
     async () => {
         const response = await getSanctions();
         return response;

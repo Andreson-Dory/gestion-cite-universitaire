@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createReclamation, deleteReclamation, getReclamations, updateReclamation } from "../../../services/reclamationService";
 
 export const fetchReclamation = createAsyncThunk(
-    "baitments/fetchReclamations",
+    "reclamations/fetchReclamations",
     async () => {
         const response = await getReclamations();
         return response;

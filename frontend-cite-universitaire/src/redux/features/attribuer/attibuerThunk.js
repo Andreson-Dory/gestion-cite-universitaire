@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createAttribuer, deleteAttribuer, getAttribuers, updateAttribuer } from "../../../services/attribuerSerrvice";
 
 export const fetchAttribuer = createAsyncThunk(
-    "baitments/fetchAttribuers",
+    "attribuers/fetchAttribuers",
     async () => {
         const response = await getAttribuers();
         return response;
