@@ -1,9 +1,13 @@
 const db = require("../config/db");
 
-
 const getAllAttribuers = async () => {
     const [rows] = await db.query("SELECT * FROM Attribuer");
     return rows;
+};
+
+const findAttribuerById = async (idAtt) => {
+    const [rows] = await db.query("SELECT * FROM Attribuer WHERE IdAtt = ?", [idAtt]);
+    return rows[0] || null;
 };
 
 const createAttribuer = async (attribuer) => {
@@ -17,7 +21,8 @@ const createAttribuer = async (attribuer) => {
         attribuer.StatutAtt
     ];
     const [result] = await db.query(query, values);
-    return result;
+    const insertedId = result.insertId;
+    return await findAttribuerById(insertedId);
 };
 
 const updateAttribuer = async (idAtt, attribuer) => {
@@ -31,8 +36,8 @@ const updateAttribuer = async (idAtt, attribuer) => {
         attribuer.StatutAtt,
         idAtt
     ];
-    const [result] = await db.query(query, values);
-    return result;
+    await db.query(query, values);
+    return await findAttribuerById(idAtt);
 };
 
 const deleteAttribuer = async (IdAtt) => {
@@ -44,5 +49,6 @@ module.exports = {
     getAllAttribuers,
     createAttribuer,
     updateAttribuer,
-    deleteAttribuer
+    deleteAttribuer,
+    findAttribuerById
 };

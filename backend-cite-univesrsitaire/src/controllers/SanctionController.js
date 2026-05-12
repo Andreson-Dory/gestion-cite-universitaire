@@ -12,10 +12,10 @@ const getSanctions = async (req, res) => {
 const addSanction = async (req, res) => {
     const sanction = req.body;
     try {
-        const result = await Sanction.createSanction(sanction);
+        const createdSanction = await Sanction.createSanction(sanction);
         res.status(201).json({
             message: "Sanction créée avec succès",
-            Sanction: result
+            Sanction: createdSanction
         });
     } catch (err) {
         res.status(500).json(err);
@@ -26,10 +26,10 @@ const updateSanction = async (req, res) => {
     const { idSac } = req.params;
     const sanction = req.body;
     try {
-        const result = await Sanction.updateSanction(idSac, sanction);
+        const updatedSanction = await Sanction.updateSanction(idSac, sanction);
         res.status(201).json({
             message: "Sanction mis à jour avec succès",
-            Sanction: result
+            Sanction: updatedSanction
         });
     } catch (err) {
         res.status(500).json(err);
@@ -41,7 +41,8 @@ const deleteSanction = async (req, res) => {
     try {
         await Sanction.deleteSanction(idSac);
         res.status(201).json({
-            message: "Sanction supprimé avec succès"
+            message: "Sanction supprimé avec succès",
+            IdSac: idSac
         });
     } catch (err) {
         res.status(500).json(err);

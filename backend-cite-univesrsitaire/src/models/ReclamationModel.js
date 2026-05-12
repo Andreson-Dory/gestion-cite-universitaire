@@ -5,32 +5,39 @@ const getAllReclamations = async () => {
     return rows;
 };
 
+const findReclamationById = async (idRec) => {
+    const [rows] = await db.query("SELECT * FROM Reclamation WHERE IdRec = ?", [idRec]);
+    return rows[0] || null;
+};
+
 const createReclamation = async (reclamation) => {
     const query =
-        `INSERT INTO Reclamation (Sujet, DescriptionRec, StatutRec, Priorite, IdEtu) VALUES (?, ?, ?, ?, ?);`;
+        `INSERT INTO Reclamation (DateRec, Sujet, DescriptionRec, StatusRec, Priorite, IdEtu) VALUES (?, ?, ?, ?, ?, ?);`;
     const values = [
+        reclamation.DateRec,
         reclamation.Sujet,
-        reclamation.DecriptionRec,
-        reclamation.StatutRec,
+        reclamation.DescriptionRec,
+        reclamation.StatusRec,
         reclamation.Priorite,
         reclamation.IdEtu
     ];
     const [result] = await db.query(query, values);
-    return result;
+    const insertedId = result.insertId;
+    return await findReclamationById(insertedId);
 };
 
 const updateReclamation = async (idRec, reclamation) => {
     const query =
-        `UPDATE Reclamation SET Sujet= ?, DescriptionRec= ?, StatutRec= ?, Priorite= ? WHERE IdRec= ?;`;
+        `UPDATE Reclamation SET Sujet= ?, DescriptionRec= ?, StatusRec= ?, Priorite= ? WHERE IdRec= ?;`;
     const values = [
         reclamation.Sujet,
-        reclamation.DecriptionRec,
-        reclamation.StatutRec,
+        reclamation.DescriptionRec,
+        reclamation.StatusRec,
         reclamation.Priorite,
         idRec
     ];
-    const [result] = await db.query(query, values);
-    return result;
+    await db.query(query, values);
+    return await findReclamationById(idRec);
 };
 
 const deleteReclamation = async (IdRec) => {
@@ -42,5 +49,6 @@ module.exports = {
     getAllReclamations,
     createReclamation,
     updateReclamation,
-    deleteReclamation
+    deleteReclamation,
+    findReclamationById
 };

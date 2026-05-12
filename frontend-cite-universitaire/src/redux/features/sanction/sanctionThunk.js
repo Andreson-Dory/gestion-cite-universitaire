@@ -2,33 +2,33 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createSanction, deleteSanction, getSanctions, updateSanction } from "../../../services/sanctionService";
 
 export const fetchSanction = createAsyncThunk(
-    "baitments/fetchSanctions",
+    "sanctions/fetchSanctions",
     async () => {
         const response = await getSanctions();
-        return response.data;
+        return response;
     }
 );
 
 export const addSanction = createAsyncThunk(
     "sanctions/createSanction",
     async (data) => {
-        const response = await createSanction();
-        return response.data;
+        const response = await createSanction(data);
+        return response;
     }
 );
 
 export const editSanction = createAsyncThunk(
     "sanctions/updateSanction",
-    async (idBat, data) => {
-        const response = await updateSanction(idBat, data);
-        return response.data;
+    async ({IdSac, data}) => {
+        const response = await updateSanction(IdSac, data);
+        return response;
     }
 )
 
 export const removeSanction = createAsyncThunk(
     "sanctions/deleteSanction",
-    async (idBat) => {
-        const response = await deleteSanction(idBat);
-        return response.data;
+    async (IdSac) => {
+        const response = await deleteSanction(IdSac);
+        return response;
     }
 )

@@ -5,6 +5,11 @@ const getAllChambres = async () => {
     return rows;
 };
 
+const findChambreById = async (idCha) => {
+    const [rows] = await db.query("SELECT * FROM Chambre WHERE IdCha = ?", [idCha]);
+    return rows[0] || null;
+};
+
 const createChambre = async (chambre) => {
     const query =
         `INSERT INTO Chambre (NumCha, TypeCha, Capacite, Etage, StatutCha, IdBat) VALUES (?, ?, ?, ?, ?, ?);`;
@@ -17,7 +22,8 @@ const createChambre = async (chambre) => {
         chambre.IdBat
     ];
     const [result] = await db.query(query, values);
-    return result;
+    const insertedId = result.insertId;
+    return await findChambreById(insertedId);
 };
 
 const updateChambre = async (idCha, chambre) => {
@@ -32,8 +38,8 @@ const updateChambre = async (idCha, chambre) => {
         chambre.IdBat,
         idCha
     ];
-    const [result] = await db.query(query, values);
-    return result;
+    await db.query(query, values);
+    return await findChambreById(idCha);
 };
 
 const deleteChambre = async (IdCha) => {
@@ -45,5 +51,6 @@ module.exports = {
     getAllChambres,
     createChambre,
     updateChambre,
-    deleteChambre
+    deleteChambre,
+    findChambreById
 };

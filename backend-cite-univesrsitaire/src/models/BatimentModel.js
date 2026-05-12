@@ -5,6 +5,11 @@ const getAllBatiments = async () => {
     return rows;
 };
 
+const findBatimentById = async (idBat) => {
+    const [rows] = await db.query("SELECT * FROM Batiment WHERE IdBat = ?", [idBat]);
+    return rows[0] || null;
+};
+
 const createBatiment = async (batiment) => {
     const query =
         `INSERT INTO Batiment (NomBat, TypeBat, NbEtage, Description) VALUES (?, ?, ?, ?);`;
@@ -15,7 +20,8 @@ const createBatiment = async (batiment) => {
         batiment.Description
     ];
     const [result] = await db.query(query, values);
-    return result;
+    const insertedId = result.insertId;
+    return await findBatimentById(insertedId);
 };
 
 const updateBatiment = async (idBat, batiment) => {
@@ -28,8 +34,8 @@ const updateBatiment = async (idBat, batiment) => {
         batiment.Description,
         idBat
     ];
-    const [result] = await db.query(query, values);
-    return result;
+    await db.query(query, values);
+    return await findBatimentById(idBat);
 };
 
 const deleteBatiment = async (IdBat) => {
@@ -41,5 +47,6 @@ module.exports = {
     getAllBatiments,
     createBatiment,
     updateBatiment,
-    deleteBatiment
+    deleteBatiment,
+    findBatimentById
 };

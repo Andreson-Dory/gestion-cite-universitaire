@@ -17,7 +17,7 @@ const etudiantSlice = createSlice({
             })
             .addCase(fetchEtudiant.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                state.data = action.payload;
+                state.etudiants = action.payload;
             })
             .addCase(fetchEtudiant.rejected, (state, action) => {
                 state.status = "failed";
@@ -25,18 +25,18 @@ const etudiantSlice = createSlice({
             })
             //create Etudiant
             .addCase(addEtudiant.fulfilled, (state, action) => {
-                state.etudiants.push(action.payload)
+                state.etudiants.push(action.payload.Etudiant)
             })
             //update a Etudiant
             .addCase(editEtudiant.fulfilled, (state, action) => {
-                const index = state.etudiants.findIndex((r) => r.idEtu === action.payload.idEtu)
+                const index = state.etudiants.findIndex((r) => r.IdEtu === action.payload.Etudiant.IdEtu)
                 if(index !== -1){
-                    state.etudiants[index] = {...state.etudiants[index], ...action.payload }
+                    state.etudiants[index] = {...state.etudiants[index], ...action.payload.Etudiant }
                 }
             })
             //delete a Etudiant
             .addCase(removeEtudiant.fulfilled, (state, action) => {
-                state.etudiants = state.etudiants.filter((r) => r.idEtu !== action.payload.idEtu)
+                state.etudiants = state.etudiants.filter((r) => r.IdEtu !== Number(action.payload.IdEtu))
             });
     }
 })

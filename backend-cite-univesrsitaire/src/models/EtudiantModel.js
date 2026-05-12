@@ -1,5 +1,10 @@
 const db = require("../config/db");
 
+const findEtudiantById = async (idEtu) => {
+    const [rows] = await db.query("SELECT * FROM Etudiant WHERE IdEtu = ?", [idEtu]);
+    return rows[0] || null;
+};
+
 const getAllEtudiants = async () => {
     const [rows] = await db.query("SELECT * FROM Etudiant");
     return rows;
@@ -15,17 +20,18 @@ const createEtudiant = async (etudiant) => {
         etudiant.DateNaissance,
         etudiant.Telephone,
         etudiant.Email,
-        etudiant.Fillier,
+        etudiant.Filiere,
         etudiant.Niveau,
         etudiant.Universite
     ];
     const [result] = await db.query(query, values);
-    return result;
+    const insertedId = result.insertId;
+    return await findEtudiantById(insertedId);
 };
 
 const updateEtudiant = async (idEtu, etudiant) => {
     const query =
-        `UPDATE Etudiant SET Matricule= ?, Nom= ?, Sexe= ?, DateNaissance= ?, Telephone= ?, Email= ?, Filiere= ?, Niveau= ?, Universite= ? WHERE IdEtu= ?;`;
+        `UPDATE Etudiant SET Matricule= ?, Nom= ?, Sexe= ?, DateNaissance= DATE(?), Telephone= ?, Email= ?, Filiere= ?, Niveau= ?, Universite= ? WHERE IdEtu= ?;`;
     const values = [
         etudiant.Matricule,
         etudiant.Nom,
@@ -33,13 +39,13 @@ const updateEtudiant = async (idEtu, etudiant) => {
         etudiant.DateNaissance,
         etudiant.Telephone,
         etudiant.Email,
-        etudiant.Fillier,
+        etudiant.Filiere,
         etudiant.Niveau,
         etudiant.Universite,
         idEtu
     ];
-    const [result] = await db.query(query, values);
-    return result;
+    await db.query(query, values);
+    return await findEtudiantById(idEtu);
 };
 
 const deleteEtudiant = async (IdEtu) => {
@@ -51,5 +57,6 @@ module.exports = {
     getAllEtudiants,
     createEtudiant,
     updateEtudiant,
-    deleteEtudiant
+    deleteEtudiant,
+    findEtudiantById
 };
