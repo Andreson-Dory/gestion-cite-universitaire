@@ -51,8 +51,6 @@ export default function EtudiantPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    console.log("New Etudianr :", etudiant);
     
     if (editingId) {
       dispatch(editEtudiant({IdEtu: editingId, data: etudiant})).unwrap()

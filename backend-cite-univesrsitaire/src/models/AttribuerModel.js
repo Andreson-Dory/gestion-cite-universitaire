@@ -1,22 +1,33 @@
 const db = require("../config/db");
 
 const getAllAttribuers = async () => {
-    const [rows] = await db.query("SELECT * FROM Attribuer");
+    const query = `SELECT a.*, c.NumCha AS NumCha, e.Nom AS Nom, b.NomBat AS NomBat 
+                    FROM Attribuer AS a 
+                    JOIN Etudiant AS e ON a.IdEtu=e.IdEtu
+                    JOIN Chambre AS c ON a.IdCha=c.IdCha
+                    JOIN Batiment AS b on c.IdBat=b.IdBat
+                    ORDER BY a.DateAtt DESC;`
+    const [rows] = await db.query(query);
     return rows;
 };
 
 const findAttribuerById = async (idAtt) => {
-    const [rows] = await db.query("SELECT * FROM Attribuer WHERE IdAtt = ?", [idAtt]);
+    const [rows] = await db.query(`SELECT a.*, c.NumCha AS NumCha, e.Nom AS Nom, b.NomBat AS NomBat 
+                    FROM Attribuer AS a 
+                    JOIN Etudiant AS e ON a.IdEtu=e.IdEtu
+                    JOIN Chambre AS c ON a.IdCha=c.IdCha
+                    JOIN Batiment AS b on c.IdBat=b.IdBat 
+                    WHERE a.IdAtt = ?`, [idAtt]);
     return rows[0] || null;
 };
 
 const createAttribuer = async (attribuer) => {
     const query =
-        `INSERT INTO Attribuer (IdCha, IdBat, IdEtu, DateFin, StatutAtt) VALUES (?, ?, ?, ?, ?);`;
+        `INSERT INTO Attribuer (IdCha, IdEtu, DateAtt, DateFin, StatutAtt) VALUES (?, ?, ?, ?, ?);`;
     const values = [
         attribuer.IdCha,
-        attribuer.IdBat,
         attribuer.IdEtu,
+        attribuer.DateAtt,
         attribuer.DateFin,
         attribuer.StatutAtt
     ];
@@ -25,19 +36,23 @@ const createAttribuer = async (attribuer) => {
     return await findAttribuerById(insertedId);
 };
 
-const updateAttribuer = async (idAtt, attribuer) => {
+const updateAttribuer = async (IdAtt, attribuer) => {
     const query =
-        `UPDATE Attribuer SET IdBat= ?, IdEtu= ?, IdCha= ?, DateFin= ?, StatutAtt= ? WHERE IdAtt= ?;`;
+        `UPDATE Attribuer SET IdEtu= ?, IdCha= ?, DateFin= ?, StatutAtt= ? WHERE IdAtt= ?;`;
     const values = [
-        attribuer.IdBat,
         attribuer.IdEtu,
         attribuer.IdCha,
         attribuer.DateFin,
         attribuer.StatutAtt,
-        idAtt
-    ];
+        IdAtt
+    ];    
     await db.query(query, values);
-    return await findAttribuerById(idAtt);
+    return await findAttribuerById(IdAtt);
+};
+
+const toggleToFinishedAttribuer = async (IdAtt) => {    
+    await db.query("UPDATE Attribuer SET StatutAtt='Terminé' WHERE IdAtt= ?;", IdAtt);
+    return await findAttribuerById(IdAtt);
 };
 
 const deleteAttribuer = async (IdAtt) => {
@@ -50,5 +65,6 @@ module.exports = {
     createAttribuer,
     updateAttribuer,
     deleteAttribuer,
-    findAttribuerById
+    findAttribuerById,
+    toggleToFinishedAttribuer
 };

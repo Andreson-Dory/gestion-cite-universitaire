@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { createAttribuer, deleteAttribuer, getAttribuers, updateAttribuer } from "../../../services/attribuerSerrvice";
+import { createAttribuer, deleteAttribuer, getAttribuers, toggleToFinishedAttribuer, updateAttribuer } from "../../../services/attribuerSerrvice";
 
 export const fetchAttribuer = createAsyncThunk(
     "attribuers/fetchAttribuers",
@@ -19,8 +19,16 @@ export const addAttribuer = createAsyncThunk(
 
 export const editAttribuer = createAsyncThunk(
     "attribuers/updateAttribuer",
-    async ({idAtt: IdAtt, data}) => {
+    async ({IdAtt, data}) => {
         const response = await updateAttribuer(IdAtt, data);
+        return response;
+    }
+)
+
+export const toggleAttribuer = createAsyncThunk(
+    "attribuers/toggleAttribuer",
+    async (IdAtt) => {
+        const response = await toggleToFinishedAttribuer(IdAtt);
         return response;
     }
 )

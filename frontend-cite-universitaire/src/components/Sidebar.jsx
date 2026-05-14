@@ -1,12 +1,13 @@
-import { Folder, Home, Settings, Users } from "lucide-react";
+import { AlertCircle, Building2, Home, PlusCircle, Users } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
   const menu = [
     { to: "/", label: "Tableau de bord", icon: Home },
-    { to: "/batiment-chambre", label: "Bâtiments & Chambres", icon: Folder },
     { to: "/etudiant", label: "Étudiants", icon: Users },
-    { to: "/reclamation-sanction", label: "Réclamations & Sanctions", icon: Settings },
+    { to: "/attribuer", label: "Attribution chambre", icon: PlusCircle },
+    { to: "/batiment-chambre", label: "Bâtiments & Chambres", icon: Building2 },
+    { to: "/reclamation-sanction", label: "Réclamations & Sanctions", icon: AlertCircle },
   ];
 
   return (

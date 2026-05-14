@@ -10,7 +10,7 @@ import statistiqueReducer from "./features/statistique/statistiqueSlice";
 
 export const store = configureStore({
   reducer: {
-    attibuer: attribuerReducer,
+    attribuer: attribuerReducer,
     batiment: batimentReducer,
     chambre: chambreReducer,
     etudiant: etudiantReducer,

@@ -1,5 +1,5 @@
 import  { createSlice } from  "@reduxjs/toolkit";
-import  { fetchAttribuer, addAttribuer, editAttribuer, removeAttribuer } from "./attibuerThunk";
+import  { fetchAttribuer, addAttribuer, editAttribuer, removeAttribuer, toggleAttribuer } from "./attibuerThunk";
 
 const attribuerSlice = createSlice({
     name: "attribuers",
@@ -29,6 +29,13 @@ const attribuerSlice = createSlice({
             })
             //update a Attribuer
             .addCase(editAttribuer.fulfilled, (state, action) => {
+                const index = state.attribuers.findIndex((r) => r.IdAtt === action.payload.Attribuer.IdAtt)
+                if(index !== -1){
+                    state.attribuers[index] = {...state.attribuers[index], ...action.payload.Attribuer }
+                }
+            })
+            //toogle to finish a Attribuer
+            .addCase(toggleAttribuer.fulfilled, (state, action) => {
                 const index = state.attribuers.findIndex((r) => r.IdAtt === action.payload.Attribuer.IdAtt)
                 if(index !== -1){
                     state.attribuers[index] = {...state.attribuers[index], ...action.payload.Attribuer }

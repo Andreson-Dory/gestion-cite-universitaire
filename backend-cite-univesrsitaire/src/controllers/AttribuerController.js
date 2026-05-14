@@ -25,7 +25,7 @@ const addAttribuer = async (req, res) => {
 const updateAttribuer = async (req, res) => {
     const { idAtt } = req.params;
     const attribuer = req.body;
-    try {
+    try {        
         const updatedAttribuer = await Attribuer.updateAttribuer(idAtt, attribuer);
         res.status(201).json({
             message: "Attribuer mis à jour avec succès",
@@ -36,12 +36,26 @@ const updateAttribuer = async (req, res) => {
     }
 };
 
+const toggleToFinishedAttribuer = async (req, res) => {
+    const { idAtt } = req.params;
+    try {        
+        const updatedAttribuer = await Attribuer.toggleToFinishedAttribuer(idAtt);
+        res.status(201).json({
+            message: "Attribution marqué comme terminé",
+            Attribuer: updatedAttribuer
+        });
+    } catch (err) {
+        res.status(500).json(err);
+    }
+};
+
+
 const deleteAttribuer = async (req, res) => {
     const { idAtt } = req.params;
     try {
         await Attribuer.deleteAttribuer(idAtt);
         res.status(201).json({
-            message: "Attribuer supprimé avec succès",
+            message: "Suppression de l'occupation du chambre réussit",
             IdAtt: idAtt
         });
     } catch (err) {
@@ -53,5 +67,6 @@ module.exports = {
     getAttribuers,
     addAttribuer,
     updateAttribuer,
-    deleteAttribuer
+    deleteAttribuer,
+    toggleToFinishedAttribuer
 }

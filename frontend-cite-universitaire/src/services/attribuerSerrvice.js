@@ -10,12 +10,17 @@ export const createAttribuer = async (data) => {
     return response.data;
 }
 
-export const updateAttribuer = async (idAtt, data) => {
-    const response = await backendApi.put(`/attribuer/${idAtt}`, data);
+export const updateAttribuer = async (IdAtt, data) => {
+    const response = await backendApi.put(`/attribuer/${IdAtt}`, data);
     return response.data;
 }
 
-export const deleteAttribuer = async (idAtt) => {
-    const response = await backendApi.post(`/attribuer/${idAtt}`);
+export const toggleToFinishedAttribuer = async (IdAtt) => {
+    const response = await backendApi.put(`/attribuer/toggle/${IdAtt}`);
+    return response.data;
+} 
+
+export const deleteAttribuer = async (IdAtt) => {
+    const response = await backendApi.post(`/attribuer/${IdAtt}`);
     return response.data;
 }
