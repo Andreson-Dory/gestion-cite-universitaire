@@ -14,11 +14,14 @@ const addSanction = async (req, res) => {
     try {
         const createdSanction = await Sanction.createSanction(sanction);
         res.status(201).json({
-            message: "Sanction créée avec succès",
+            message: "Sanction ajouté avec succès",
             Sanction: createdSanction
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de l'ajout du sanction",
+            error : err
+        });
     }
 };
 
@@ -32,7 +35,10 @@ const updateSanction = async (req, res) => {
             Sanction: updatedSanction
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la mise à jour du sanction",
+            error : err
+        });
     }
 };
 
@@ -45,7 +51,10 @@ const deleteSanction = async (req, res) => {
             IdSac: idSac
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la suppression du sanction",
+            error : err
+        });
     }
 };
 

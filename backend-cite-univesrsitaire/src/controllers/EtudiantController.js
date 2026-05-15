@@ -18,7 +18,10 @@ const addEtudiant = async (req, res) => {
             Etudiant: createdEtudiant
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de l'ajout de l'étudiant",
+            error : err
+        });
     }
 };
 
@@ -32,7 +35,10 @@ const updateEtudiant = async (req, res) => {
             Etudiant: updatedEtudiant
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la mise à jour de l'information de l'étudiant",
+            error : err
+        });
     }
 };
 
@@ -45,7 +51,10 @@ const deleteEtudiant = async (req, res) => {
             IdEtu: idEtu
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la suppression de l'étudiant",
+            error : err
+        });
     }
 };
 

@@ -14,11 +14,14 @@ const addReclamation = async (req, res) => {
     try {
         const createdReclamation = await Reclamation.createReclamation(reclamation);
         res.status(201).json({
-            message: "Reclamation créée avec succès",
+            message: "La reclamation a été recue",
             Reclamation: createdReclamation
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de l'effectuation de la reclamation",
+            error : err
+        });
     }
 };
 
@@ -32,7 +35,10 @@ const updateReclamation = async (req, res) => {
             Reclamation: updatedReclamation
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la mise à jour de la reclamation",
+            error : err
+        });
     }
 };
 
@@ -45,7 +51,10 @@ const deleteReclamation = async (req, res) => {
             IdRec: idRec
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la suppression de la reclamation",
+            error : err
+        });
     }
 };
 

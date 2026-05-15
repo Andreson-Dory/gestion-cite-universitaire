@@ -50,8 +50,8 @@ export default function BatimentPage() {
 
       if(editingBatimentId) {
           dispatch(editBatiment({IdBat: editingBatimentId, data: batiment})).unwrap()
-          .then(() => {
-            toast.success("Batiment mis à jour avec succès !");
+          .then((response) => {
+            toast.success(response.message);
             setEditingBatimentId(null);
             setBatiment({
               IdBat: "",
@@ -63,13 +63,13 @@ export default function BatimentPage() {
             setIsOpenModalBatiment(false);
           })
           .catch((error) => {
-            console.error(error);
-            toast.error("Erreur survenue lors de la mise à jour du batiment !");
+            console.error(error.error);
+            toast.error(error.message);
           });
       } else {
           dispatch(addBatiment(batiment)).unwrap()
-          .then(() => {
-            toast.success("Batiment ajouté avec succès !");
+          .then((response) => {
+            toast.success(response.message);
             setBatiment({
               IdBat: "",
               NomBat: "",
@@ -80,8 +80,8 @@ export default function BatimentPage() {
             setIsOpenModalBatiment(false);
           })
           .catch((error) => {
-            console.error(error);
-            toast.error("Erreur survenue lors d'ajout du batiment !");
+            console.error(error.error);
+            toast.error(error.message);
           })
       }
     };
@@ -91,8 +91,8 @@ export default function BatimentPage() {
       
       if(editingChambreId) {
           dispatch(editChambre({IdCha: editingChambreId, data: chambre})).unwrap()
-          .then(() => {
-            toast.success("Chambre mis à jour avec succès !");
+          .then((response) => {
+            toast.success(response.message);
             setEditingChambreId(null);
             setChambre({
               IdCha: "",
@@ -106,13 +106,13 @@ export default function BatimentPage() {
             setIsOpenModalChambre(false);
           })
           .catch((error) => {
-            console.error(error);
-            toast.error("Erreur survenue lors de la mise à jour du chambre !");
+            console.error(error.error);
+            toast.error(error.message);
           });
       } else {
           dispatch(addChambre(chambre)).unwrap()
-          .then(() => {
-            toast.success("Chambre ajouté avec succès !");
+          .then((response) => {
+            toast.success(response.message);
             setChambre({
               IdCha: "",
               NumCha: "",
@@ -125,8 +125,8 @@ export default function BatimentPage() {
             setIsOpenModalChambre(false);
           })
           .catch((error) => {
-            console.error(error);
-            toast.error("Erreur survenue lors d'ajout du chambre !");
+            console.error(error.error);
+            toast.error(error.message);
           })
       }
     };
@@ -146,12 +146,12 @@ export default function BatimentPage() {
     const handleDeleteBatiment = (idBat) => {
       if (confirm('Êtes-vous sûr?')) {
         dispatch(removeBatiment(idBat)).unwrap()
-        .then(() => {
-          toast.success("Suppression de batiment réussit !")
+        .then((response) => {
+          toast.success(response.message)
         })
         .catch((error) => {
-          console.error(error);
-          toast.error("Erreur survenue lors de la suppression du batiment !");
+          console.error(error.error);
+          toast.error(error.message);
         })
       }
     }
@@ -159,12 +159,12 @@ export default function BatimentPage() {
     const handleDeleteChambre = (idCha) => {
       if (confirm('Êtes-vous sûr?')) {
         dispatch(removeChambre(idCha)).unwrap()
-        .then(() => {
-          toast.success("Suppression de chambre réussit !")
+        .then((response) => {
+          toast.success(response.message)
         })
         .catch((error) => {
-          console.error(error);
-          toast.error("Erreur survenue lors de la suppression du chambre !");
+          console.error(error.error);
+          toast.error(error.message);
         })
       }
     }

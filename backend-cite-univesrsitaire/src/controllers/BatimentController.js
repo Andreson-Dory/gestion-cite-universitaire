@@ -18,7 +18,10 @@ const addBatiment = async (req, res) => {
             Batiment: createdBatiment
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la création du batiment",
+            error : err
+        });
     }
 };
 
@@ -32,7 +35,10 @@ const updateBatiment = async (req, res) => {
             Batiment: updatedBatiment
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la mise à jour du batiment",
+            error : err
+        });
     }
 };
 
@@ -45,7 +51,10 @@ const deleteBatiment = async (req, res) => {
             IdBat: idBat
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la suppression du batiment",
+            error : err
+        });
     }
 };
 

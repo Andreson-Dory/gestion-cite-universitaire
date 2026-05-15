@@ -18,7 +18,10 @@ const addChambre = async (req, res) => {
             Chambre: createdChambre
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la création du chambre",
+            error : err
+        });
     }
 };
 
@@ -32,7 +35,10 @@ const updateChambre = async (req, res) => {
             Chambre: updatedChambre
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la mise à jour du chambre",
+            error : err
+        });
     }
 };
 
@@ -45,7 +51,10 @@ const deleteChambre = async (req, res) => {
             IdCha: idCha
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la suppression du chambre",
+            error : err
+        });
     }
 };
 

@@ -14,11 +14,14 @@ const addPaiement = async (req, res) => {
     try {
         const createdPaiement = await Paiement.createPaiement(paiement);
         res.status(201).json({
-            message: "Paiement créée avec succès",
+            message: "Paiement effectué avec succès",
             Paiement: createdPaiement
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors du paiement",
+            error : err
+        });
     }
 };
 
@@ -31,7 +34,10 @@ const deletePaiement = async (req, res) => {
             IdPai: idPai
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la suppression du paiement",
+            error : err
+        });
     }
 };
 
