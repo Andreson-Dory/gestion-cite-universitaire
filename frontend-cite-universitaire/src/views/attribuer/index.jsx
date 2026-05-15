@@ -61,8 +61,8 @@ export default function AttribuerPage() {
           setIsOpen(false)
       })
       .catch((error) => {
-          console.error(error);
-          toast.error("Erreur survenue lors de la mis à jour de l'occupation du chambre !");
+          console.error(error.error);
+          toast.error(error.message);
       })
     } else {
       const date = new Date().toISOString();
@@ -84,8 +84,8 @@ export default function AttribuerPage() {
           setIsOpen(false);
       })
       .catch((error) => {
-          console.error(error);
-          toast.error("Erreur survenue lors de l'attribution du chambre !");
+          console.error(error.error);
+          toast.error(error.message);
       })
     }
   };
@@ -110,8 +110,8 @@ export default function AttribuerPage() {
           toast.success(response.message);
       })
       .catch((error) => {
-          toast.error("Erreur survenue lors de la changement de statut de l'occupation du chambre !");
-          console.error(error);        
+          toast.error(error.message);
+          console.error(error.error);        
       })
     }
   }

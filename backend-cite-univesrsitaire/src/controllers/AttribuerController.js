@@ -14,11 +14,14 @@ const addAttribuer = async (req, res) => {
     try {
         const createdAttribuer = await Attribuer.createAttribuer(attribuer);
         res.status(201).json({
-            message: "Attribuer créé avec succès",
+            message: "Chambre attribué avec succès",
             Attribuer: createdAttribuer
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de l'attribution du chambre",
+            error : err
+        });
     }
 };
 
@@ -28,11 +31,14 @@ const updateAttribuer = async (req, res) => {
     try {        
         const updatedAttribuer = await Attribuer.updateAttribuer(idAtt, attribuer);
         res.status(201).json({
-            message: "Attribuer mis à jour avec succès",
+            message: "Attribution du chambre mis à jour avec succès",
             Attribuer: updatedAttribuer
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la mise à jour du chambre",
+            error : err
+        });;
     }
 };
 
@@ -45,7 +51,10 @@ const toggleToFinishedAttribuer = async (req, res) => {
             Attribuer: updatedAttribuer
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors du marquage comme terminé de l'attribution du chambre",
+            error : err
+        });
     }
 };
 
@@ -55,11 +64,14 @@ const deleteAttribuer = async (req, res) => {
     try {
         await Attribuer.deleteAttribuer(idAtt);
         res.status(201).json({
-            message: "Suppression de l'occupation du chambre réussit",
+            message: "Suppression d'attribution du chambre réussit",
             IdAtt: idAtt
         });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({
+            message: "Erreur lors de la suppression de l'attribution du chambre",
+            error : err
+        });
     }
 };
 

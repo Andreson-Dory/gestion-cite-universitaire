@@ -54,8 +54,8 @@ export default function EtudiantPage() {
     
     if (editingId) {
       dispatch(editEtudiant({IdEtu: editingId, data: etudiant})).unwrap()
-      .then(() => {
-          toast.success("Etudiant mis à jour avec succès !");
+      .then((response) => {
+          toast.success(response.message);
           setEditingId(null);
           setEtudiant({
             IdEtu: "",
@@ -72,13 +72,13 @@ export default function EtudiantPage() {
           setIsOpen(false)
       })
       .catch((error) => {
-          console.error(error);
-          toast.error("Erreur survenue lors de la mis à jour de l'étudiant !");
+          console.error(error.error);
+          toast.error(error.message);
       })
     } else {
       dispatch(addEtudiant(etudiant)).unwrap()
-      .then(() => {
-          toast.success("Etudiant ajouté avec succès !");
+      .then((response) => {
+          toast.success(response.message);
           setEtudiant({
             IdEtu: "",
             Matricule: "",
@@ -94,8 +94,8 @@ export default function EtudiantPage() {
           setIsOpen(false);
       })
       .catch((error) => {
-          console.error(error);
-          toast.error("Erreur survenue lors de l'ajout de l'étudiant !");
+          console.error(error.error);
+          toast.error(error.message);
       })
     }
   };
@@ -103,11 +103,12 @@ export default function EtudiantPage() {
   const handleDelete = async (IdEtu) => {
     if (confirm('Êtes-vous sûr?')) {
         dispatch(removeEtudiant(IdEtu)).unwrap()
-        .then(() => {
-            toast.success("Suppression de l'étudiant réussit !");
+        .then((response) => {
+            toast.success(response.message);
         })
         .catch((error) => {
-            toast.error("Erreur survenue lors de la suppression de l'étudiant !");
+            console.error(error.error);
+            toast.error(error.message);
         })
     }
   };

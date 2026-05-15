@@ -65,8 +65,8 @@ export default function ReclamationSanction() {
     
     if(editingReclamationId) {
       dispatch(editReclamation({IdRec: editingReclamationId, data: reclamation})).unwrap()
-      .then(() => {
-        toast.success("Reclamation mis à jour avec succès !");
+      .then((response) => {
+        toast.success(response.message);
         setEditingReclamationId(null);
         setReclamation({
           IdRec: "",
@@ -80,8 +80,8 @@ export default function ReclamationSanction() {
         setIsReclamationModalOpen(false);
       })
       .catch((error) => {
-        console.error(error);
-        toast.error("Erreur survenue lors de la mise à jour du reclamation !");
+        console.error(error.error);
+        toast.error(error.message);
       });
     } else {
       const date = new Date().toISOString();
@@ -90,8 +90,8 @@ export default function ReclamationSanction() {
         DateRec: date.split('T')[0]
       }
       dispatch(addReclamation(newReclamation)).unwrap()
-      .then(() => {
-        toast.success("Reclamation ajouté avec succès !");
+      .then((response) => {
+        toast.success(response.message);
         setReclamation({
           IdRec: "",
           DateRec: "",
@@ -104,8 +104,8 @@ export default function ReclamationSanction() {
         setIsReclamationModalOpen(false);
       })
       .catch((error) => {
-        console.error(error);
-        toast.error("Erreur survenue lors d'ajout du reclamation !");
+        console.error(error.error);
+        toast.error(error.message);
       })
     } 
   };
@@ -115,8 +115,8 @@ export default function ReclamationSanction() {
     
     if(editingSanctionId) {
         dispatch(editSanction({IdSac: editingSanctionId, data: sanction})).unwrap()
-        .then(() => {
-          toast.success("Sanction mis à jour avec succès !");
+        .then((response) => {
+          toast.success(response.message);
           setEditingSanctionId(null);
           setSanction({
             IdSac: "",
@@ -130,8 +130,8 @@ export default function ReclamationSanction() {
           setIsSanctionModalOpen(false);
         })
         .catch((error) => {
-          console.error(error);
-          toast.error("Erreur survenue lors de la mise à jour du sanction !");
+          console.error(error.error);
+          toast.error(error.message);
         });
     } else {
       const date = new Date().toISOString();
@@ -140,8 +140,8 @@ export default function ReclamationSanction() {
         DateSac: date.split('T')[0]
       }
       dispatch(addSanction(newSanction)).unwrap()
-      .then(() => {
-        toast.success("Sanction ajouté avec succès !");
+      .then((response) => {
+        toast.success(response.message);
         setSanction({
           IdSac: "",
           DateSac: "",
@@ -154,8 +154,8 @@ export default function ReclamationSanction() {
         setIsSanctionModalOpen(false);
       })
       .catch((error) => {
-        console.error(error);
-        toast.error("Erreur survenue lors d'ajout du sanction !");
+        console.error(error.error);
+        toast.error(error.message);
       })
     } 
   };
@@ -163,12 +163,12 @@ export default function ReclamationSanction() {
   const handleDeleteReclamation = (IdRec) => {
     if (confirm('Êtes-vous sûr?')) {
       dispatch(removeReclamation(IdRec)).unwrap()
-      .then(() => {
-        toast.success("Suppression de réclamation réussit !")
+      .then((response) => {
+        toast.success(response.message)
       })
       .catch((error) => {
-        console.error(error);
-        toast.error("Erreur survenue lors de la suppression du réclamation !");
+          console.error(error.error);
+          toast.error(error.message);
       })
     }
   };
@@ -176,12 +176,12 @@ export default function ReclamationSanction() {
   const handleDeleteSanction = (IdSac) => {
     if (confirm('Êtes-vous sûr?')) {
       dispatch(removeSanction(IdSac)).unwrap()
-      .then(() => {
-        toast.success("Suppression de sanction réussit !")
+      .then((response) => {
+        toast.success(response.message)
       })
       .catch((error) => {
-        console.error(error);
-        toast.error("Erreur survenue lors de la suppression du sanction !");
+        console.error(error.error);
+        toast.error(error.message);
       })
     }
   };
