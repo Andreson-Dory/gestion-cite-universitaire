@@ -3,24 +3,48 @@ import { createPaiement, deletePaiement, getPaiements } from "../../../services/
 
 export const fetchPaiement = createAsyncThunk(
     "paiements/fetchPaiements",
-    async () => {
-        const response = await getPaiements();
-        return response;
+    async (_, {rejectWithValue}) => {
+        try{
+            const response = await getPaiements();
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 );
 
 export const addPaiement = createAsyncThunk(
     "paiements/createPaiement",
-    async (data) => {
-        const response = await createPaiement(data);
-        return response;
+    async (data, {rejectWithValue}) => {
+        try{
+            const response = await createPaiement(data);
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 );
 
 export const removePaiement = createAsyncThunk(
     "paiements/deletePaiement",
-    async (IdPai) => {
-        const response = await deletePaiement(IdPai);
-        return response;
+    async (IdPai, {rejectWithValue}) => {
+        try{
+            const response = await deletePaiement(IdPai);
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 )

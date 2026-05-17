@@ -12,9 +12,20 @@ const getAttribuers = async (req, res) => {
 const addAttribuer = async (req, res) => {
     const attribuer = req.body;
     try {
+        const attributionInfo = await Attribuer.findIsChambreAttribuer(attribuer.IdCha);
+        
+        const attributionCount = Number(attributionInfo.attributionCount);
+        const capacity = Number(attributionInfo.capacity);
+        
+        if(attributionCount >= capacity){
+            return res.status(400).json({
+                message: "Cette chambre a atteint la limite maximale des locataires"
+            });    
+        }
+
         const createdAttribuer = await Attribuer.createAttribuer(attribuer);
         res.status(201).json({
-            message: "Chambre attribué avec succès",
+            message: "Chambre attribuée avec succès",
             Attribuer: createdAttribuer
         });
     } catch (err) {
