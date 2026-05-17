@@ -3,32 +3,64 @@ import { createEtudiant, deleteEtudiant, getEtudiants, updateEtudiant } from "..
 
 export const fetchEtudiant = createAsyncThunk(
     "etudiants/fetchEtudiants",
-    async () => {
-        const response = await getEtudiants();
-        return response;
+    async (_, {rejectWithValue}) => {
+        try{
+            const response = await getEtudiants();
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 );
 
 export const addEtudiant = createAsyncThunk(
     "etudiants/createEtudiant",
-    async (data) => {
-        const response = await createEtudiant(data);
-        return response;
+    async (data, {rejectWithValue}) => {
+        try{
+            const response = await createEtudiant(data);
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 );
 
 export const editEtudiant = createAsyncThunk(
     "etudiants/updateEtudiant",
-    async ({IdEtu, data}) => {
-        const response = await updateEtudiant(IdEtu, data);
-        return response;
+    async ({IdEtu, data}, {rejectWithValue}) => {
+        try{
+            const response = await updateEtudiant(IdEtu, data);
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 )
 
 export const removeEtudiant = createAsyncThunk(
     "etudiants/deleteEtudiant",
-    async (IdEtu) => {
-        const response = await deleteEtudiant(IdEtu);
-        return response;
+    async (IdEtu, {rejectWithValue}) => {
+        try{
+            const response = await deleteEtudiant(IdEtu);
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 )

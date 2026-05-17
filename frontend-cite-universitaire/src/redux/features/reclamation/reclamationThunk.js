@@ -3,32 +3,64 @@ import { createReclamation, deleteReclamation, getReclamations, updateReclamatio
 
 export const fetchReclamation = createAsyncThunk(
     "reclamations/fetchReclamations",
-    async () => {
-        const response = await getReclamations();
-        return response;
+    async (_, {rejectWithValue}) => {
+        try{
+            const response = await getReclamations();
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 );
 
 export const addReclamation = createAsyncThunk(
     "reclamations/createReclamation",
-    async (data) => {
-        const response = await createReclamation(data);
-        return response;
+    async (data, {rejectWithValue}) => {
+        try{
+            const response = await createReclamation(data);
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 );
 
 export const editReclamation = createAsyncThunk(
     "reclamations/updateReclamation",
-    async ({IdRec, data}) => {
-        const response = await updateReclamation(IdRec, data);
-        return response;
+    async ({IdRec, data}, {rejectWithValue}) => {
+        try{
+            const response = await updateReclamation(IdRec, data);
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 )
 
 export const removeReclamation = createAsyncThunk(
     "reclamations/deleteReclamation",
-    async (IdRec) => {
-        const response = await deleteReclamation(IdRec);
-        return response;
+    async (IdRec, {rejectWithValue}) => {
+        try{
+            const response = await deleteReclamation(IdRec);
+            return response;
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || {
+                    message: "Erreur serveur"
+                }
+            );
+        }
     }
 )

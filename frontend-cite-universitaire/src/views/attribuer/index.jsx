@@ -299,7 +299,13 @@ export default function AttribuerPage() {
                       <TableCell>{attribuer.Nom}</TableCell>
                       <TableCell>{attribuer.DateAtt.split("T")[0]}</TableCell>
                       <TableCell>{attribuer.DateFin.split("T")[0]}</TableCell>
-                      <TableCell>{attribuer.StatutAtt}</TableCell>
+                      <TableCell >
+                        <span className={`px-2 py-1 text-xs rounded-full ${ 
+                              attribuer.StatutAtt === 'En cours' ? 'bg-green-100 text-green-800' :'bg-blue-100 text-blue-800' 
+                        }`}>
+                          {attribuer.StatutAtt}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
                           <Button

@@ -21,6 +21,16 @@ const findAttribuerById = async (idAtt) => {
     return rows[0] || null;
 };
 
+const findIsChambreAttribuer = async (idCha) => {
+    const [rows] = await db.query(`SELECT COUNT(a.IdAtt) AS attributionCount, c.Capacite AS capacity 
+                    FROM Chambre AS c 
+                    LEFT JOIN Attribuer a 
+                    ON a.IdCha=c.IdCha AND a.StatutAtt='En cours' 
+                    WHERE c.IdCha = ?
+                    GROUP BY c.Capacite`, [idCha]);
+    return rows[0] || null;
+}
+
 const createAttribuer = async (attribuer) => {
     const query =
         `INSERT INTO Attribuer (IdCha, IdEtu, DateAtt, DateFin, StatutAtt) VALUES (?, ?, ?, ?, ?);`;
@@ -66,5 +76,6 @@ module.exports = {
     updateAttribuer,
     deleteAttribuer,
     findAttribuerById,
+    findIsChambreAttribuer,
     toggleToFinishedAttribuer
 };
