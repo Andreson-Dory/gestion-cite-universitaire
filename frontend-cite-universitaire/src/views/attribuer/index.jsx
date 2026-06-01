@@ -1,53 +1,80 @@
-import { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Search, Check } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addAttribuer, editAttribuer, fetchAttribuer, removeAttribuer, toggleAttribuer } from '@/redux/features/attribuer/attibuerThunk';
-import { toast } from 'sonner';
-import { fetchChambre } from '@/redux/features/chambre/chambreThunk';
-import { fetchEtudiant } from '@/redux/features/Etudiant/etudiantThunk';
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Plus, Pencil, Trash2, Search, Check } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addAttribuer,
+  editAttribuer,
+  fetchAttribuer,
+  removeAttribuer,
+  toggleAttribuer,
+} from "@/redux/features/attribuer/attibuerThunk";
+import { toast } from "sonner";
+import { fetchChambre } from "@/redux/features/chambre/chambreThunk";
+import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
 
 export default function AttribuerPage() {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [attribuer ,setAttribuer] = useState({
+  const [attribuer, setAttribuer] = useState({
     IdAtt: "",
     IdCha: "",
     IdEtu: "",
     DateAtt: "",
     DateFin: "",
-    StatutAtt: ""
+    StatutAtt: "",
   });
   const { attribuers, status } = useSelector((state) => state.attribuer);
   const { etudiants } = useSelector((state) => state.etudiant);
   const { chambres } = useSelector((state) => state.chambre);
 
-
-  const filteredAttribuers = attribuers?.filter((a) =>
-    a.Nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.NumCha.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredAttribuers =
+    attribuers?.filter(
+      (a) =>
+        a.Nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        a.NumCha.toLowerCase().includes(searchTerm.toLowerCase()),
+    ) || [];
 
   useEffect(() => {
     dispatch(fetchAttribuer());
-    dispatch(fetchChambre());  
-    dispatch(fetchEtudiant());  
-  }, [])
+    dispatch(fetchChambre());
+    dispatch(fetchEtudiant());
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (editingId) {
-      
-    dispatch(editAttribuer({IdAtt: editingId, data: attribuer})).unwrap()
-      .then((response) => {
+      dispatch(editAttribuer({ IdAtt: editingId, data: attribuer }))
+        .unwrap()
+        .then((response) => {
           toast.success(response.message);
           setEditingId(null);
           setAttribuer({
@@ -56,22 +83,23 @@ export default function AttribuerPage() {
             IdEtu: "",
             DateAtt: "",
             DateFin: "",
-            StatutAtt: ""
+            StatutAtt: "",
           });
-          setIsOpen(false)
-      })
-      .catch((error) => {
+          setIsOpen(false);
+        })
+        .catch((error) => {
           console.error(error.error);
           toast.error(error.message);
-      })
+        });
     } else {
       const date = new Date().toISOString();
       const newAttribuer = {
-        ...attribuer, 
-        DateAtt: date.split('T')[0]
-      }
-      dispatch(addAttribuer(newAttribuer)).unwrap()
-      .then((response) => {
+        ...attribuer,
+        DateAtt: date.split("T")[0],
+      };
+      dispatch(addAttribuer(newAttribuer))
+        .unwrap()
+        .then((response) => {
           toast.success(response.message);
           setAttribuer({
             IdAtt: "",
@@ -79,51 +107,55 @@ export default function AttribuerPage() {
             IdEtu: "",
             DateAtt: "",
             DateFin: "",
-            StatutAtt: ""
+            StatutAtt: "",
           });
           setIsOpen(false);
-      })
-      .catch((error) => {
+        })
+        .catch((error) => {
           console.error(error.error);
           toast.error(error.message);
-      })
+        });
     }
   };
 
   const handleDelete = async (IdAtt) => {
-    if (confirm('Êtes-vous sûr?')) {
-        dispatch(removeAttribuer(IdAtt)).unwrap()
+    if (confirm("Êtes-vous sûr?")) {
+      dispatch(removeAttribuer(IdAtt))
+        .unwrap()
         .then((response) => {
-            toast.success(response.message);
+          toast.success(response.message);
         })
         .catch((error) => {
-            toast.error("Erreur survenue lors de la suppression de l'occupation du chambre !");
-            console.error(error);
-        })
+          toast.error(
+            "Erreur survenue lors de la suppression de l'occupation du chambre !",
+          );
+          console.error(error);
+        });
     }
   };
 
-  const handleToggleAttribuer = async (IdAtt) => {
-    if(confirm('Êtes-vous sûr?')){
-      dispatch(toggleAttribuer(IdAtt)).unwrap()
-      .then((response) => {
+  const handleToggleAttribuer = async (IdAtt, IdCha) => {
+    if (confirm("Êtes-vous sûr?")) {
+      dispatch(toggleAttribuer({ idAtt: IdAtt, idCha: IdCha }))
+        .unwrap()
+        .then((response) => {
           toast.success(response.message);
-      })
-      .catch((error) => {
+        })
+        .catch((error) => {
           toast.error(error.message);
-          console.error(error.error);        
-      })
+          console.error(error.error);
+        });
     }
-  }
+  };
 
   const handleEdit = (attribuer) => {
     setEditingId(attribuer.IdAtt);
     setAttribuer(attribuer);
     setAttribuer((prev) => ({
-        ...prev,
-        DateAtt: prev.DateAtt.split("T")[0],
-        DateFin: prev.DateFin.split("T")[0]
-    }))
+      ...prev,
+      DateAtt: prev.DateAtt.split("T")[0],
+      DateFin: prev.DateFin.split("T")[0],
+    }));
     setIsOpen(true);
   };
 
@@ -136,14 +168,19 @@ export default function AttribuerPage() {
     }));
   };
 
-  if (status === "error" ) return <div className="text-red-600">Erreur de chargement</div>;
+  if (status === "error")
+    return <div className="text-red-600">Erreur de chargement</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Gestion des occcupations du chambre</h1>
-          <p className="text-gray-600 mt-2">Gérez les attributions du chambre de la résidence</p>
+          <h1 className="text-3xl font-bold">
+            Gestion des occcupations du chambre
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Gérez les attributions du chambre de la résidence
+          </p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
@@ -154,27 +191,35 @@ export default function AttribuerPage() {
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingId ? `Modifier l'attribution du chambre` : 'Attribuer un chambre'} </DialogTitle>
+              <DialogTitle>
+                {editingId
+                  ? `Modifier l'attribution du chambre`
+                  : "Attribuer un chambre"}{" "}
+              </DialogTitle>
               <DialogDescription>
-                Remplissez le formulaire pour {editingId ? `modifier l'attribution du chambre` : 'attribuer un chambre'}
+                Remplissez le formulaire pour{" "}
+                {editingId
+                  ? `modifier l'attribution du chambre`
+                  : "attribuer un chambre"}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <input type="hidden" name="id" />
 
-                <div className='col-span-2'>
+                <div className="col-span-2">
                   <label className="text-sm font-medium">Chambre</label>
-                  <Select 
-                    name="IdCha" 
-                    value={attribuer.IdCha.toString() || ""} 
+                  <Select
+                    name="IdCha"
+                    value={attribuer.IdCha.toString() || ""}
                     onValueChange={(value) =>
                       setAttribuer((prev) => ({
                         ...prev,
                         IdCha: Number(value),
                       }))
                     }
-                    required>
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un chambre" />
                     </SelectTrigger>
@@ -187,19 +232,20 @@ export default function AttribuerPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
-                <div className='col-span-2'>
+
+                <div className="col-span-2">
                   <label className="text-sm font-medium">Étudiant</label>
-                  <Select 
-                    name="IdEtu" 
-                    value={attribuer.IdEtu.toString() || ""} 
+                  <Select
+                    name="IdEtu"
+                    value={attribuer.IdEtu.toString() || ""}
                     onValueChange={(value) =>
                       setAttribuer((prev) => ({
                         ...prev,
                         IdEtu: Number(value),
                       }))
                     }
-                    required>
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un étudiant" />
                     </SelectTrigger>
@@ -213,37 +259,45 @@ export default function AttribuerPage() {
                   </Select>
                 </div>
 
-                {!editingId && <div>
-                  <label className="text-sm font-medium">Statut</label>
-                  <Select 
-                    name="StatutAtt" 
-                    value={attribuer.StatutAtt || ""}
-                    onValueChange={(value) =>
-                      setAttribuer((prev) => ({
-                        ...prev,
-                        StatutAtt: value,
-                      }))
-                    }
-                    required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Séléctionner le statut" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="En cours">En cours</SelectItem>
-                      <SelectItem value="Terminé">Terminé</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>}
-                
+                {!editingId && (
+                  <div>
+                    <label className="text-sm font-medium">Statut</label>
+                    <Select
+                      name="StatutAtt"
+                      value={attribuer.StatutAtt || ""}
+                      onValueChange={(value) =>
+                        setAttribuer((prev) => ({
+                          ...prev,
+                          StatutAtt: value,
+                        }))
+                      }
+                      required
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Séléctionner le statut" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="En cours">En cours</SelectItem>
+                        <SelectItem value="Terminé">Terminé</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <div>
                   <label className="text-sm font-medium">Date d'écheance</label>
-                  <Input name="DateFin" type="date" value={attribuer.DateFin} onChange={handleInputAttribuerChange} required />
+                  <Input
+                    name="DateFin"
+                    type="date"
+                    value={attribuer.DateFin}
+                    onChange={handleInputAttribuerChange}
+                    required
+                  />
                 </div>
-                
               </div>
-              
+
               <Button type="submit" className="w-full">
-                {editingId ? 'Mettre à jour' : 'Attribuer'}
+                {editingId ? "Mettre à jour" : "Attribuer"}
               </Button>
             </form>
           </DialogContent>
@@ -295,14 +349,20 @@ export default function AttribuerPage() {
                 ) : (
                   filteredAttribuers.map((attribuer) => (
                     <TableRow key={attribuer.IdAtt}>
-                      <TableCell className="font-medium">{attribuer.NumCha}</TableCell>
+                      <TableCell className="font-medium">
+                        {attribuer.NumCha}
+                      </TableCell>
                       <TableCell>{attribuer.Nom}</TableCell>
                       <TableCell>{attribuer.DateAtt.split("T")[0]}</TableCell>
                       <TableCell>{attribuer.DateFin.split("T")[0]}</TableCell>
-                      <TableCell >
-                        <span className={`px-2 py-1 text-xs rounded-full ${ 
-                              attribuer.StatutAtt === 'En cours' ? 'bg-green-100 text-green-800' :'bg-blue-100 text-blue-800' 
-                        }`}>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            attribuer.StatutAtt === "En cours"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
                           {attribuer.StatutAtt}
                         </span>
                       </TableCell>
@@ -312,9 +372,14 @@ export default function AttribuerPage() {
                             className="btn bg-blue-600 text-white hover:bg-blue-600/95 hover:text-white hover:shadow-2xs animate-accordion-up"
                             variant="ghost"
                             disabled={attribuer.StatutAtt === "Terminé"}
-                            onClick={() => handleToggleAttribuer(attribuer.IdAtt)}
+                            onClick={() =>
+                              handleToggleAttribuer(
+                                attribuer.IdAtt,
+                                attribuer.IdCha,
+                              )
+                            }
                           >
-                            <Check  className='w-4 h-4'/>
+                            <Check className="w-4 h-4" />
                             Terminer
                           </Button>
                           <Button
