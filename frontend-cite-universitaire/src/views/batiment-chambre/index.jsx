@@ -1,211 +1,260 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addBatiment, editBatiment, fetchBatiment, removeBatiment } from "../../redux/features/batiment/batimentThunk";
-import { addChambre, editChambre, fetchChambre, removeChambre } from "../../redux/features/chambre/chambreThunk";
+import {
+  addBatiment,
+  editBatiment,
+  fetchBatiment,
+  removeBatiment,
+} from "../../redux/features/batiment/batimentThunk";
+import {
+  addChambre,
+  editChambre,
+  fetchChambre,
+  removeChambre,
+} from "../../redux/features/chambre/chambreThunk";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 export default function BatimentPage() {
-    const [activeTab, setActiveTab] = useState('batiments');
-    const [isOpenModalBatiment, setIsOpenModalBatiment] = useState(false);    
-    const [isOpenModalChambre, setIsOpenModalChambre] = useState(false);
-    const [editingBatimentId, setEditingBatimentId] = useState(null);
-    const [editingChambreId, setEditingChambreId] = useState(null);
-    const [batiment, setBatiment] = useState({
-      IdBat: "",
-      NomBat: "",
-      TypeBat: "",
-      NbEtage: "0",
-      Description: ""
-    });
-    const [chambre, setChambre] = useState({
-      IdCha: "",
-      NumCha: "",
-      TypeCha: "",
-      Capacite: 0,
-      Etage: 0,
-      StatutCha: "",
-      IdBat: ""
-    });
-    const [selectedBatiment, setSelectedBatiment] = useState({});
-    const dispatch = useDispatch();
-    const { batiments, status : statusBatiment } = useSelector((state) => state.batiment);
-    const { chambres, status: statusChambre } = useSelector((state) => state.chambre);
+  const [activeTab, setActiveTab] = useState("batiments");
+  const [isOpenModalBatiment, setIsOpenModalBatiment] = useState(false);
+  const [isOpenModalChambre, setIsOpenModalChambre] = useState(false);
+  const [editingBatimentId, setEditingBatimentId] = useState(null);
+  const [editingChambreId, setEditingChambreId] = useState(null);
+  const [batiment, setBatiment] = useState({
+    IdBat: "",
+    NomBat: "",
+    TypeBat: "",
+    NbEtage: "0",
+    Description: "",
+  });
+  const [chambre, setChambre] = useState({
+    IdCha: "",
+    NumCha: "",
+    TypeCha: "",
+    Capacite: 0,
+    Etage: 0,
+    StatutCha: "",
+    IdBat: "",
+  });
+  const dispatch = useDispatch();
+  const { batiments, status: statusBatiment } = useSelector(
+    (state) => state.batiment,
+  );
+  const { chambres, status: statusChambre } = useSelector(
+    (state) => state.chambre,
+  );
 
-    useEffect(() => {
-        dispatch(fetchBatiment());
-        dispatch(fetchChambre());    
-    }, []);
+  useEffect(() => {
+    dispatch(fetchBatiment());
+    dispatch(fetchChambre());
+  }, []);
 
-    const handleSubmitBatiment = (e) => {
-      e.preventDefault();
+  const handleSubmitBatiment = (e) => {
+    e.preventDefault();
 
-      if(editingBatimentId) {
-          dispatch(editBatiment({IdBat: editingBatimentId, data: batiment})).unwrap()
-          .then((response) => {
-            toast.success(response.message);
-            setEditingBatimentId(null);
-            setBatiment({
-              IdBat: "",
-              NomBat: "",
-              TypeBat: "",
-              NbEtage: 0,
-              Description: ""
-            });
-            setIsOpenModalBatiment(false);
-          })
-          .catch((error) => {
-            console.error(error.error);
-            toast.error(error.message);
-          });
-      } else {
-          dispatch(addBatiment(batiment)).unwrap()
-          .then((response) => {
-            toast.success(response.message);
-            setBatiment({
-              IdBat: "",
-              NomBat: "",
-              TypeBat: "",
-              NbEtage: 0,
-              Description: ""
-            });
-            setIsOpenModalBatiment(false);
-          })
-          .catch((error) => {
-            console.error(error.error);
-            toast.error(error.message);
-          })
-      }
-    };
-
-    const handleSubmitChambre = (e) => {
-      e.preventDefault();
-      
-      if(editingChambreId) {
-          dispatch(editChambre({IdCha: editingChambreId, data: chambre})).unwrap()
-          .then((response) => {
-            toast.success(response.message);
-            setEditingChambreId(null);
-            setChambre({
-              IdCha: "",
-              NumCha: "",
-              TypeCha: "",
-              Capacite: 0,
-              Etage: 0,
-              StatutCha: "",
-              IdBat: ""
-            });
-            setIsOpenModalChambre(false);
-          })
-          .catch((error) => {
-            console.error(error.error);
-            toast.error(error.message);
-          });
-      } else {
-          dispatch(addChambre(chambre)).unwrap()
-          .then((response) => {
-            toast.success(response.message);
-            setChambre({
-              IdCha: "",
-              NumCha: "",
-              TypeCha: "",
-              Capacite: 0,
-              Etage: 0,
-              StatutCha: "",
-              IdBat: ""
-            });
-            setIsOpenModalChambre(false);
-          })
-          .catch((error) => {
-            console.error(error.error);
-            toast.error(error.message);
-          })
-      }
-    };
-
-    const handleEditBatiment = (batiment) => {
-          setBatiment(batiment);
-          setEditingBatimentId(batiment.IdBat);
-          setIsOpenModalBatiment(true);
-    };
-
-    const handleEditChambre = (chambre) => {
-          setChambre(chambre);
-          setEditingChambreId(chambre.IdCha);
-          setIsOpenModalChambre(true);
-    };
-
-    const handleDeleteBatiment = (idBat) => {
-      if (confirm('Êtes-vous sûr?')) {
-        dispatch(removeBatiment(idBat)).unwrap()
+    if (editingBatimentId) {
+      dispatch(editBatiment({ IdBat: editingBatimentId, data: batiment }))
+        .unwrap()
         .then((response) => {
-          toast.success(response.message)
+          toast.success(response.message);
+          setEditingBatimentId(null);
+          setBatiment({
+            IdBat: "",
+            NomBat: "",
+            TypeBat: "",
+            NbEtage: 0,
+            Description: "",
+          });
+          setIsOpenModalBatiment(false);
         })
         .catch((error) => {
           console.error(error.error);
           toast.error(error.message);
-        })
-      }
-    }
-
-    const handleDeleteChambre = (idCha) => {
-      if (confirm('Êtes-vous sûr?')) {
-        dispatch(removeChambre(idCha)).unwrap()
+        });
+    } else {
+      dispatch(addBatiment(batiment))
+        .unwrap()
         .then((response) => {
-          toast.success(response.message)
+          toast.success(response.message);
+          setBatiment({
+            IdBat: "",
+            NomBat: "",
+            TypeBat: "",
+            NbEtage: 0,
+            Description: "",
+          });
+          setIsOpenModalBatiment(false);
         })
         .catch((error) => {
           console.error(error.error);
           toast.error(error.message);
-        })
-      }
+        });
     }
+  };
 
-    const handleInputBatimentChange = (e) => {
-      const { name, value } = e.target;
+  const handleSubmitChambre = (e) => {
+    e.preventDefault();
 
-      setBatiment((prev) => {
-        return {
-          ...prev,
-          [name]: value,
-        };
-      });
-    };
+    if (editingChambreId) {
+      dispatch(editChambre({ IdCha: editingChambreId, data: chambre }))
+        .unwrap()
+        .then((response) => {
+          toast.success(response.message);
+          setEditingChambreId(null);
+          setChambre({
+            IdCha: "",
+            NumCha: "",
+            TypeCha: "",
+            Capacite: 0,
+            Etage: 0,
+            StatutCha: "",
+            IdBat: "",
+          });
+          setIsOpenModalChambre(false);
+        })
+        .catch((error) => {
+          console.error(error.error);
+          toast.error(error.message);
+        });
+    } else {
+      dispatch(addChambre(chambre))
+        .unwrap()
+        .then((response) => {
+          toast.success(response.message);
+          setChambre({
+            IdCha: "",
+            NumCha: "",
+            TypeCha: "",
+            Capacite: 0,
+            Etage: 0,
+            StatutCha: "",
+            IdBat: "",
+          });
+          setIsOpenModalChambre(false);
+        })
+        .catch((error) => {
+          console.error(error.error);
+          toast.error(error.message);
+        });
+    }
+  };
 
-    const handleInputChambreChange = (e) => {
-      const { name, value } = e.target;
+  const handleEditBatiment = (batiment) => {
+    setBatiment(batiment);
+    setEditingBatimentId(batiment.IdBat);
+    setIsOpenModalBatiment(true);
+  };
 
-      setChambre((prev) => {
-        return {
-          ...prev,
-          [name]: value,
-        };
-      });
-    };
+  const handleEditChambre = (chambre) => {
+    setChambre(chambre);
+    setEditingChambreId(chambre.IdCha);
+    setIsOpenModalChambre(true);
+  };
 
-    const openAddBatimentDialog = () => {
-        setEditingBatimentId(null);
-        setIsOpenModalBatiment(true);
-    };
+  const handleDeleteBatiment = (idBat) => {
+    if (confirm("Êtes-vous sûr?")) {
+      dispatch(removeBatiment(idBat))
+        .unwrap()
+        .then((response) => {
+          toast.success(response.message);
+        })
+        .catch((error) => {
+          console.error(error.error);
+          toast.error(error.message);
+        });
+    }
+  };
 
-    const openAddChambreDialog = () => {
-        setEditingChambreId(null);
-        setIsOpenModalChambre(true);
-    };
-    
-    return (
+  const handleDeleteChambre = (idCha) => {
+    if (confirm("Êtes-vous sûr?")) {
+      dispatch(removeChambre(idCha))
+        .unwrap()
+        .then((response) => {
+          toast.success(response.message);
+        })
+        .catch((error) => {
+          console.error(error.error);
+          toast.error(error.message);
+        });
+    }
+  };
+
+  const handleInputBatimentChange = (e) => {
+    const { name, value } = e.target;
+
+    setBatiment((prev) => {
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
+  };
+
+  const handleInputChambreChange = (e) => {
+    const { name, value } = e.target;
+
+    setChambre((prev) => {
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
+  };
+
+  const openAddBatimentDialog = () => {
+    setEditingBatimentId(null);
+    setIsOpenModalBatiment(true);
+  };
+
+  const openAddChambreDialog = () => {
+    setEditingChambreId(null);
+    setIsOpenModalChambre(true);
+  };
+
+  return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Gestion des Bâtiments et Chambres</h1>
-        <p className="text-gray-600 mt-2">Gérez l&apos;infrastructure de la résidence</p>
+        <h1 className="text-3xl font-bold">
+          Gestion des Bâtiments et Chambres
+        </h1>
+        <p className="text-gray-600 mt-2">
+          Gérez l&apos;infrastructure de la résidence
+        </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -217,46 +266,59 @@ export default function BatimentPage() {
         {/* Buildings Tab */}
         <TabsContent value="batiments" className="space-y-4">
           <div className="flex justify-end">
-            <Dialog 
-              open={isOpenModalBatiment} 
+            <Dialog
+              open={isOpenModalBatiment}
               onOpenChange={(open) => {
-                setIsOpenModalBatiment(open); 
-                if(!open) {
+                setIsOpenModalBatiment(open);
+                if (!open) {
                   setEditingBatimentId(null);
                   setBatiment({});
                 }
-              }}>
+              }}
+            >
               <DialogTrigger asChild>
                 <Button onClick={openAddBatimentDialog}>
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="w-4 h-4 mr-2 cursor-pointer" />
                   Ajouter un Bâtiment
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{editingBatimentId ? 'Modifier' : 'Ajouter'} Bâtiment</DialogTitle>
+                  <DialogTitle>
+                    {editingBatimentId ? "Modifier" : "Ajouter"} Bâtiment
+                  </DialogTitle>
                   <DialogDescription>
-                    Remplissez le formulaire pour {editingBatimentId ? 'modifier' : 'ajouter'} un bâtiment
+                    Remplissez le formulaire pour{" "}
+                    {editingBatimentId ? "modifier" : "ajouter"} un bâtiment
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmitBatiment} className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">Nom du Bâtiment</label>
-                    <Input name="NomBat" required placeholder="Bâtiment A" value={batiment.NomBat} onChange={handleInputBatimentChange} />
+                    <label className="text-sm font-medium">
+                      Nom du Bâtiment
+                    </label>
+                    <Input
+                      name="NomBat"
+                      required
+                      placeholder="Bâtiment A"
+                      value={batiment.NomBat}
+                      onChange={handleInputBatimentChange}
+                    />
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium">Type</label>
-                    <Select 
-                      name="TypeBat" 
-                      value={batiment.TypeBat} 
+                    <Select
+                      name="TypeBat"
+                      value={batiment.TypeBat}
                       onValueChange={(value) =>
                         setBatiment((prev) => ({
                           ...prev,
                           TypeBat: value,
                         }))
                       }
-                      required>
+                      required
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner le type du batiment" />
                       </SelectTrigger>
@@ -265,21 +327,35 @@ export default function BatimentPage() {
                         <SelectItem value="Masculin">Masculin</SelectItem>
                         <SelectItem value="Feminin">Féminin</SelectItem>
                       </SelectContent>
-                    </Select>  
+                    </Select>
                   </div>
-                  
+
                   <div>
-                    <label className="text-sm font-medium">Nombre d&apos;Étages</label>
-                    <Input name="NbEtage" type="number" required placeholder="5" value={batiment.NbEtage} onChange={handleInputBatimentChange} />
+                    <label className="text-sm font-medium">
+                      Nombre d&apos;Étages
+                    </label>
+                    <Input
+                      name="NbEtage"
+                      type="number"
+                      required
+                      placeholder="5"
+                      value={batiment.NbEtage}
+                      onChange={handleInputBatimentChange}
+                    />
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium">Description</label>
-                    <Input name="Description" placeholder="Description du bâtiment" value={batiment.Description} onChange={handleInputBatimentChange} />
+                    <Input
+                      name="Description"
+                      placeholder="Description du bâtiment"
+                      value={batiment.Description}
+                      onChange={handleInputBatimentChange}
+                    />
                   </div>
-                  
+
                   <Button type="submit" className="w-full">
-                    {editingBatimentId ? 'Mettre à jour' : 'Créer'}
+                    {editingBatimentId ? "Mettre à jour" : "Créer"}
                   </Button>
                 </form>
               </DialogContent>
@@ -289,7 +365,9 @@ export default function BatimentPage() {
           <Card>
             <CardHeader>
               <CardTitle>Liste des Bâtiments</CardTitle>
-              <CardDescription>Total: {batiments?.length || 0} bâtiments</CardDescription>
+              <CardDescription>
+                Total: {batiments?.length || 0} bâtiments
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -306,19 +384,27 @@ export default function BatimentPage() {
                   <TableBody>
                     {statusBatiment === "loading" ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-4">Chargement...</TableCell>
+                        <TableCell colSpan={5} className="text-center py-4">
+                          Chargement...
+                        </TableCell>
                       </TableRow>
                     ) : !batiments || batiments.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-4">Aucun bâtiment</TableCell>
+                        <TableCell colSpan={5} className="text-center py-4">
+                          Aucun bâtiment
+                        </TableCell>
                       </TableRow>
                     ) : (
                       batiments.map((batiment) => (
                         <TableRow key={batiment.IdBat}>
-                          <TableCell className="font-medium">{batiment.NomBat}</TableCell>
+                          <TableCell className="font-medium">
+                            {batiment.NomBat}
+                          </TableCell>
                           <TableCell>{batiment.TypeBat}</TableCell>
                           <TableCell>{batiment.NbEtage}</TableCell>
-                          <TableCell className="text-sm text-gray-600">{batiment.Description}</TableCell>
+                          <TableCell className="text-sm text-gray-600">
+                            {batiment.Description}
+                          </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
                               <Button
@@ -331,7 +417,9 @@ export default function BatimentPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => handleDeleteBatiment(batiment.IdBat)}
+                                onClick={() =>
+                                  handleDeleteBatiment(batiment.IdBat)
+                                }
                               >
                                 <Trash2 className="w-4 h-4 text-red-600" />
                               </Button>
@@ -350,48 +438,59 @@ export default function BatimentPage() {
         {/* Rooms Tab */}
         <TabsContent value="chambres" className="space-y-4">
           <div className="flex justify-end">
-            <Dialog 
-              open={isOpenModalChambre} 
+            <Dialog
+              open={isOpenModalChambre}
               onOpenChange={(open) => {
                 setIsOpenModalChambre(open);
-                if(!open) {
+                if (!open) {
                   setEditingChambreId(null);
                   setChambre({});
                 }
-              }}>
+              }}
+            >
               <DialogTrigger asChild>
-                <Button onClick={() => openAddChambreDialog('chambre')}>
-                  <Plus className="w-4 h-4 mr-2" />
+                <Button onClick={() => openAddChambreDialog("chambre")}>
+                  <Plus className="w-4 h-4 mr-2 cursor-pointer" />
                   Ajouter une Chambre
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{editingChambreId ? 'Modifier' : 'Ajouter'} Chambre</DialogTitle>
+                  <DialogTitle>
+                    {editingChambreId ? "Modifier" : "Ajouter"} Chambre
+                  </DialogTitle>
                   <DialogDescription>
-                    Remplissez le formulaire pour {editingChambreId ? 'modifier' : 'ajouter'} une chambre
+                    Remplissez le formulaire pour{" "}
+                    {editingChambreId ? "modifier" : "ajouter"} une chambre
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmitChambre} className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">Numéro de Chambre</label>
-                    <Input name="NumCha" required placeholder="101" value={chambre.NumCha} onChange={handleInputChambreChange} />
+                    <label className="text-sm font-medium">
+                      Numéro de Chambre
+                    </label>
+                    <Input
+                      name="NumCha"
+                      required
+                      placeholder="101"
+                      value={chambre.NumCha}
+                      onChange={handleInputChambreChange}
+                    />
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium">Type</label>
-                    <Select 
-                      name="TypeCha" 
-                      value={chambre.TypeCha} 
-                      onValueChange={(value) =>
-                        {
-                          setChambre((prev) => ({
-                            ...prev,
-                            TypeCha: value,
-                          }));
-                        }
-                      } 
-                      required>
+                    <Select
+                      name="TypeCha"
+                      value={chambre.TypeCha}
+                      onValueChange={(value) => {
+                        setChambre((prev) => ({
+                          ...prev,
+                          TypeCha: value,
+                        }));
+                      }}
+                      required
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner le type du chambre" />
                       </SelectTrigger>
@@ -402,27 +501,32 @@ export default function BatimentPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium">Capacité</label>
-                    <Input name="Capacite" type="number" required placeholder="1" value={chambre.Capacite} onChange={handleInputChambreChange} />
+                    <Input
+                      name="Capacite"
+                      type="number"
+                      required
+                      placeholder="1"
+                      value={chambre.Capacite}
+                      onChange={handleInputChambreChange}
+                    />
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium">Bâtiment</label>
-                    <Select 
-                      name="IdBat" 
-                      value={chambre.IdBat ? String(chambre.IdBat) : ""} 
-                      onValueChange={(value) =>
-                        {
-                          setChambre((prev) => ({
-                            ...prev,
-                            IdBat: Number(value),
-                          }));
-                          setSelectedBatiment(batiments.find((b) => b.IdBat === Number(value)));
-                        }
-                      } 
-                      required>
+                    <Select
+                      name="IdBat"
+                      value={chambre.IdBat ? String(chambre.IdBat) : ""}
+                      onValueChange={(value) => {
+                        setChambre((prev) => ({
+                          ...prev,
+                          IdBat: Number(value),
+                        }));
+                      }}
+                      required
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner un bâtiment" />
                       </SelectTrigger>
@@ -435,65 +539,87 @@ export default function BatimentPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium">Étage</label>
-                     <Select 
-                      name="Etage" 
-                      value={chambre.Etage ? String(chambre.Etage) : ""} 
-                      onValueChange={(value) =>
-                        {
-                          setChambre((prev) => ({
-                            ...prev,
-                            Etage: Number(value),
-                          }));
-                        }
-                      } 
-                      required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner l'étage" />
-                        </SelectTrigger>
+                    <Select
+                      name="Etage"
+                      value={chambre.Etage ? String(chambre.Etage) : ""}
+                      onValueChange={(value) => {
+                        setChambre((prev) => ({
+                          ...prev,
+                          Etage: Number(value),
+                        }));
+                      }}
+                      required
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner l'étage" />
+                      </SelectTrigger>
                       <SelectContent>
-                        {
-                          Array.from(
-                            {length: selectedBatiment?.NbEtage || 1},
-                            (_, index) => (
-                              <SelectItem key={index + 1} value={String(index + 1)}>
-                                {index + 1}
-                              </SelectItem>
-                            )
-                          )
-                        }
+                        {Array.from(
+                          {
+                            length:
+                              batiments.find(
+                                (b) => b.IdBat === Number(chambre.IdBat),
+                              )?.NbEtage || 1,
+                          },
+                          (_, index) => (
+                            <SelectItem
+                              key={index + 1}
+                              value={String(index + 1)}
+                            >
+                              {index + 1}
+                            </SelectItem>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
-                    
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium">Statut</label>
-                    <Select 
-                      name="StatutCha" 
-                      value={chambre.StatutCha} 
+                    <Select
+                      name="StatutCha"
+                      value={chambre.StatutCha}
                       onValueChange={(value) =>
                         setChambre((prev) => ({
                           ...prev,
                           StatutCha: value,
                         }))
-                      } 
-                      required>
+                      }
+                      required
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Veuillez choisir l'état actuel du chambre" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Libre">Libre</SelectItem>
-                        <SelectItem value="Occupée">Occupée</SelectItem>
-                        <SelectItem value="Maintenance">Maintenance</SelectItem>
-                      </SelectContent>
+                      {!editingChambreId && (
+                        <SelectContent>
+                          <SelectItem value="Libre">Libre</SelectItem>
+                          <SelectItem value="Occupée">Occupée</SelectItem>
+                          <SelectItem value="Maintenance">
+                            Maintenance
+                          </SelectItem>
+                        </SelectContent>
+                      )}
+                      {editingChambreId && (
+                        <SelectContent>
+                          {chambre.StatutCha === "Maintenance" && (
+                            <SelectItem value="Libre">Libre</SelectItem>
+                          )}
+                          {chambre.StatutCha === "Maintenance" && (
+                            <SelectItem value="Occupée">Occupée</SelectItem>
+                          )}
+                          <SelectItem value="Maintenance">
+                            Maintenance
+                          </SelectItem>
+                        </SelectContent>
+                      )}
                     </Select>
                   </div>
-                  
+
                   <Button type="submit" className="w-full">
-                    {editingChambreId ? 'Mettre à jour' : 'Créer'}
+                    {editingChambreId ? "Mettre à jour" : "Créer"}
                   </Button>
                 </form>
               </DialogContent>
@@ -503,7 +629,9 @@ export default function BatimentPage() {
           <Card>
             <CardHeader>
               <CardTitle>Liste des Chambres</CardTitle>
-              <CardDescription>Total: {chambres?.length || 0} chambres</CardDescription>
+              <CardDescription>
+                Total: {chambres?.length || 0} chambres
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -522,27 +650,48 @@ export default function BatimentPage() {
                   <TableBody>
                     {statusChambre === "loading" ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-4">Chargement...</TableCell>
+                        <TableCell colSpan={7} className="text-center py-4">
+                          Chargement...
+                        </TableCell>
                       </TableRow>
                     ) : !chambres || chambres.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-4">Aucune chambre</TableCell>
+                        <TableCell colSpan={7} className="text-center py-4">
+                          Aucune chambre
+                        </TableCell>
                       </TableRow>
                     ) : (
                       chambres.map((chambre) => (
                         <TableRow key={chambre.IdCha}>
-                          <TableCell className="font-medium">{chambre.NumCha}</TableCell>
+                          <TableCell className="font-medium">
+                            {chambre.NumCha}
+                          </TableCell>
                           <TableCell>{chambre.TypeCha}</TableCell>
                           <TableCell>{chambre.Capacite}</TableCell>
                           <TableCell>{chambre.Etage}</TableCell>
-                          <TableCell>{chambre.NomBat || 'N/A'}</TableCell>
+                          <TableCell>{chambre.NomBat || "N/A"}</TableCell>
                           <TableCell>
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              chambre.StatutCha === 'Libre' ? 'bg-green-100 text-green-800' :
-                              chambre.StatutCha === 'Occupée' ? 'bg-blue-100 text-blue-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
+                            <span
+                              className={`px-2 py-1 text-xs rounded-full ${
+                                chambre.StatutCha === "Libre"
+                                  ? "bg-green-100 text-green-800"
+                                  : chambre.StatutCha === "Occupée"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
                               {chambre.StatutCha}
+                            </span>
+                            <span
+                              className={`px-2 py-1 text-xs rounded-full ${
+                                chambre.StatutCha === "Libre"
+                                  ? "bg-green-100 text-green-800"
+                                  : chambre.StatutCha === "Occupée"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
+                              {chambre.Occupation}/{chambre.Capacite}
                             </span>
                           </TableCell>
                           <TableCell>
@@ -557,7 +706,9 @@ export default function BatimentPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => handleDeleteChambre(chambre.IdCha)}
+                                onClick={() =>
+                                  handleDeleteChambre(chambre.IdCha)
+                                }
                               >
                                 <Trash2 className="w-4 h-4 text-red-600" />
                               </Button>
