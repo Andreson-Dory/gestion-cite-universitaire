@@ -184,7 +184,10 @@ export default function AttribuerPage() {
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditingId(null)}>
+            <Button
+              onClick={() => setEditingId(null)}
+              className="cursor-pointer"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Attribuer un chambre
             </Button>
@@ -296,7 +299,7 @@ export default function AttribuerPage() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full cursor-pointer">
                 {editingId ? "Mettre à jour" : "Attribuer"}
               </Button>
             </form>
@@ -369,7 +372,7 @@ export default function AttribuerPage() {
                       <TableCell>
                         <div className="flex gap-2">
                           <Button
-                            className="btn bg-blue-600 text-white hover:bg-blue-600/95 hover:text-white hover:shadow-2xs animate-accordion-up"
+                            className="btn bg-blue-600 text-white hover:bg-blue-600/95 hover:text-white hover:shadow-2xs animate-accordion-up cursor-pointer"
                             variant="ghost"
                             disabled={attribuer.StatutAtt === "Terminé"}
                             onClick={() =>
@@ -387,6 +390,7 @@ export default function AttribuerPage() {
                             variant="ghost"
                             disabled={attribuer.StatutAtt === "Terminé"}
                             onClick={() => handleEdit(attribuer)}
+                            className="cursor-pointer"
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
@@ -394,6 +398,7 @@ export default function AttribuerPage() {
                             size="sm"
                             variant="ghost"
                             onClick={() => handleDelete(attribuer.IdAtt)}
+                            className="cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4 text-red-600" />
                           </Button>

@@ -1,21 +1,52 @@
-import { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Search } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addEtudiant, editEtudiant, fetchEtudiant, removeEtudiant } from '@/redux/features/Etudiant/etudiantThunk';
-import { toast } from 'sonner';
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addEtudiant,
+  editEtudiant,
+  fetchEtudiant,
+  removeEtudiant,
+} from "@/redux/features/Etudiant/etudiantThunk";
+import { toast } from "sonner";
 
 export default function EtudiantPage() {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [etudiant ,setEtudiant] = useState({
+  const [etudiant, setEtudiant] = useState({
     IdEtu: "",
     Matricule: "",
     Nom: "",
@@ -25,36 +56,39 @@ export default function EtudiantPage() {
     Email: "",
     Filiere: "",
     Niveau: "",
-    Universite: ""
+    Universite: "",
   });
   const { etudiants, status } = useSelector((state) => state.etudiant);
 
-  const filteredEtudiants = etudiants?.filter((s) =>
-    s.Nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.Matricule.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredEtudiants =
+    etudiants?.filter(
+      (s) =>
+        s.Nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.Matricule.toLowerCase().includes(searchTerm.toLowerCase()),
+    ) || [];
 
   useEffect(() => {
     dispatch(fetchEtudiant());
-  }, [])
+  }, []);
 
-   const handleInputEtudiantChange = (e) => {
-      const { name, value } = e.target;
+  const handleInputEtudiantChange = (e) => {
+    const { name, value } = e.target;
 
-      setEtudiant((prev) => {
-        return {
-          ...prev,
-          [name]: value,
-        };
-      });
-    };
+    setEtudiant((prev) => {
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (editingId) {
-      dispatch(editEtudiant({IdEtu: editingId, data: etudiant})).unwrap()
-      .then((response) => {
+      dispatch(editEtudiant({ IdEtu: editingId, data: etudiant }))
+        .unwrap()
+        .then((response) => {
           toast.success(response.message);
           setEditingId(null);
           setEtudiant({
@@ -67,17 +101,18 @@ export default function EtudiantPage() {
             Email: "",
             Filiere: "",
             Niveau: "",
-            Universite: ""
+            Universite: "",
           });
-          setIsOpen(false)
-      })
-      .catch((error) => {
+          setIsOpen(false);
+        })
+        .catch((error) => {
           console.error(error.error);
           toast.error(error.message);
-      })
+        });
     } else {
-      dispatch(addEtudiant(etudiant)).unwrap()
-      .then((response) => {
+      dispatch(addEtudiant(etudiant))
+        .unwrap()
+        .then((response) => {
           toast.success(response.message);
           setEtudiant({
             IdEtu: "",
@@ -89,27 +124,28 @@ export default function EtudiantPage() {
             Email: "",
             Filiere: "",
             Niveau: "",
-            Universite: ""
+            Universite: "",
           });
           setIsOpen(false);
-      })
-      .catch((error) => {
+        })
+        .catch((error) => {
           console.error(error.error);
           toast.error(error.message);
-      })
+        });
     }
   };
 
   const handleDelete = async (IdEtu) => {
-    if (confirm('Êtes-vous sûr?')) {
-        dispatch(removeEtudiant(IdEtu)).unwrap()
+    if (confirm("Êtes-vous sûr?")) {
+      dispatch(removeEtudiant(IdEtu))
+        .unwrap()
         .then((response) => {
-            toast.success(response.message);
+          toast.success(response.message);
         })
         .catch((error) => {
-            console.error(error.error);
-            toast.error(error.message);
-        })
+          console.error(error.error);
+          toast.error(error.message);
+        });
     }
   };
 
@@ -117,62 +153,79 @@ export default function EtudiantPage() {
     setEditingId(etudiant.IdEtu);
     setEtudiant(etudiant);
     setEtudiant((prev) => ({
-        ...prev,
-        DateNaissance: prev.DateNaissance.split("T")[0]
-    }))
+      ...prev,
+      DateNaissance: prev.DateNaissance.split("T")[0],
+    }));
     setIsOpen(true);
   };
 
-  if (status === "error" ) return <div className="text-red-600">Erreur de chargement</div>;
+  if (status === "error")
+    return <div className="text-red-600">Erreur de chargement</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Gestion des Étudiants</h1>
-          <p className="text-gray-600 mt-2">Gérez les étudiants de la résidence</p>
+          <p className="text-gray-600 mt-2">
+            Gérez les étudiants de la résidence
+          </p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => setEditingId(null)}>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2 cursor-pointer" />
               Ajouter un Étudiant
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingId ? 'Modifier' : 'Ajouter'} Étudiant</DialogTitle>
+              <DialogTitle>
+                {editingId ? "Modifier" : "Ajouter"} Étudiant
+              </DialogTitle>
               <DialogDescription>
-                Remplissez le formulaire pour {editingId ? 'modifier' : 'ajouter'} un étudiant
+                Remplissez le formulaire pour{" "}
+                {editingId ? "modifier" : "ajouter"} un étudiant
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <input type="hidden" name="id" />
-                
+
                 <div>
                   <label className="text-sm font-medium">Matricule</label>
-                  <Input name="Matricule" value={etudiant.Matricule} onChange={handleInputEtudiantChange} required placeholder="EXE001" />
+                  <Input
+                    name="Matricule"
+                    value={etudiant.Matricule}
+                    onChange={handleInputEtudiantChange}
+                    required
+                    placeholder="EXE001"
+                  />
                 </div>
-                
-                <div className='col-span-2'>
+
+                <div className="col-span-2">
                   <label className="text-sm font-medium ">Nom</label>
-                  <Input name="Nom" value={etudiant.Nom} onChange={handleInputEtudiantChange} required placeholder="Dupont Jean" />
+                  <Input
+                    name="Nom"
+                    value={etudiant.Nom}
+                    onChange={handleInputEtudiantChange}
+                    required
+                    placeholder="Dupont Jean"
+                  />
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium">Sexe</label>
-                  <Select 
-                    name="Sexe" 
+                  <Select
+                    name="Sexe"
                     value={etudiant.Sexe}
-                    onValueChange={(value) => 
-                        {
-                            setEtudiant((prev) => ({
-                                ...prev,
-                                Sexe: value,
-                            }))
-                        }
-                    }>
+                    onValueChange={(value) => {
+                      setEtudiant((prev) => ({
+                        ...prev,
+                        Sexe: value,
+                      }));
+                    }}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selectionner le sexe" />
                     </SelectTrigger>
@@ -182,40 +235,63 @@ export default function EtudiantPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
-                  <label className="text-sm font-medium">Date de Naissance</label>
-                  <Input name="DateNaissance" type="date" value={etudiant.DateNaissance || ""} onChange={handleInputEtudiantChange} required />
+                  <label className="text-sm font-medium">
+                    Date de Naissance
+                  </label>
+                  <Input
+                    name="DateNaissance"
+                    type="date"
+                    value={etudiant.DateNaissance || ""}
+                    onChange={handleInputEtudiantChange}
+                    required
+                  />
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium">Téléphone</label>
-                  <Input name="Telephone" value={etudiant.Telephone} onChange={handleInputEtudiantChange} placeholder="+261..." />
+                  <Input
+                    name="Telephone"
+                    value={etudiant.Telephone}
+                    onChange={handleInputEtudiantChange}
+                    placeholder="+261..."
+                  />
                 </div>
-                
-                <div className='col-span-2'>
+
+                <div className="col-span-2">
                   <label className="text-sm font-medium">Email</label>
-                  <Input name="Email" type="email" value={etudiant.Email} onChange={handleInputEtudiantChange} placeholder="email@example.com" />
+                  <Input
+                    name="Email"
+                    type="email"
+                    value={etudiant.Email}
+                    onChange={handleInputEtudiantChange}
+                    placeholder="email@example.com"
+                  />
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium">Filière</label>
-                  <Input name="Filiere" value={etudiant.Filiere} onChange={handleInputEtudiantChange} placeholder="Informatique" />
+                  <Input
+                    name="Filiere"
+                    value={etudiant.Filiere}
+                    onChange={handleInputEtudiantChange}
+                    placeholder="Informatique"
+                  />
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium">Niveau</label>
-                  <Select 
+                  <Select
                     name="Niveau"
                     value={etudiant.Niveau || ""}
-                    onValueChange={(value) => 
-                        {
-                            setEtudiant((prev) => ({
-                                ...prev,
-                                Niveau: value,
-                            }))
-                        }
-                    }>
+                    onValueChange={(value) => {
+                      setEtudiant((prev) => ({
+                        ...prev,
+                        Niveau: value,
+                      }));
+                    }}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selectionner le Niveau" />
                     </SelectTrigger>
@@ -230,15 +306,20 @@ export default function EtudiantPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="col-span-2">
                   <label className="text-sm font-medium">Université</label>
-                  <Input name="Universite" value={etudiant.Universite} onChange={handleInputEtudiantChange} placeholder="Université XYZ" />
+                  <Input
+                    name="Universite"
+                    value={etudiant.Universite}
+                    onChange={handleInputEtudiantChange}
+                    placeholder="Université XYZ"
+                  />
                 </div>
               </div>
-              
-              <Button type="submit" className="w-full">
-                {editingId ? 'Mettre à jour' : 'Créer'}
+
+              <Button type="submit" className="w-full cursor-pointer">
+                {editingId ? "Mettre à jour" : "Créer"}
               </Button>
             </form>
           </DialogContent>
@@ -248,7 +329,9 @@ export default function EtudiantPage() {
       <Card>
         <CardHeader>
           <CardTitle>Liste des Étudiants</CardTitle>
-          <CardDescription>Total: {etudiants?.length || 0} étudiants</CardDescription>
+          <CardDescription>
+            Total: {etudiants?.length || 0} étudiants
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 flex gap-2">
@@ -294,9 +377,13 @@ export default function EtudiantPage() {
                 ) : (
                   filteredEtudiants.map((etudiant) => (
                     <TableRow key={etudiant.IdEtu}>
-                      <TableCell className="font-medium">{etudiant.Matricule}</TableCell>
+                      <TableCell className="font-medium">
+                        {etudiant.Matricule}
+                      </TableCell>
                       <TableCell>{etudiant.Nom}</TableCell>
-                      <TableCell>{etudiant.DateNaissance.split("T")[0]}</TableCell>
+                      <TableCell>
+                        {etudiant.DateNaissance.split("T")[0]}
+                      </TableCell>
                       <TableCell>{etudiant.Telephone}</TableCell>
                       <TableCell>{etudiant.Email}</TableCell>
                       <TableCell>{etudiant.Filiere}</TableCell>
@@ -308,6 +395,7 @@ export default function EtudiantPage() {
                             size="sm"
                             variant="ghost"
                             onClick={() => handleEdit(etudiant)}
+                            className="cursor-pointer"
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
@@ -315,6 +403,7 @@ export default function EtudiantPage() {
                             size="sm"
                             variant="ghost"
                             onClick={() => handleDelete(etudiant.IdEtu)}
+                            className="cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4 text-red-600" />
                           </Button>

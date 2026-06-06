@@ -1,4 +1,11 @@
-import { AlertCircle, Building2, Home, PlusCircle, Users } from "lucide-react";
+import {
+  AlertCircle,
+  BanknoteArrowDown,
+  Building2,
+  Home,
+  PlusCircle,
+  Users,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
@@ -6,8 +13,13 @@ export default function Sidebar() {
     { to: "/", label: "Tableau de bord", icon: Home },
     { to: "/etudiant", label: "Étudiants", icon: Users },
     { to: "/attribuer", label: "Attribution chambre", icon: PlusCircle },
+    { to: "/paiement", label: "Paiement", icon: BanknoteArrowDown },
     { to: "/batiment-chambre", label: "Bâtiments & Chambres", icon: Building2 },
-    { to: "/reclamation-sanction", label: "Réclamations & Sanctions", icon: AlertCircle },
+    {
+      to: "/reclamation-sanction",
+      label: "Réclamations & Sanctions",
+      icon: AlertCircle,
+    },
   ];
 
   return (
