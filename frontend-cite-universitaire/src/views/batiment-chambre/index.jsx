@@ -259,8 +259,12 @@ export default function BatimentPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="batiments">Bâtiments</TabsTrigger>
-          <TabsTrigger value="chambres">Chambres</TabsTrigger>
+          <TabsTrigger value="batiments" className="cursor-pointer">
+            Bâtiments
+          </TabsTrigger>
+          <TabsTrigger value="chambres" className="cursor-pointer">
+            Chambres
+          </TabsTrigger>
         </TabsList>
 
         {/* Buildings Tab */}
@@ -277,7 +281,10 @@ export default function BatimentPage() {
               }}
             >
               <DialogTrigger asChild>
-                <Button onClick={openAddBatimentDialog}>
+                <Button
+                  onClick={openAddBatimentDialog}
+                  className="cursor-pointer"
+                >
                   <Plus className="w-4 h-4 mr-2 cursor-pointer" />
                   Ajouter un Bâtiment
                 </Button>
@@ -354,7 +361,7 @@ export default function BatimentPage() {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full cursor-pointer">
                     {editingBatimentId ? "Mettre à jour" : "Créer"}
                   </Button>
                 </form>
@@ -411,6 +418,7 @@ export default function BatimentPage() {
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => handleEditBatiment(batiment)}
+                                className="cursor-pointer"
                               >
                                 <Pencil className="w-4 h-4" />
                               </Button>
@@ -420,6 +428,7 @@ export default function BatimentPage() {
                                 onClick={() =>
                                   handleDeleteBatiment(batiment.IdBat)
                                 }
+                                className="cursor-pointer"
                               >
                                 <Trash2 className="w-4 h-4 text-red-600" />
                               </Button>
@@ -449,7 +458,10 @@ export default function BatimentPage() {
               }}
             >
               <DialogTrigger asChild>
-                <Button onClick={() => openAddChambreDialog("chambre")}>
+                <Button
+                  onClick={() => openAddChambreDialog("chambre")}
+                  className="cursor-pointer"
+                >
                   <Plus className="w-4 h-4 mr-2 cursor-pointer" />
                   Ajouter une Chambre
                 </Button>
@@ -618,7 +630,7 @@ export default function BatimentPage() {
                     </Select>
                   </div>
 
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full cursor-pointer">
                     {editingChambreId ? "Mettre à jour" : "Créer"}
                   </Button>
                 </form>

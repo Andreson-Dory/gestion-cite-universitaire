@@ -1,12 +1,13 @@
-import './App.css';
-import Sidebar from './components/Sidebar';
-import { Routes, Route } from 'react-router-dom';
+import "./App.css";
+import Sidebar from "./components/Sidebar";
+import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
-import TableauBord from './views/talbkeau-bord/index.jsx';
-import BatimentChambre from './views/batiment-chambre/index.jsx';
-import ReclamationSanction from './views/reclamation-sanction/index.jsx';
-import EtudiantPage from './views/etudiant/index.jsx';
-import AttribuerPage from './views/attribuer/index.jsx';
+import TableauBord from "./views/tableau-bord/index.jsx";
+import BatimentChambre from "./views/batiment-chambre/index.jsx";
+import ReclamationSanction from "./views/reclamation-sanction/index.jsx";
+import EtudiantPage from "./views/etudiant/index.jsx";
+import AttribuerPage from "./views/attribuer/index.jsx";
+import PaiementPage from "./views/paiement";
 
 function App() {
   return (
@@ -20,8 +21,12 @@ function App() {
             <Route path="/" element={<TableauBord />} />
             <Route path="/etudiant" element={<EtudiantPage />} />
             <Route path="/attribuer" element={<AttribuerPage />} />
+            <Route path="/paiement" element={<PaiementPage />} />
             <Route path="/batiment-chambre" element={<BatimentChambre />} />
-            <Route path="/reclamation-sanction" element={<ReclamationSanction />} />
+            <Route
+              path="/reclamation-sanction"
+              element={<ReclamationSanction />}
+            />
           </Routes>
         </main>
       </div>
