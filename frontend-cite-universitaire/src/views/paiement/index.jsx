@@ -83,7 +83,12 @@ export default function PaiementPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(addPaiement(paiement))
+    const date = new Date().toLocaleDateString("en-CA");
+    const newPaiement = {
+      ...paiement,
+      DatePai: date.split("T")[0],
+    };
+    dispatch(addPaiement(newPaiement))
       .unwrap()
       .then((response) => {
         toast.success(response.message);
@@ -132,10 +137,7 @@ export default function PaiementPage() {
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button
-              onClick={() => setEditingId(null)}
-              className="cursor-pointer"
-            >
+            <Button className="cursor-pointer">
               <Plus className="w-4 h-4 mr-2" />
               Effectuer un Paiement
             </Button>
@@ -157,6 +159,8 @@ export default function PaiementPage() {
                     type="text"
                     name="MontantPai"
                     value={paiement.MontantPai}
+                    pattern="[0-9]+"
+                    title="Veuillez entrer uniquement des chiffres"
                     onChange={handleInputPaiementChange}
                     required
                     placeholder="60000"
@@ -321,7 +325,7 @@ export default function PaiementPage() {
                   paiements.map((paiement) => (
                     <TableRow key={paiement.IdPai}>
                       <TableCell className="font-medium">
-                        {paiement.DatePai.split("T")[0]}
+                        {paiement.DatePai?.split("T")[0]}
                       </TableCell>
                       <TableCell>{paiement.MontantPai}</TableCell>
                       <TableCell>{paiement.TypePai}</TableCell>
