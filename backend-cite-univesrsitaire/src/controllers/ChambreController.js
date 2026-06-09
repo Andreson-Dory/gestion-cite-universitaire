@@ -1,5 +1,5 @@
-const Chambre = require("../models/ChambreModel");
-const Attribuer = require("../models/AttribuerModel");
+import Chambre from "../models/ChambreModel.js";
+import Attribuer from "../models/AttribuerModel.js";
 
 const getChambres = async (req, res) => {
   try {
@@ -66,7 +66,7 @@ const deleteChambre = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   getChambres,
   addChambre,
   updateChambre,

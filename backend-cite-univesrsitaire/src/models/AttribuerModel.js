@@ -1,4 +1,4 @@
-const db = require("../config/db");
+import db from "../config/db.js";
 
 const getAllAttribuers = async () => {
   const query = `SELECT a.*, c.NumCha AS NumCha, e.Nom AS Nom, b.NomBat AS NomBat 
@@ -79,7 +79,7 @@ const deleteAttribuer = async (IdAtt) => {
   return result;
 };
 
-module.exports = {
+export default {
   getAllAttribuers,
   createAttribuer,
   updateAttribuer,

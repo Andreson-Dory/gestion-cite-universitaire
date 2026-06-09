@@ -1,7 +1,8 @@
-const express = require("express");
+import express from "express";
+import statistiqueController from "../controllers/StatistiqueController.js";
+
 const router = express.Router();
-const statistiqueController = require("../controllers/StatistiqueController");
 
 router.get("/statistique/", statistiqueController.getStatistique);
 
-module.exports = router;
+export default router;

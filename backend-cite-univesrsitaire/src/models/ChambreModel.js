@@ -1,5 +1,5 @@
-const db = require("../config/db");
-const Attribuer = require("../models/AttribuerModel");
+import db from "../config/db.js";
+import Attribuer from "../models/AttribuerModel.js";
 
 const getAllChambres = async () => {
   const query = `
@@ -78,7 +78,7 @@ const deleteChambre = async (IdCha) => {
   return result;
 };
 
-module.exports = {
+export default {
   getAllChambres,
   createChambre,
   updateChambre,
