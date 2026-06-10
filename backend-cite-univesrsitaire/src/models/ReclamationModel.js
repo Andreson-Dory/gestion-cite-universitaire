@@ -1,14 +1,23 @@
 import db from "../config/db.js";
 
 const getAllReclamations = async () => {
-  const [rows] = await db.query("SELECT * FROM Reclamation");
+  const query = `
+    SELECT r.*, e.Nom AS Nom 
+    FROM Reclamation AS r 
+    JOIN Etudiant AS e ON r.IdEtu=e.IdEtu
+  `;
+  const [rows] = await db.query(query);
   return rows;
 };
 
 const findReclamationById = async (idRec) => {
-  const [rows] = await db.query("SELECT * FROM Reclamation WHERE IdRec = ?", [
-    idRec,
-  ]);
+  const query = `
+    SELECT r.*, e.Nom AS Nom 
+    FROM Reclamation AS r 
+    JOIN Etudiant AS e ON r.IdEtu=e.IdEtu 
+    WHERE r.IdRec = ?
+  `;
+  const [rows] = await db.query(query, [idRec]);
   return rows[0] || null;
 };
 

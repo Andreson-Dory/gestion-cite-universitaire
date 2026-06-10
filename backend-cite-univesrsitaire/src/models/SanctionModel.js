@@ -1,14 +1,23 @@
 import db from "../config/db.js";
 
 const getAllSanctions = async () => {
-  const [rows] = await db.query("SELECT * FROM Sanction");
+  const query = `
+    SELECT s.*, e.Nom AS Nom 
+    FROM Sanction AS s 
+    JOIN Etudiant AS e ON s.IdEtu=e.IdEtu
+  `;
+  const [rows] = await db.query(query);
   return rows;
 };
 
 const findSanctionById = async (idSac) => {
-  const [rows] = await db.query("SELECT * FROM Sanction WHERE IdSac = ?", [
-    idSac,
-  ]);
+  const query = `
+    SELECT s.*, e.Nom AS Nom 
+    FROM Sanction AS s 
+    JOIN Etudiant AS e ON s.IdEtu=e.IdEtu
+    WHERE IdSac = ?
+  `;
+  const [rows] = await db.query(query, [idSac]);
   return rows[0] || null;
 };
 

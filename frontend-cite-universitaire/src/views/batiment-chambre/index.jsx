@@ -23,7 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -78,6 +78,49 @@ export default function BatimentPage() {
   const { chambres, status: statusChambre } = useSelector(
     (state) => state.chambre,
   );
+
+  // Filter Batiment
+  const [searchTermBatiment, setSearchTermBatiment] = useState("");
+  const [filterTypeBatiment, setFilterTypeBatiment] = useState("");
+
+  const filteredBatiment =
+    batiments?.filter((b) => {
+      const matchesNom = b.NomBat.toLowerCase().includes(
+        searchTermBatiment.toLowerCase(),
+      );
+      const matchesEtage = searchTermBatiment
+        ? b.NbEtage === Number(searchTermBatiment)
+        : true;
+      const matchesTypeBatiment = filterTypeBatiment
+        ? filterTypeBatiment === "all"
+          ? true
+          : b.TypeBat === filterTypeBatiment
+        : true;
+
+      return (matchesNom || matchesEtage) && matchesTypeBatiment;
+    }) || [];
+
+  // Filter Chambre
+  const [searchTermChambre, setSearchTermChambre] = useState("");
+  const [filterBatiment, setFilterBatiment] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+
+  const filteredChambre =
+    chambres?.filter((c) => {
+      const matchesNumCha = c.NumCha.includes(searchTermChambre);
+      const matchesBatiment = filterBatiment
+        ? filterBatiment === "all"
+          ? true
+          : c.NomBat === filterBatiment
+        : true;
+      const matchesStatus = filterStatus
+        ? filterStatus === "all"
+          ? true
+          : c.StatutCha === filterStatus
+        : true;
+
+      return matchesNumCha && matchesBatiment && matchesStatus;
+    }) || [];
 
   useEffect(() => {
     dispatch(fetchBatiment());
@@ -377,6 +420,42 @@ export default function BatimentPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4 flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                  <Input
+                    placeholder="Rechercher par nom du batiment ou nombre d'étage "
+                    value={searchTermBatiment}
+                    onChange={(e) => setSearchTermBatiment(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select
+                  value={filterTypeBatiment}
+                  onValueChange={(value) => {
+                    setFilterTypeBatiment(value);
+                  }}
+                >
+                  <SelectTrigger className="w-1/6 cursor-pointer">
+                    <SelectValue placeholder="Filtrer par Type" />
+                  </SelectTrigger>
+                  <SelectContent className="uppercase" position="popper">
+                    <SelectItem value="all" className="cursor-pointer">
+                      TOUT
+                    </SelectItem>
+                    <SelectItem value="Mixte" className="cursor-pointer">
+                      Mixte
+                    </SelectItem>
+                    <SelectItem value="Masculin" className="cursor-pointer">
+                      Masculin
+                    </SelectItem>
+                    <SelectItem value="Feminin" className="cursor-pointer">
+                      Féminin
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -402,7 +481,7 @@ export default function BatimentPage() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      batiments.map((batiment) => (
+                      filteredBatiment.map((batiment) => (
                         <TableRow key={batiment.IdBat}>
                           <TableCell className="font-medium">
                             {batiment.NomBat}
@@ -646,6 +725,68 @@ export default function BatimentPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4 flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                  <Input
+                    placeholder="Rechercher par numero du chambre "
+                    value={searchTermChambre}
+                    onChange={(e) => setSearchTermChambre(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select
+                  value={filterBatiment}
+                  onValueChange={(value) => {
+                    setFilterBatiment(value);
+                  }}
+                >
+                  <SelectTrigger className="w-1/6 cursor-pointer">
+                    <SelectValue placeholder="Filtrer par Batiment" />
+                  </SelectTrigger>
+                  <SelectContent className="uppercase" position="popper">
+                    <SelectItem value="all" className="cursor-pointer">
+                      TOUT
+                    </SelectItem>
+                    {batiments.map((b, index) => {
+                      return (
+                        <SelectItem
+                          key={index}
+                          value={b.NomBat}
+                          className="cursor-pointer"
+                        >
+                          {b.NomBat}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filterStatus}
+                  onValueChange={(value) => {
+                    setFilterStatus(value);
+                  }}
+                >
+                  <SelectTrigger className="w-1/6 cursor-pointer">
+                    <SelectValue placeholder="Filtrer par Statut" />
+                  </SelectTrigger>
+                  <SelectContent className="uppercase" position="popper">
+                    <SelectItem value="all" className="cursor-pointer">
+                      TOUT
+                    </SelectItem>
+                    <SelectItem value="Libre" className="cursor-pointer">
+                      Libre
+                    </SelectItem>
+                    <SelectItem value="Occupée" className="cursor-pointer">
+                      Occupée
+                    </SelectItem>
+                    <SelectItem value="Maintenance" className="cursor-pointer">
+                      Maintenance
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -673,7 +814,7 @@ export default function BatimentPage() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      chambres.map((chambre) => (
+                      filteredChambre.map((chambre) => (
                         <TableRow key={chambre.IdCha}>
                           <TableCell className="font-medium">
                             {chambre.NumCha}
