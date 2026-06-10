@@ -1,8 +1,8 @@
-const db = require("../config/db");
+import db from "../config/db.js";
 
 const getAllPaiements = async () => {
   const query = `
-        SELECT p.*, e.Nom AS NomEtudiant 
+        SELECT p.*, e.Nom AS NomEtudiant, e.Email AS Email  
         FROM Paiement AS p 
         JOIN Etudiant AS e ON p.IdEtu=e.IdEtu
     `;
@@ -12,7 +12,7 @@ const getAllPaiements = async () => {
 
 const findPaiementById = async (idPai) => {
   const query = `
-        SELECT p.*, e.Nom AS NomEtudiant 
+        SELECT p.*, e.Nom AS NomEtudiant, e.Email AS Email 
         FROM Paiement AS p 
         JOIN Etudiant AS e ON p.IdEtu=e.IdEtu 
         WHERE IdPai = ?
@@ -43,7 +43,7 @@ const deletePaiement = async (IdPai) => {
   return result;
 };
 
-module.exports = {
+export default {
   getAllPaiements,
   createPaiement,
   deletePaiement,

@@ -1,10 +1,11 @@
-const express = require("express");
+import express from "express";
+import batimentController from "../controllers/BatimentController.js";
+
 const router = express.Router();
-const batimentController = require("../controllers/BatimentController");
 
 router.get("/batiment/", batimentController.getBatiments);
 router.post("/batiment/", batimentController.addBatiment);
 router.put("/batiment/:idBat", batimentController.updateBatiment);
 router.post("/batiment/:idBat", batimentController.deleteBatiment);
 
-module.exports = router;
+export default router;
