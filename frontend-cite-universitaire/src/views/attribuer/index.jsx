@@ -37,11 +37,14 @@ import {
 import { toast } from "sonner";
 import { fetchChambre } from "@/redux/features/chambre/chambreThunk";
 import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
+import { fetchBatiment } from "@/redux/features/batiment/batimentThunk";
 
 export default function AttribuerPage() {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterBatiment, setFilterBatiment] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [attribuer, setAttribuer] = useState({
     IdAtt: "",
@@ -54,18 +57,33 @@ export default function AttribuerPage() {
   const { attribuers, status } = useSelector((state) => state.attribuer);
   const { etudiants } = useSelector((state) => state.etudiant);
   const { chambres } = useSelector((state) => state.chambre);
+  const { batiments } = useSelector((state) => state.batiment);
 
   const filteredAttribuers =
-    attribuers?.filter(
-      (a) =>
-        a.Nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.NumCha.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) || [];
+    attribuers?.filter((a) => {
+      const matchesNom = a.Nom.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesNumCha = a.NumCha.toLowerCase().includes(
+        searchTerm.toLowerCase(),
+      );
+      const matchesBatiment = filterBatiment
+        ? filterBatiment === "all"
+          ? true
+          : filterBatiment === a.NomBat
+        : true;
+      const matchesStatus = filterStatus
+        ? filterStatus === "all"
+          ? true
+          : filterStatus === a.StatutAtt
+        : true;
+
+      return (matchesNom || matchesNumCha) && matchesBatiment && matchesStatus;
+    }) || [];
 
   useEffect(() => {
     dispatch(fetchAttribuer());
     dispatch(fetchChambre());
     dispatch(fetchEtudiant());
+    dispatch(fetchBatiment());
   }, []);
 
   const handleSubmit = (e) => {
@@ -316,18 +334,68 @@ export default function AttribuerPage() {
             <div className="flex-1 relative">
               <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
               <Input
-                placeholder="Rechercher par nom de l'étudiant ou numéro de chambre..."
+                placeholder="Rechercher par nom de l'étudiant ou numéro de chambre"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
+
+            <Select
+              value={filterBatiment}
+              onValueChange={(value) => {
+                setFilterBatiment(value);
+              }}
+            >
+              <SelectTrigger className="w-1/6 cursor-pointer">
+                <SelectValue placeholder="Filtrer par Batiment" />
+              </SelectTrigger>
+              <SelectContent className="uppercase" position="popper">
+                <SelectItem value="all" className="cursor-pointer">
+                  TOUT
+                </SelectItem>
+                {batiments.map((b, index) => {
+                  return (
+                    <SelectItem
+                      key={index}
+                      value={b.NomBat}
+                      className="cursor-pointer"
+                    >
+                      {b.NomBat}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={filterStatus}
+              onValueChange={(value) => {
+                setFilterStatus(value);
+              }}
+            >
+              <SelectTrigger className="w-1/6 cursor-pointer">
+                <SelectValue placeholder="Filtrer par Statut" />
+              </SelectTrigger>
+              <SelectContent className="uppercase" position="popper">
+                <SelectItem value="all" className="cursor-pointer">
+                  TOUT
+                </SelectItem>
+                <SelectItem value="En cours" className="cursor-pointer">
+                  En cours
+                </SelectItem>
+                <SelectItem value="Terminé" className="cursor-pointer">
+                  Terminé
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Batiment</TableHead>
                   <TableHead>Chambre</TableHead>
                   <TableHead>Etudiant</TableHead>
                   <TableHead>Date d'attribution</TableHead>
@@ -352,6 +420,9 @@ export default function AttribuerPage() {
                 ) : (
                   filteredAttribuers.map((attribuer) => (
                     <TableRow key={attribuer.IdAtt}>
+                      <TableCell className="font-medium">
+                        {attribuer.NomBat}
+                      </TableCell>
                       <TableCell className="font-medium">
                         {attribuer.NumCha}
                       </TableCell>

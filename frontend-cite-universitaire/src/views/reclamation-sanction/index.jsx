@@ -32,7 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertTriangle, Search } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addSanction,
@@ -73,7 +73,6 @@ export default function ReclamationSanction() {
     StatusSac: "",
     IdEtu: "",
   });
-  const [searchTerm, setSearchTerm] = useState("");
 
   const dispatch = useDispatch();
   const { reclamations, status: statusReclamation } = useSelector(
@@ -90,19 +89,62 @@ export default function ReclamationSanction() {
     dispatch(fetchEtudiant());
   }, []);
 
+  // Filter Reclamation
+  const [searchTermReclamation, setSearchTermReclamation] = useState("");
+  const [filterPriority, setFilterPriority] = useState("");
+  const [filterDateRec, setFilterDateRec] = useState("");
+  const [filterStatusRec, setFilterStatusRec] = useState("");
+
   const filteredReclamations =
-    reclamations?.filter(
-      (c) =>
-        c.Sujet.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.Nom.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) || [];
+    reclamations?.filter((r) => {
+      const matchesSujet = r.Sujet.toLowerCase().includes(
+        searchTermReclamation.toLowerCase(),
+      );
+      const matchesNom = r.Nom.toLowerCase().includes(
+        searchTermReclamation.toLowerCase(),
+      );
+      const matchesPriority = filterPriority
+        ? filterPriority === "all"
+          ? true
+          : r.Priorite === filterPriority
+        : true;
+      const matchesStatus = filterStatusRec
+        ? filterStatusRec === "all"
+          ? true
+          : r.StatusRec === filterStatusRec
+        : true;
+
+      const matchesDate = filterDateRec ? r.DateRec === filterDateRec : true;
+      return (
+        (matchesSujet || matchesNom) &&
+        matchesPriority &&
+        matchesStatus &&
+        matchesDate
+      );
+    }) || [];
+
+  // Filter Sanction
+  const [searchTermSanction, setSearchTermSanction] = useState("");
+  const [filterDateSac, setFilterDateSac] = useState("");
+  const [filterStatusSac, setFilterStatusSac] = useState("");
 
   const filteredSanctions =
-    sanctions?.filter(
-      (s) =>
-        s.Motif.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.Nom.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) || [];
+    sanctions?.filter((s) => {
+      const matchesMotif = s.Motif.toLowerCase().includes(
+        searchTermSanction.toLowerCase(),
+      );
+      const matchesNom = s.Nom.toLowerCase().includes(
+        searchTermSanction.toLowerCase(),
+      );
+      const matchesStatus = filterStatusSac
+        ? filterStatusSac === "all"
+          ? true
+          : s.StatusSac === filterStatusSac
+        : true;
+
+      const matchesDate = filterDateSac ? s.DateSac === filterDateSac : true;
+      return (matchesMotif || matchesNom) && matchesStatus && matchesDate;
+    }) || [];
 
   const handleSubmitReclamation = (e) => {
     e.preventDefault();
@@ -311,13 +353,7 @@ export default function ReclamationSanction() {
 
         {/* Reclamations Tab */}
         <TabsContent value="reclamations" className="space-y-4">
-          <div className="flex justify-between items-center gap-4">
-            <Input
-              placeholder="Rechercher par sujet ou nom..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-xs"
-            />
+          <div className="flex justify-end gap-4">
             <Dialog
               open={isReclamationModalOpen}
               onOpenChange={setIsReclamationModalOpen}
@@ -473,6 +509,81 @@ export default function ReclamationSanction() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4 flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                  <Input
+                    placeholder="Rechercher par sujet ou nom de l'étudiant"
+                    value={searchTermReclamation}
+                    onChange={(e) => setSearchTermReclamation(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select
+                  value={filterPriority}
+                  onValueChange={(value) => {
+                    setFilterPriority(value);
+                  }}
+                >
+                  <SelectTrigger className="w-1/6 cursor-pointer">
+                    <SelectValue placeholder="Filtrer par Priorité" />
+                  </SelectTrigger>
+                  <SelectContent className="uppercase" position="popper">
+                    <SelectItem value="all" className="cursor-pointer">
+                      TOUT
+                    </SelectItem>
+                    <SelectItem value="Basse" className="cursor-pointer">
+                      Basse
+                    </SelectItem>
+                    <SelectItem value="Normale" className="cursor-pointer">
+                      Normale
+                    </SelectItem>
+                    <SelectItem value="Haute" className="cursor-pointer">
+                      Haute
+                    </SelectItem>
+                    <SelectItem value="Urgente" className="cursor-pointer">
+                      Urgente
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filterStatusRec}
+                  onValueChange={(value) => {
+                    setFilterStatusRec(value);
+                  }}
+                >
+                  <SelectTrigger className="w-1/6 cursor-pointer">
+                    <SelectValue placeholder="Filtrer par Statut" />
+                  </SelectTrigger>
+                  <SelectContent className="uppercase" position="popper">
+                    <SelectItem value="all" className="cursor-pointer">
+                      TOUT
+                    </SelectItem>
+                    <SelectItem value="En attente" className="cursor-pointer">
+                      En attente
+                    </SelectItem>
+                    <SelectItem value="En cours" className="cursor-pointer">
+                      En cours
+                    </SelectItem>
+                    <SelectItem value="Résolu" className="cursor-pointer">
+                      Résolu
+                    </SelectItem>
+                    <SelectItem value="Rejeté" className="cursor-pointer">
+                      Rejeté
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  className="w-1/6"
+                  type="date"
+                  value={filterDateRec}
+                  onChange={(e) => {
+                    setFilterDateRec(e.target.value);
+                  }}
+                  required
+                />
+              </div>
+
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -511,7 +622,7 @@ export default function ReclamationSanction() {
                           <TableCell className="font-medium">
                             {reclamation.DescriptionRec}
                           </TableCell>
-                          <TableCell>{reclamation.IdEtu}</TableCell>
+                          <TableCell>{reclamation.Nom}</TableCell>
                           <TableCell>
                             <span
                               className={`px-2 py-1 text-xs rounded-full ${
@@ -568,13 +679,7 @@ export default function ReclamationSanction() {
 
         {/* Sanctions Tab */}
         <TabsContent value="sanctions" className="space-y-4">
-          <div className="flex justify-between items-center gap-4">
-            <Input
-              placeholder="Rechercher par motif ou nom..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-xs"
-            />
+          <div className="flex justify-end gap-4">
             <Dialog
               open={isSanctionModalOpen}
               onOpenChange={setIsSanctionModalOpen}
@@ -615,7 +720,7 @@ export default function ReclamationSanction() {
 
                     <div>
                       <label className="text-sm font-medium">
-                        Montant Amende (XAF)
+                        Montant Amende (Ariary)
                       </label>
                       <Input
                         name="MontantAmende"
@@ -718,6 +823,52 @@ export default function ReclamationSanction() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4 flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                  <Input
+                    placeholder="Rechercher par motif ou nom de l'étudiant"
+                    value={searchTermSanction}
+                    onChange={(e) => setSearchTermSanction(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+
+                <Select
+                  value={filterStatusSac}
+                  onValueChange={(value) => {
+                    setFilterStatusSac(value);
+                  }}
+                >
+                  <SelectTrigger className="w-1/6 cursor-pointer">
+                    <SelectValue placeholder="Filtrer par Statut" />
+                  </SelectTrigger>
+                  <SelectContent className="uppercase" position="popper">
+                    <SelectItem value="all" className="cursor-pointer">
+                      TOUT
+                    </SelectItem>
+                    <SelectItem value="Active" className="cursor-pointer">
+                      Active
+                    </SelectItem>
+                    <SelectItem value="Suspendue" className="cursor-pointer">
+                      Suspendue
+                    </SelectItem>
+                    <SelectItem value="Levée" className="cursor-pointer">
+                      Levée
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  className="w-1/6"
+                  type="date"
+                  value={filterDateSac}
+                  onChange={(e) => {
+                    setFilterDateSac(e.target.value);
+                  }}
+                  required
+                />
+              </div>
+
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -726,7 +877,7 @@ export default function ReclamationSanction() {
                       <TableHead>Motif</TableHead>
                       <TableHead>Déscription</TableHead>
                       <TableHead>Étudiant</TableHead>
-                      <TableHead>Montant</TableHead>
+                      <TableHead>Montant (Ar)</TableHead>
                       <TableHead>Statut</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -756,9 +907,9 @@ export default function ReclamationSanction() {
                           <TableCell className="font-medium">
                             {sanction.DescriptionSac}
                           </TableCell>
-                          <TableCell>{sanction.IdEtu}</TableCell>
+                          <TableCell>{sanction.Nom}</TableCell>
                           <TableCell className="font-medium">
-                            {Number(sanction.MontantAmende).toFixed(2)} Ar
+                            {Number(sanction.MontantAmende).toFixed(2)}
                           </TableCell>
                           <TableCell>
                             <span

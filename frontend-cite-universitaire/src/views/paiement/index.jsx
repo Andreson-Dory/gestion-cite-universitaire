@@ -45,6 +45,9 @@ export default function PaiementPage() {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterTypePai, setFilterTypePai] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+  const [filterStatusPai, setFilterStatusPai] = useState("");
   const [paiement, setPaiement] = useState({
     IdPai: "",
     DatePai: "",
@@ -57,13 +60,34 @@ export default function PaiementPage() {
   const { paiements, status } = useSelector((state) => state.paiement);
   const { etudiants } = useSelector((state) => state.etudiant);
 
-  /* const filteredPaiements =
-    paiements?.filter(
-      (s) =>
-        s.Nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.Matricule.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) || [];
-    */
+  const filteredPaiements =
+    paiements?.filter((s) => {
+      const matchesNomEtudiant = s.NomEtudiant.toLowerCase().includes(
+        searchTerm.toLowerCase(),
+      );
+      const matchesMontantPai = s.MontantPai.toLowerCase().includes(
+        searchTerm.toLowerCase(),
+      );
+      const matchesTypePai = filterTypePai
+        ? filterTypePai === "all"
+          ? true
+          : s.TypePai === filterTypePai
+        : true;
+      const matchesStatus = filterStatusPai
+        ? filterStatusPai === "all"
+          ? true
+          : s.StatutPai === filterStatusPai
+        : true;
+
+      const matchesDate = filterDate ? s.DatePai === filterDate : true;
+
+      return (
+        (matchesNomEtudiant || matchesMontantPai) &&
+        matchesStatus &&
+        matchesTypePai &&
+        matchesDate
+      );
+    }) || [];
 
   useEffect(() => {
     dispatch(fetchPaiement());
@@ -287,12 +311,63 @@ export default function PaiementPage() {
             <div className="flex-1 relative">
               <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
               <Input
-                placeholder="Rechercher par nom ou matricule..."
+                placeholder="Rechercher par nom de l'étudiant ou montant du paiement"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
+            <Select
+              value={filterTypePai}
+              onValueChange={(value) => {
+                setFilterTypePai(value);
+              }}
+            >
+              <SelectTrigger className="w-1/6 cursor-pointer">
+                <SelectValue placeholder="Filtrer par Type" />
+              </SelectTrigger>
+              <SelectContent className="uppercase" position="popper">
+                <SelectItem value="all" className="cursor-pointer">
+                  TOUT
+                </SelectItem>
+                <SelectItem value="Loyer" className="cursor-pointer">
+                  Loyer
+                </SelectItem>
+                <SelectItem value="Sanction" className="cursor-pointer">
+                  Sanction
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={filterStatusPai}
+              onValueChange={(value) => {
+                setFilterStatusPai(value);
+              }}
+            >
+              <SelectTrigger className="w-1/6 cursor-pointer">
+                <SelectValue placeholder="Filtrer par Statut" />
+              </SelectTrigger>
+              <SelectContent className="uppercase" position="popper">
+                <SelectItem value="all" className="cursor-pointer">
+                  TOUT
+                </SelectItem>
+                <SelectItem value="Payé" className="cursor-pointer">
+                  Payé
+                </SelectItem>
+                <SelectItem value="Partiel" className="cursor-pointer">
+                  Partiel
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              className="w-1/6"
+              type="date"
+              value={filterDate}
+              onChange={(e) => {
+                setFilterDate(e.target.value);
+              }}
+              required
+            />
           </div>
 
           <div className="overflow-x-auto">
@@ -300,7 +375,7 @@ export default function PaiementPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Date du Paiement</TableHead>
-                  <TableHead>Montant</TableHead>
+                  <TableHead>Montant (Ar)</TableHead>
                   <TableHead>Type de Paiement</TableHead>
                   <TableHead>Mode de Paiement</TableHead>
                   <TableHead>Statut</TableHead>
@@ -322,7 +397,7 @@ export default function PaiementPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paiements.map((paiement) => (
+                  filteredPaiements.map((paiement) => (
                     <TableRow key={paiement.IdPai}>
                       <TableCell className="font-medium">
                         {paiement.DatePai?.split("T")[0]}

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -45,6 +45,9 @@ export default function EtudiantPage() {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterLevel, setFilterLevel] = useState("");
+  const [filterFiliere, setFilterFiliere] = useState("");
+  const [filterUniversity, setFilterUniversity] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [etudiant, setEtudiant] = useState({
     IdEtu: "",
@@ -60,12 +63,49 @@ export default function EtudiantPage() {
   });
   const { etudiants, status } = useSelector((state) => state.etudiant);
 
+  const allFilieres = useMemo(() => {
+    return [...new Set(etudiants.map((e) => e.Filiere).filter(Boolean))];
+  }, [etudiants]);
+
+  const allUniversities = useMemo(() => {
+    return [...new Set(etudiants.map((e) => e.Universite).filter(Boolean))];
+  }, [etudiants]);
+
   const filteredEtudiants =
-    etudiants?.filter(
-      (s) =>
-        s.Nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.Matricule.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) || [];
+    etudiants?.filter((s) => {
+      const matchesNom = s.Nom.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesMatricule = s.Matricule.toLowerCase().includes(
+        searchTerm.toLowerCase(),
+      );
+      const matchesTelephone = s.Telephone.toLowerCase().includes(
+        searchTerm.toLowerCase(),
+      );
+      const matchesEmail = s.Email.toLowerCase().includes(
+        searchTerm.toLowerCase(),
+      );
+      const matchesLevel = filterLevel
+        ? filterLevel === "all"
+          ? true
+          : s.Niveau === filterLevel
+        : true;
+      const matchesFiliere = filterFiliere
+        ? filterFiliere === "all"
+          ? true
+          : s.Filiere === filterFiliere
+        : true;
+      const matchesUniversity = filterUniversity
+        ? filterUniversity === "all"
+          ? true
+          : s.Universite === filterUniversity
+        : true;
+
+      return (
+        (matchesNom || matchesMatricule || matchesTelephone || matchesEmail) &&
+        matchesLevel &&
+        matchesFiliere &&
+        matchesUniversity
+      );
+    }) || [];
 
   useEffect(() => {
     dispatch(fetchEtudiant());
@@ -173,8 +213,11 @@ export default function EtudiantPage() {
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditingId(null)}>
-              <Plus className="w-4 h-4 mr-2 cursor-pointer" />
+            <Button
+              onClick={() => setEditingId(null)}
+              className="cursor-pointer"
+            >
+              <Plus className="w-4 h-4 mr-2" />
               Ajouter un Étudiant
             </Button>
           </DialogTrigger>
@@ -335,15 +378,105 @@ export default function EtudiantPage() {
         </CardHeader>
         <CardContent>
           <div className="mb-4 flex gap-2">
-            <div className="flex-1 relative">
+            <div className="relative flex-1">
               <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
               <Input
-                placeholder="Rechercher par nom ou matricule..."
+                placeholder="Rechercher par nom, matricule, Téléphone ou Email "
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
+            <Select
+              value={filterLevel}
+              onValueChange={(value) => {
+                setFilterLevel(value);
+              }}
+            >
+              <SelectTrigger className="w-1/6 cursor-pointer">
+                <SelectValue placeholder="Filtrer par Niveau" />
+              </SelectTrigger>
+              <SelectContent className="uppercase" position="popper">
+                <SelectItem value="all" className="cursor-pointer">
+                  TOUT
+                </SelectItem>
+                <SelectItem value="L1" className="cursor-pointer">
+                  Licence 1
+                </SelectItem>
+                <SelectItem value="L2" className="cursor-pointer">
+                  Licence 2
+                </SelectItem>
+                <SelectItem value="L3" className="cursor-pointer">
+                  Licence 3
+                </SelectItem>
+                <SelectItem value="M1" className="cursor-pointer">
+                  Master 1
+                </SelectItem>
+                <SelectItem value="M2" className="cursor-pointer">
+                  Master 2
+                </SelectItem>
+                <SelectItem value="D1" className="cursor-pointer">
+                  Doctorant 1
+                </SelectItem>
+                <SelectItem value="D2" className="cursor-pointer">
+                  Doctorant 2
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={filterFiliere}
+              onValueChange={(value) => {
+                setFilterFiliere(value);
+              }}
+            >
+              <SelectTrigger className="w-1/6 cursor-pointer">
+                <SelectValue placeholder="Filtrer par Filiere" />
+              </SelectTrigger>
+              <SelectContent className="uppercase" position="popper">
+                <SelectItem value="all" className="cursor-pointer">
+                  TOUT
+                </SelectItem>
+                {allFilieres.map((f, index) => {
+                  return (
+                    <SelectItem
+                      key={index}
+                      value={f}
+                      className="cursor-pointer"
+                    >
+                      {f}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={filterUniversity}
+              onValueChange={(value) => {
+                setFilterUniversity(value);
+              }}
+            >
+              <SelectTrigger className="w-1/6 cursor-pointer">
+                <SelectValue placeholder="Filtrer par Université" />
+              </SelectTrigger>
+              <SelectContent className="uppercase" position="popper">
+                <SelectItem value="all" className="cursor-pointer">
+                  TOUT
+                </SelectItem>
+                {allUniversities.map((u, index) => {
+                  return (
+                    <SelectItem
+                      key={index}
+                      value={u}
+                      className="cursor-pointer"
+                    >
+                      {u}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="overflow-x-auto">
