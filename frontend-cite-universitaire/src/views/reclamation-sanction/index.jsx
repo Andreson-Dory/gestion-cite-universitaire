@@ -48,6 +48,52 @@ import {
 } from "@/redux/features/reclamation/reclamationThunk";
 import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
 import { toast } from "sonner";
+import z from "zod";
+
+const reclamationSchema = z.object({
+  Sujet: z.string().min(1, "Le sujet du reclamation est obligatoire"),
+  StatusRec: z.string().min(1, "Veuillez choisir le statut de la reclamation"),
+  Priorite: z.string().min(1, "La priorité est obligatoire"),
+  DescriptionRec: z.string().optional().or(z.literal("")),
+  IdEtu: z
+    .string()
+    .min(1, "Veuillez choisir un étudiant")
+    .regex(/^[0-9]+$/, ""),
+});
+
+const sanctionSchema = z.object({
+  Motif: z.string().min(1, "Le motif du sanction est obligatoire"),
+  StatusSac: z.string().min(1, "Veuillez choisir le statut du sanction"),
+  DescriptionSac: z.string().optional().or(z.literal("")),
+  MontantAmende: z
+    .string()
+    .min(1, "A mettre 0 si pas de valeur")
+    .regex(/^[0-9.]+$/, "Caractères numériques seulement autorisés"),
+  IdEtu: z
+    .string()
+    .min(1, "Veuillez choisir un étudiant")
+    .regex(/^[0-9]+$/, ""),
+});
+
+const DEFAULT_RECLAMATION = {
+  IdRec: "",
+  DateRec: "",
+  Sujet: "",
+  DescriptionRec: "",
+  StatusRec: "",
+  Priorite: "",
+  IdEtu: "",
+};
+
+const DEFAULT_SANCTION = {
+  IdSac: "",
+  DateSac: "",
+  Motif: "",
+  DescriptionSac: "",
+  MontantAmende: "0",
+  StatusSac: "",
+  IdEtu: "",
+};
 
 export default function ReclamationSanction() {
   const [activeTab, setActiveTab] = useState("reclamations");
@@ -55,24 +101,9 @@ export default function ReclamationSanction() {
   const [isSanctionModalOpen, setIsSanctionModalOpen] = useState(false);
   const [editingReclamationId, setEditingReclamationId] = useState(null);
   const [editingSanctionId, setEditingSanctionId] = useState(null);
-  const [reclamation, setReclamation] = useState({
-    IdRec: "",
-    DateRec: "",
-    Sujet: "",
-    DescriptionRec: "",
-    StatusRec: "",
-    Priorite: "",
-    IdEtu: "",
-  });
-  const [sanction, setSanction] = useState({
-    IdSac: "",
-    DateSac: "",
-    Motif: "",
-    DescriptionSac: "",
-    MontantAmende: "",
-    StatusSac: "",
-    IdEtu: "",
-  });
+  const [reclamation, setReclamation] = useState(DEFAULT_RECLAMATION);
+  const [sanction, setSanction] = useState(DEFAULT_SANCTION);
+  const [errors, setErrors] = useState({});
 
   const dispatch = useDispatch();
   const { reclamations, status: statusReclamation } = useSelector(
@@ -149,6 +180,14 @@ export default function ReclamationSanction() {
   const handleSubmitReclamation = (e) => {
     e.preventDefault();
 
+    const result = reclamationSchema.safeParse(reclamation);
+
+    if (!result.success) {
+      const tree = z.treeifyError(result.error);
+      setErrors(tree.properties);
+      return;
+    }
+
     if (editingReclamationId) {
       dispatch(
         editReclamation({ IdRec: editingReclamationId, data: reclamation }),
@@ -157,15 +196,7 @@ export default function ReclamationSanction() {
         .then((response) => {
           toast.success(response.message);
           setEditingReclamationId(null);
-          setReclamation({
-            IdRec: "",
-            DateRec: "",
-            Sujet: "",
-            DescriptionRec: "",
-            StatusRec: "",
-            Priorite: "",
-            IdEtu: "",
-          });
+          setReclamation(DEFAULT_RECLAMATION);
           setIsReclamationModalOpen(false);
         })
         .catch((error) => {
@@ -182,15 +213,7 @@ export default function ReclamationSanction() {
         .unwrap()
         .then((response) => {
           toast.success(response.message);
-          setReclamation({
-            IdRec: "",
-            DateRec: "",
-            Sujet: "",
-            DescriptionRec: "",
-            StatusRec: "",
-            Priorite: "",
-            IdEtu: "",
-          });
+          setReclamation(DEFAULT_RECLAMATION);
           setIsReclamationModalOpen(false);
         })
         .catch((error) => {
@@ -203,21 +226,21 @@ export default function ReclamationSanction() {
   const handleSubmitSanction = (e) => {
     e.preventDefault();
 
+    const result = sanctionSchema.safeParse(sanction);
+
+    if (!result.success) {
+      const tree = z.treeifyError(result.error);
+      setErrors(tree.properties);
+      return;
+    }
+
     if (editingSanctionId) {
       dispatch(editSanction({ IdSac: editingSanctionId, data: sanction }))
         .unwrap()
         .then((response) => {
           toast.success(response.message);
           setEditingSanctionId(null);
-          setSanction({
-            IdSac: "",
-            DateSac: "",
-            Motif: "",
-            DescriptionSac: "",
-            MontantAmende: "",
-            StatusSac: "",
-            IdEtu: "",
-          });
+          setSanction(DEFAULT_SANCTION);
           setIsSanctionModalOpen(false);
         })
         .catch((error) => {
@@ -234,15 +257,7 @@ export default function ReclamationSanction() {
         .unwrap()
         .then((response) => {
           toast.success(response.message);
-          setSanction({
-            IdSac: "",
-            DateSac: "",
-            Motif: "",
-            DescriptionSac: "",
-            MontantAmende: "",
-            StatusSac: "",
-            IdEtu: "",
-          });
+          setSanction(DEFAULT_SANCTION);
           setIsSanctionModalOpen(false);
         })
         .catch((error) => {
@@ -281,22 +296,24 @@ export default function ReclamationSanction() {
   };
 
   const handleEditReclamation = (item) => {
+    const newItem = {
+      ...item,
+      IdEtu: String(item.IdEtu),
+      DateRec: item.DateRec.split("T")[0],
+    };
     setEditingReclamationId(item.IdRec);
-    setReclamation(item);
-    setReclamation((prev) => ({
-      ...prev,
-      DateRec: prev.DateRec.split("T")[0],
-    }));
+    setReclamation(newItem);
     setIsReclamationModalOpen(true);
   };
 
   const handleEditSanction = (item) => {
+    const newItem = {
+      ...item,
+      IdEtu: String(item.IdEtu),
+      DateSac: item.DateSac.split("T")[0],
+    };
     setEditingSanctionId(item.IdSac);
-    setSanction(item);
-    setSanction((prev) => ({
-      ...prev,
-      DateSac: prev.DateSac.split("T")[0],
-    }));
+    setSanction(newItem);
     setIsSanctionModalOpen(true);
   };
 
@@ -308,6 +325,13 @@ export default function ReclamationSanction() {
         [name]: value,
       };
     });
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
 
   const handleInputSanctionChange = (e) => {
@@ -318,6 +342,13 @@ export default function ReclamationSanction() {
         [name]: value,
       };
     });
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
 
   const openAddReclamationDialog = () => {
@@ -356,7 +387,14 @@ export default function ReclamationSanction() {
           <div className="flex justify-end gap-4">
             <Dialog
               open={isReclamationModalOpen}
-              onOpenChange={setIsReclamationModalOpen}
+              onOpenChange={(open) => {
+                setIsReclamationModalOpen(open);
+                if (!open) {
+                  setEditingReclamationId(null);
+                  setReclamation(DEFAULT_RECLAMATION);
+                  setErrors({});
+                }
+              }}
             >
               <DialogTrigger asChild>
                 <Button
@@ -380,30 +418,38 @@ export default function ReclamationSanction() {
                 </DialogHeader>
                 <form onSubmit={handleSubmitReclamation} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    {editingReclamationId && (
-                      <div>
-                        <label className="text-sm font-medium">Date</label>
-                        <Input
-                          name="DateRec"
-                          value={reclamation.DateRec || ""}
-                          disable
-                          type="date"
-                        />
-                      </div>
-                    )}
+                    <div className="col-span-2">
+                      <label className="text-sm font-medium">Sujet</label>
+                      <Input
+                        name="Sujet"
+                        value={reclamation.Sujet}
+                        onChange={handleInputReclamationChange}
+                        placeholder="Sujet de la réclamation"
+                      />
+                      {errors.Sujet && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.Sujet.errors[0]}
+                        </p>
+                      )}
+                    </div>
 
                     <div>
                       <label className="text-sm font-medium">Priorité</label>
                       <Select
                         name="Priorite"
                         value={reclamation.Priorite || ""}
-                        onValueChange={(value) =>
+                        onValueChange={(value) => {
                           setReclamation((prev) => ({
                             ...prev,
                             Priorite: value,
-                          }))
-                        }
-                        required
+                          }));
+                          if (errors.Priorite) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              Priorite: undefined,
+                            }));
+                          }
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner le niveau de priorité" />
@@ -415,6 +461,11 @@ export default function ReclamationSanction() {
                           <SelectItem value="Urgente">Urgente</SelectItem>
                         </SelectContent>
                       </Select>
+                      {errors.Priorite && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.Priorite.errors[0]}
+                        </p>
+                      )}
                     </div>
 
                     <div className="col-span-2">
@@ -422,13 +473,18 @@ export default function ReclamationSanction() {
                       <Select
                         name="IdEtu"
                         value={reclamation.IdEtu.toString() || ""}
-                        onValueChange={(value) =>
+                        onValueChange={(value) => {
                           setReclamation((prev) => ({
                             ...prev,
-                            IdEtu: Number(value),
-                          }))
-                        }
-                        required
+                            IdEtu: value,
+                          }));
+                          if (errors.IdEtu) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              IdEtu: undefined,
+                            }));
+                          }
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner un étudiant" />
@@ -444,6 +500,11 @@ export default function ReclamationSanction() {
                           ))}
                         </SelectContent>
                       </Select>
+                      {errors.IdEtu && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.IdEtu.errors[0]}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -451,13 +512,18 @@ export default function ReclamationSanction() {
                       <Select
                         name="StatusRec"
                         value={reclamation.StatusRec || ""}
-                        onValueChange={(value) =>
+                        onValueChange={(value) => {
                           setReclamation((prev) => ({
                             ...prev,
                             StatusRec: value,
-                          }))
-                        }
-                        required
+                          }));
+                          if (errors.StatusRec) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              StatusRec: undefined,
+                            }));
+                          }
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Séléctionner le statut" />
@@ -469,17 +535,11 @@ export default function ReclamationSanction() {
                           <SelectItem value="Rejeté">Rejeté</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
-
-                    <div className="col-span-2">
-                      <label className="text-sm font-medium">Sujet</label>
-                      <Input
-                        name="Sujet"
-                        value={reclamation.Sujet}
-                        onChange={handleInputReclamationChange}
-                        required
-                        placeholder="Sujet de la réclamation"
-                      />
+                      {errors.StatusRec && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.StatusRec.errors[0]}
+                        </p>
+                      )}
                     </div>
 
                     <div className="col-span-2">
@@ -490,7 +550,24 @@ export default function ReclamationSanction() {
                         onChange={handleInputReclamationChange}
                         placeholder="Description détaillée"
                       />
+                      {errors.DescriptionRec && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.DescriptionRec.errors[0]}
+                        </p>
+                      )}
                     </div>
+
+                    {editingReclamationId && (
+                      <div>
+                        <label className="text-sm font-medium">Date</label>
+                        <Input
+                          name="DateRec"
+                          value={reclamation.DateRec || ""}
+                          disabled
+                          type="date"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <Button type="submit" className="w-full cursor-pointer">
@@ -682,7 +759,14 @@ export default function ReclamationSanction() {
           <div className="flex justify-end gap-4">
             <Dialog
               open={isSanctionModalOpen}
-              onOpenChange={setIsSanctionModalOpen}
+              onOpenChange={(open) => {
+                setIsSanctionModalOpen(open);
+                if (!open) {
+                  setEditingSanctionId(null);
+                  setSanction(DEFAULT_SANCTION);
+                  setErrors({});
+                }
+              }}
             >
               <DialogTrigger asChild>
                 <Button
@@ -706,17 +790,20 @@ export default function ReclamationSanction() {
                 </DialogHeader>
                 <form onSubmit={handleSubmitSanction} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    {editingSanctionId && (
-                      <div>
-                        <label className="text-sm font-medium">Date</label>
-                        <Input
-                          name="DateSac"
-                          value={sanction.DateSac || ""}
-                          disable
-                          type="date"
-                        />
-                      </div>
-                    )}
+                    <div className="col-span-2">
+                      <label className="text-sm font-medium">Motif</label>
+                      <Input
+                        name="Motif"
+                        value={sanction.Motif}
+                        onChange={handleInputSanctionChange}
+                        placeholder="Motif de la sanction"
+                      />
+                      {errors.Motif && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.Motif.errors[0]}
+                        </p>
+                      )}
+                    </div>
 
                     <div>
                       <label className="text-sm font-medium">
@@ -724,12 +811,15 @@ export default function ReclamationSanction() {
                       </label>
                       <Input
                         name="MontantAmende"
-                        type="number"
                         value={sanction.MontantAmende}
                         onChange={handleInputSanctionChange}
                         placeholder="0"
-                        step="100"
                       />
+                      {errors.MontantAmende && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.MontantAmende.errors[0]}
+                        </p>
+                      )}
                     </div>
 
                     <div className="col-span-2">
@@ -737,13 +827,18 @@ export default function ReclamationSanction() {
                       <Select
                         name="IdEtu"
                         value={sanction.IdEtu.toString() || ""}
-                        onValueChange={(value) =>
+                        onValueChange={(value) => {
                           setSanction((prev) => ({
                             ...prev,
-                            IdEtu: Number(value),
-                          }))
-                        }
-                        required
+                            IdEtu: value,
+                          }));
+                          if (errors.IdEtu) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              IdEtu: undefined,
+                            }));
+                          }
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner un étudiant" />
@@ -759,17 +854,11 @@ export default function ReclamationSanction() {
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
-
-                    <div className="col-span-2">
-                      <label className="text-sm font-medium">Motif</label>
-                      <Input
-                        name="Motif"
-                        value={sanction.Motif}
-                        onChange={handleInputSanctionChange}
-                        required
-                        placeholder="Motif de la sanction"
-                      />
+                      {errors.IdEtu && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.IdEtu.errors[0]}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -777,13 +866,18 @@ export default function ReclamationSanction() {
                       <Select
                         name="StatusSac"
                         value={sanction.StatusSac || ""}
-                        onValueChange={(value) =>
+                        onValueChange={(value) => {
                           setSanction((prev) => ({
                             ...prev,
                             StatusSac: value,
-                          }))
-                        }
-                        required
+                          }));
+                          if (errors.StatusSac) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              StatusSac: undefined,
+                            }));
+                          }
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner le statut" />
@@ -794,6 +888,11 @@ export default function ReclamationSanction() {
                           <SelectItem value="Levée">Levée</SelectItem>
                         </SelectContent>
                       </Select>
+                      {errors.StatusSac && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.StatusSac.errors[0]}
+                        </p>
+                      )}
                     </div>
 
                     <div className="col-span-2">
@@ -804,7 +903,24 @@ export default function ReclamationSanction() {
                         onChange={handleInputSanctionChange}
                         placeholder="Description de la sanction"
                       />
+                      {errors.DescriptionSac && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.DescriptionSac.errors[0]}
+                        </p>
+                      )}
                     </div>
+
+                    {editingSanctionId && (
+                      <div>
+                        <label className="text-sm font-medium">Date</label>
+                        <Input
+                          name="DateSac"
+                          value={sanction.DateSac || ""}
+                          disabled
+                          type="date"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <Button type="submit" className="w-full cursor-pointer">

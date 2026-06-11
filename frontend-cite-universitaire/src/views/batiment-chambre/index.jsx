@@ -48,6 +48,59 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import z from "zod";
+
+const batimentSchema = z.object({
+  NomBat: z.string().min(1, "Le nom du batiment est obligatoire"),
+  TypeBat: z.string().min(1, "Veuillez choisir le type du batiment"),
+  NbEtage: z
+    .string()
+    .min(1, "Le nombre d'étage est obligatoire")
+    .regex(/^[0-9]+$/, "Caractères numériques seulement autorisés"),
+  Description: z.string().optional().or(z.literal("")),
+});
+
+const chambreSchema = z.object({
+  NumCha: z
+    .string()
+    .min(0, "Le numero du chambre est obligatoire")
+    .regex(
+      /^[A-Za-z0-9]+$/,
+      "Veuillez entrer seulement des caractères alphanumérique",
+    ),
+  TypeCha: z.string().min(1, "Veuillez choisir le type du chambre"),
+  IdBat: z
+    .string()
+    .min(1, "Veuillez choisir un batiment")
+    .regex(/^[0-9]+$/, ""),
+  Capacite: z
+    .string()
+    .min(1, "La capacité du chambre est obligatoire")
+    .regex(/^[0-9]+$/, "Caractères numériques seulement autorisés"),
+  Etage: z
+    .string()
+    .min(1, "Veuillez choisir l'étage du chambre")
+    .regex(/^[0-9]+$/, ""),
+  StatutCha: z.string().min(1, "Veuillez choisir le statut du chambre"),
+});
+
+const DEFAULT_BATIMENT = {
+  IdBat: "",
+  NomBat: "",
+  TypeBat: "",
+  NbEtage: "",
+  Description: "",
+};
+
+const DEFAULT_CHAMBRE = {
+  IdCha: "",
+  NumCha: "",
+  TypeCha: "",
+  Capacite: "",
+  Etage: "",
+  StatutCha: "",
+  IdBat: "",
+};
 
 export default function BatimentPage() {
   const [activeTab, setActiveTab] = useState("batiments");
@@ -55,22 +108,9 @@ export default function BatimentPage() {
   const [isOpenModalChambre, setIsOpenModalChambre] = useState(false);
   const [editingBatimentId, setEditingBatimentId] = useState(null);
   const [editingChambreId, setEditingChambreId] = useState(null);
-  const [batiment, setBatiment] = useState({
-    IdBat: "",
-    NomBat: "",
-    TypeBat: "",
-    NbEtage: "0",
-    Description: "",
-  });
-  const [chambre, setChambre] = useState({
-    IdCha: "",
-    NumCha: "",
-    TypeCha: "",
-    Capacite: 0,
-    Etage: 0,
-    StatutCha: "",
-    IdBat: "",
-  });
+  const [batiment, setBatiment] = useState(DEFAULT_BATIMENT);
+  const [chambre, setChambre] = useState(DEFAULT_CHAMBRE);
+  const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
   const { batiments, status: statusBatiment } = useSelector(
     (state) => state.batiment,
@@ -130,19 +170,21 @@ export default function BatimentPage() {
   const handleSubmitBatiment = (e) => {
     e.preventDefault();
 
+    const result = batimentSchema.safeParse(batiment);
+
+    if (!result.success) {
+      const tree = z.treeifyError(result.error);
+      setErrors(tree.properties);
+      return;
+    }
+
     if (editingBatimentId) {
       dispatch(editBatiment({ IdBat: editingBatimentId, data: batiment }))
         .unwrap()
         .then((response) => {
           toast.success(response.message);
           setEditingBatimentId(null);
-          setBatiment({
-            IdBat: "",
-            NomBat: "",
-            TypeBat: "",
-            NbEtage: 0,
-            Description: "",
-          });
+          setBatiment(DEFAULT_BATIMENT);
           setIsOpenModalBatiment(false);
         })
         .catch((error) => {
@@ -154,13 +196,7 @@ export default function BatimentPage() {
         .unwrap()
         .then((response) => {
           toast.success(response.message);
-          setBatiment({
-            IdBat: "",
-            NomBat: "",
-            TypeBat: "",
-            NbEtage: 0,
-            Description: "",
-          });
+          setBatiment(DEFAULT_BATIMENT);
           setIsOpenModalBatiment(false);
         })
         .catch((error) => {
@@ -173,21 +209,20 @@ export default function BatimentPage() {
   const handleSubmitChambre = (e) => {
     e.preventDefault();
 
+    const result = chambreSchema.safeParse(chambre);
+
+    if (!result.success) {
+      const tree = z.treeifyError(result.error);
+      setErrors(tree.properties);
+      return;
+    }
     if (editingChambreId) {
       dispatch(editChambre({ IdCha: editingChambreId, data: chambre }))
         .unwrap()
         .then((response) => {
           toast.success(response.message);
           setEditingChambreId(null);
-          setChambre({
-            IdCha: "",
-            NumCha: "",
-            TypeCha: "",
-            Capacite: 0,
-            Etage: 0,
-            StatutCha: "",
-            IdBat: "",
-          });
+          setChambre(DEFAULT_CHAMBRE);
           setIsOpenModalChambre(false);
         })
         .catch((error) => {
@@ -199,15 +234,7 @@ export default function BatimentPage() {
         .unwrap()
         .then((response) => {
           toast.success(response.message);
-          setChambre({
-            IdCha: "",
-            NumCha: "",
-            TypeCha: "",
-            Capacite: 0,
-            Etage: 0,
-            StatutCha: "",
-            IdBat: "",
-          });
+          setChambre(DEFAULT_CHAMBRE);
           setIsOpenModalChambre(false);
         })
         .catch((error) => {
@@ -218,13 +245,20 @@ export default function BatimentPage() {
   };
 
   const handleEditBatiment = (batiment) => {
-    setBatiment(batiment);
+    const newBatiment = { ...batiment, NbEtage: String(batiment.NbEtage) };
+    setBatiment(newBatiment);
     setEditingBatimentId(batiment.IdBat);
     setIsOpenModalBatiment(true);
   };
 
   const handleEditChambre = (chambre) => {
-    setChambre(chambre);
+    const newChambre = {
+      ...chambre,
+      Capacite: String(chambre.Capacite),
+      IdBat: String(chambre.IdBat),
+      Etage: String(chambre.Etage),
+    };
+    setChambre(newChambre);
     setEditingChambreId(chambre.IdCha);
     setIsOpenModalChambre(true);
   };
@@ -266,6 +300,13 @@ export default function BatimentPage() {
         [name]: value,
       };
     });
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
 
   const handleInputChambreChange = (e) => {
@@ -277,6 +318,13 @@ export default function BatimentPage() {
         [name]: value,
       };
     });
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
 
   const openAddBatimentDialog = () => {
@@ -319,7 +367,8 @@ export default function BatimentPage() {
                 setIsOpenModalBatiment(open);
                 if (!open) {
                   setEditingBatimentId(null);
-                  setBatiment({});
+                  setBatiment(DEFAULT_BATIMENT);
+                  setErrors({});
                 }
               }}
             >
@@ -349,11 +398,15 @@ export default function BatimentPage() {
                     </label>
                     <Input
                       name="NomBat"
-                      required
                       placeholder="Bâtiment A"
                       value={batiment.NomBat}
                       onChange={handleInputBatimentChange}
                     />
+                    {errors.NomBat && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.NomBat.errors[0]}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -361,13 +414,18 @@ export default function BatimentPage() {
                     <Select
                       name="TypeBat"
                       value={batiment.TypeBat}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
                         setBatiment((prev) => ({
                           ...prev,
                           TypeBat: value,
-                        }))
-                      }
-                      required
+                        }));
+                        if (errors.TypeBat) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            TypeBat: undefined,
+                          }));
+                        }
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner le type du batiment" />
@@ -378,6 +436,11 @@ export default function BatimentPage() {
                         <SelectItem value="Feminin">Féminin</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.TypeBat && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.TypeBat.errors[0]}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -386,12 +449,15 @@ export default function BatimentPage() {
                     </label>
                     <Input
                       name="NbEtage"
-                      type="number"
-                      required
                       placeholder="5"
                       value={batiment.NbEtage}
                       onChange={handleInputBatimentChange}
                     />
+                    {errors.NbEtage && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.NbEtage.errors[0]}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -402,6 +468,11 @@ export default function BatimentPage() {
                       value={batiment.Description}
                       onChange={handleInputBatimentChange}
                     />
+                    {errors.Description && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Description.errors[0]}
+                      </p>
+                    )}
                   </div>
 
                   <Button type="submit" className="w-full cursor-pointer">
@@ -532,7 +603,8 @@ export default function BatimentPage() {
                 setIsOpenModalChambre(open);
                 if (!open) {
                   setEditingChambreId(null);
-                  setChambre({});
+                  setChambre(DEFAULT_CHAMBRE);
+                  setErrors({});
                 }
               }}
             >
@@ -562,11 +634,15 @@ export default function BatimentPage() {
                     </label>
                     <Input
                       name="NumCha"
-                      required
                       placeholder="101"
                       value={chambre.NumCha}
                       onChange={handleInputChambreChange}
                     />
+                    {errors.NumCha && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.NumCha.errors[0]}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -579,8 +655,13 @@ export default function BatimentPage() {
                           ...prev,
                           TypeCha: value,
                         }));
+                        if (errors.TypeCha) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            TypeCha: undefined,
+                          }));
+                        }
                       }}
-                      required
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner le type du chambre" />
@@ -591,32 +672,45 @@ export default function BatimentPage() {
                         <SelectItem value="Triple">Triple</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.TypeCha && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.TypeCha.errors[0]}
+                      </p>
+                    )}
                   </div>
 
                   <div>
                     <label className="text-sm font-medium">Capacité</label>
                     <Input
                       name="Capacite"
-                      type="number"
-                      required
                       placeholder="1"
                       value={chambre.Capacite}
                       onChange={handleInputChambreChange}
                     />
+                    {errors.Capacite && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Capacite.errors[0]}
+                      </p>
+                    )}
                   </div>
 
                   <div>
                     <label className="text-sm font-medium">Bâtiment</label>
                     <Select
                       name="IdBat"
-                      value={chambre.IdBat ? String(chambre.IdBat) : ""}
+                      value={chambre.IdBat}
                       onValueChange={(value) => {
                         setChambre((prev) => ({
                           ...prev,
-                          IdBat: Number(value),
+                          IdBat: value,
                         }));
+                        if (errors.IdBat) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            IdBat: undefined,
+                          }));
+                        }
                       }}
-                      required
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner un bâtiment" />
@@ -629,20 +723,30 @@ export default function BatimentPage() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {errors.IdBat && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.IdBat.errors[0]}
+                      </p>
+                    )}
                   </div>
 
                   <div>
                     <label className="text-sm font-medium">Étage</label>
                     <Select
                       name="Etage"
-                      value={chambre.Etage ? String(chambre.Etage) : ""}
+                      value={chambre.Etage}
                       onValueChange={(value) => {
                         setChambre((prev) => ({
                           ...prev,
-                          Etage: Number(value),
+                          Etage: value,
                         }));
+                        if (errors.Etage) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            Etage: undefined,
+                          }));
+                        }
                       }}
-                      required
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner l'étage" />
@@ -666,6 +770,11 @@ export default function BatimentPage() {
                         )}
                       </SelectContent>
                     </Select>
+                    {errors.Etage && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Etage.errors[0]}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -673,13 +782,18 @@ export default function BatimentPage() {
                     <Select
                       name="StatutCha"
                       value={chambre.StatutCha}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
                         setChambre((prev) => ({
                           ...prev,
                           StatutCha: value,
-                        }))
-                      }
-                      required
+                        }));
+                        if (errors.StatutCha) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            StatutCha: undefined,
+                          }));
+                        }
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Veuillez choisir l'état actuel du chambre" />
@@ -707,6 +821,11 @@ export default function BatimentPage() {
                         </SelectContent>
                       )}
                     </Select>
+                    {errors.StatutCha && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.StatutCha.errors[0]}
+                      </p>
+                    )}
                   </div>
 
                   <Button type="submit" className="w-full cursor-pointer">

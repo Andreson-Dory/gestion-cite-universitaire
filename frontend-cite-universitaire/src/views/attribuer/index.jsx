@@ -38,6 +38,29 @@ import { toast } from "sonner";
 import { fetchChambre } from "@/redux/features/chambre/chambreThunk";
 import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
 import { fetchBatiment } from "@/redux/features/batiment/batimentThunk";
+import z from "zod";
+
+const schema = z.object({
+  IdCha: z
+    .string()
+    .min(1, "Veuillez choisir un chambre")
+    .regex(/^[0-9]+$/, ""),
+  IdEtu: z
+    .string()
+    .min(1, "Veuillez choisir un étudiant")
+    .regex(/^[0-9]+$/, ""),
+  DateFin: z.string().min(1, "Date d'écheance obligatoire"),
+  StatutAtt: z.string().min(1, "Veuillez indiquer le statut de l'attribution"),
+});
+
+const DEFAULT_ATTRIBUER = {
+  IdAtt: "",
+  IdCha: "",
+  IdEtu: "",
+  DateAtt: "",
+  DateFin: "",
+  StatutAtt: "",
+};
 
 export default function AttribuerPage() {
   const dispatch = useDispatch();
@@ -46,14 +69,8 @@ export default function AttribuerPage() {
   const [filterBatiment, setFilterBatiment] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [attribuer, setAttribuer] = useState({
-    IdAtt: "",
-    IdCha: "",
-    IdEtu: "",
-    DateAtt: "",
-    DateFin: "",
-    StatutAtt: "",
-  });
+  const [attribuer, setAttribuer] = useState(DEFAULT_ATTRIBUER);
+  const [errors, setErrors] = useState({});
   const { attribuers, status } = useSelector((state) => state.attribuer);
   const { etudiants } = useSelector((state) => state.etudiant);
   const { chambres } = useSelector((state) => state.chambre);
@@ -89,20 +106,21 @@ export default function AttribuerPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const result = schema.safeParse(attribuer);
+
+    if (!result.success) {
+      const tree = z.treeifyError(result.error);
+      setErrors(tree.properties);
+      return;
+    }
+
     if (editingId) {
       dispatch(editAttribuer({ IdAtt: editingId, data: attribuer }))
         .unwrap()
         .then((response) => {
           toast.success(response.message);
           setEditingId(null);
-          setAttribuer({
-            IdAtt: "",
-            IdCha: "",
-            IdEtu: "",
-            DateAtt: "",
-            DateFin: "",
-            StatutAtt: "",
-          });
+          setAttribuer(DEFAULT_ATTRIBUER);
           setIsOpen(false);
         })
         .catch((error) => {
@@ -119,14 +137,7 @@ export default function AttribuerPage() {
         .unwrap()
         .then((response) => {
           toast.success(response.message);
-          setAttribuer({
-            IdAtt: "",
-            IdCha: "",
-            IdEtu: "",
-            DateAtt: "",
-            DateFin: "",
-            StatutAtt: "",
-          });
+          setAttribuer(DEFAULT_ATTRIBUER);
           setIsOpen(false);
         })
         .catch((error) => {
@@ -184,6 +195,13 @@ export default function AttribuerPage() {
       ...prev,
       [name]: value,
     }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
 
   if (status === "error")
@@ -200,7 +218,16 @@ export default function AttribuerPage() {
             Gérez les attributions du chambre de la résidence
           </p>
         </div>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog
+          open={isOpen}
+          onOpenChange={(open) => {
+            setIsOpen(open);
+            if (!open) {
+              setAttribuer(DEFAULT_ATTRIBUER);
+              setErrors({});
+            }
+          }}
+        >
           <DialogTrigger asChild>
             <Button
               onClick={() => setEditingId(null)}
@@ -233,13 +260,18 @@ export default function AttribuerPage() {
                   <Select
                     name="IdCha"
                     value={attribuer.IdCha.toString() || ""}
-                    onValueChange={(value) =>
+                    onValueChange={(value) => {
                       setAttribuer((prev) => ({
                         ...prev,
-                        IdCha: Number(value),
-                      }))
-                    }
-                    required
+                        IdCha: value,
+                      }));
+                      if (errors.IdCha) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          IdCha: undefined,
+                        }));
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un chambre" />
@@ -252,6 +284,11 @@ export default function AttribuerPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.IdCha && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.IdCha.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div className="col-span-2">
@@ -259,13 +296,18 @@ export default function AttribuerPage() {
                   <Select
                     name="IdEtu"
                     value={attribuer.IdEtu.toString() || ""}
-                    onValueChange={(value) =>
+                    onValueChange={(value) => {
                       setAttribuer((prev) => ({
                         ...prev,
-                        IdEtu: Number(value),
-                      }))
-                    }
-                    required
+                        IdEtu: value,
+                      }));
+                      if (errors.IdEtu) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          IdEtu: undefined,
+                        }));
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un étudiant" />
@@ -278,6 +320,11 @@ export default function AttribuerPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.IdEtu && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.IdEtu.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 {!editingId && (
@@ -286,13 +333,18 @@ export default function AttribuerPage() {
                     <Select
                       name="StatutAtt"
                       value={attribuer.StatutAtt || ""}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
                         setAttribuer((prev) => ({
                           ...prev,
                           StatutAtt: value,
-                        }))
-                      }
-                      required
+                        }));
+                        if (errors.StatutAtt) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            StatutAtt: undefined,
+                          }));
+                        }
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Séléctionner le statut" />
@@ -302,6 +354,11 @@ export default function AttribuerPage() {
                         <SelectItem value="Terminé">Terminé</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.StatutAtt && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.StatutAtt.errors[0]}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -312,8 +369,12 @@ export default function AttribuerPage() {
                     type="date"
                     value={attribuer.DateFin}
                     onChange={handleInputAttribuerChange}
-                    required
                   />
+                  {errors.DateFin && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.DateFin.errors[0]}
+                    </p>
+                  )}
                 </div>
               </div>
 

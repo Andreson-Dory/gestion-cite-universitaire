@@ -40,6 +40,31 @@ import {
   removePaiement,
 } from "@/redux/features/paiement/paiementThunk";
 import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
+import z from "zod";
+
+const schema = z.object({
+  MontantPai: z
+    .string()
+    .min(1, "Veuillez entrer le montant")
+    .regex(/^[0-9]+$/, "Caractères numériques seulement autorisés"),
+  TypePai: z.string().min(1, "Veuillez choisir un type de paiement"),
+  ModePai: z.string().min(1, "Veuillez choisir un mode de paiement"),
+  StatutPai: z.string().min(1, "Veuillez indiquer le statut du paiement"),
+  IdEtu: z
+    .string()
+    .min(1, "Veuillez choisir un étudiant")
+    .regex(/^[0-9]+$/, ""),
+});
+
+const DEFAULT_PAIEMENT = {
+  IdPai: "",
+  DatePai: "",
+  MontantPai: "",
+  TypePai: "",
+  ModePai: "",
+  StatutPai: "",
+  IdEtu: "",
+};
 
 export default function PaiementPage() {
   const dispatch = useDispatch();
@@ -48,15 +73,8 @@ export default function PaiementPage() {
   const [filterTypePai, setFilterTypePai] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filterStatusPai, setFilterStatusPai] = useState("");
-  const [paiement, setPaiement] = useState({
-    IdPai: "",
-    DatePai: "",
-    MontantPai: "",
-    TypePai: "",
-    ModePai: "",
-    StatutPai: "",
-    IdEtu: "",
-  });
+  const [paiement, setPaiement] = useState(DEFAULT_PAIEMENT);
+  const [errors, setErrors] = useState({});
   const { paiements, status } = useSelector((state) => state.paiement);
   const { etudiants } = useSelector((state) => state.etudiant);
 
@@ -103,10 +121,25 @@ export default function PaiementPage() {
         [name]: value,
       };
     });
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const result = schema.safeParse(paiement);
+
+    if (!result.success) {
+      const tree = z.treeifyError(result.error);
+      setErrors(tree.properties);
+      return;
+    }
+
     const date = new Date().toLocaleDateString("en-CA");
     const newPaiement = {
       ...paiement,
@@ -116,15 +149,7 @@ export default function PaiementPage() {
       .unwrap()
       .then((response) => {
         toast.success(response.message);
-        setPaiement({
-          IdPai: "",
-          DatePai: "",
-          MontantPai: "",
-          TypePai: "",
-          ModePai: "",
-          StatutPai: "",
-          IdEtu: "",
-        });
+        setPaiement(DEFAULT_PAIEMENT);
         setIsOpen(false);
       })
       .catch((error) => {
@@ -159,7 +184,16 @@ export default function PaiementPage() {
             Gérez les Paiement de location de la résidence
           </p>
         </div>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog
+          open={isOpen}
+          onOpenChange={(open) => {
+            setIsOpen(open);
+            if (!open) {
+              setPaiement(DEFAULT_PAIEMENT);
+              setErrors({});
+            }
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="cursor-pointer">
               <Plus className="w-4 h-4 mr-2" />
@@ -180,15 +214,17 @@ export default function PaiementPage() {
                 <div>
                   <label className="text-sm font-medium">Montant</label>
                   <Input
-                    type="text"
                     name="MontantPai"
                     value={paiement.MontantPai}
-                    pattern="[0-9]+"
                     title="Veuillez entrer uniquement des chiffres"
                     onChange={handleInputPaiementChange}
-                    required
                     placeholder="60000"
                   />
+                  {errors.MontantPai && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.MontantPai.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -203,6 +239,12 @@ export default function PaiementPage() {
                         ...prev,
                         TypePai: value,
                       }));
+                      if (errors.TypePai) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          TypePai: undefined,
+                        }));
+                      }
                     }}
                   >
                     <SelectTrigger>
@@ -213,6 +255,11 @@ export default function PaiementPage() {
                       <SelectItem value="Sanction">Sanction</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.TypePai && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.TypePai.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -227,6 +274,12 @@ export default function PaiementPage() {
                         ...prev,
                         ModePai: value,
                       }));
+                      if (errors.ModePai) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          ModePai: undefined,
+                        }));
+                      }
                     }}
                   >
                     <SelectTrigger>
@@ -238,6 +291,11 @@ export default function PaiementPage() {
                       <SelectItem value="Virement">Virement</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.ModePai && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.ModePai.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -252,6 +310,12 @@ export default function PaiementPage() {
                         ...prev,
                         StatutPai: value,
                       }));
+                      if (errors.StatutPai) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          StatutPai: undefined,
+                        }));
+                      }
                     }}
                   >
                     <SelectTrigger>
@@ -262,6 +326,11 @@ export default function PaiementPage() {
                       <SelectItem value="Partiel">Partiel</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.StatutPai && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.StatutPai.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div className="col-span-2">
@@ -269,13 +338,18 @@ export default function PaiementPage() {
                   <Select
                     name="IdEtu"
                     value={paiement.IdEtu.toString() || ""}
-                    onValueChange={(value) =>
+                    onValueChange={(value) => {
                       setPaiement((prev) => ({
                         ...prev,
-                        IdEtu: Number(value),
-                      }))
-                    }
-                    required
+                        IdEtu: value,
+                      }));
+                      if (errors.IdEtu) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          IdEtu: undefined,
+                        }));
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un étudiant" />
@@ -288,6 +362,11 @@ export default function PaiementPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.IdEtu && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.IdEtu.errors[0]}
+                    </p>
+                  )}
                 </div>
               </div>
 
