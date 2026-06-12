@@ -41,6 +41,7 @@ import {
 } from "@/redux/features/paiement/paiementThunk";
 import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
 import z from "zod";
+import PaiementPageSkeleton from "@/components/skeletons/PaiementPageSkeleton";
 
 const schema = z.object({
   MontantPai: z
@@ -108,7 +109,7 @@ export default function PaiementPage() {
     }) || [];
 
   useEffect(() => {
-    dispatch(fetchPaiement());
+    if (!paiements) dispatch(fetchPaiement());
     dispatch(fetchEtudiant());
   }, []);
 
@@ -209,6 +210,10 @@ export default function PaiementPage() {
       },
     );
   };
+
+  if (status === "loading") {
+    return <PaiementPageSkeleton />;
+  }
 
   if (status === "error")
     return <div className="text-red-600">Erreur de chargement</div>;

@@ -39,6 +39,7 @@ import { fetchChambre } from "@/redux/features/chambre/chambreThunk";
 import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
 import { fetchBatiment } from "@/redux/features/batiment/batimentThunk";
 import z from "zod";
+import AttribuerPageSkeleton from "@/components/skeletons/AttribuerPageSkeleton";
 
 const schema = z.object({
   IdCha: z
@@ -97,7 +98,7 @@ export default function AttribuerPage() {
     }) || [];
 
   useEffect(() => {
-    dispatch(fetchAttribuer());
+    if (!attribuers) dispatch(fetchAttribuer());
     dispatch(fetchChambre());
     dispatch(fetchEtudiant());
     dispatch(fetchBatiment());
@@ -241,6 +242,10 @@ export default function AttribuerPage() {
       },
     );
   };
+
+  if (status === "loading") {
+    return <AttribuerPageSkeleton />;
+  }
 
   if (status === "error")
     return <div className="text-red-600">Erreur de chargement</div>;

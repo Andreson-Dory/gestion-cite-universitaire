@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import z from "zod";
+import BatimentAndChambrePageSkeleton from "@/components/skeletons/BatimentAndChambrePageSkeleton";
 
 const batimentSchema = z.object({
   NomBat: z.string().min(1, "Le nom du batiment est obligatoire"),
@@ -163,8 +164,8 @@ export default function BatimentPage() {
     }) || [];
 
   useEffect(() => {
-    dispatch(fetchBatiment());
-    dispatch(fetchChambre());
+    if (!batiments) dispatch(fetchBatiment());
+    if (!chambres) dispatch(fetchChambre());
   }, []);
 
   const handleSubmitBatiment = (e) => {
@@ -412,6 +413,10 @@ export default function BatimentPage() {
       },
     );
   };
+
+  if (statusBatiment === "loading" || statusChambre === "loading") {
+    return <BatimentAndChambrePageSkeleton />;
+  }
 
   return (
     <div className="space-y-6">

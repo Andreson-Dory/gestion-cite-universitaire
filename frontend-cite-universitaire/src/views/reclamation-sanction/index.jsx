@@ -49,6 +49,7 @@ import {
 import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
 import { toast } from "sonner";
 import z from "zod";
+import ReclamationAndSanctionPageSkeleton from "@/components/skeletons/ReclamationAndSanctionPageSkeleton";
 
 const reclamationSchema = z.object({
   Sujet: z.string().min(1, "Le sujet du reclamation est obligatoire"),
@@ -115,8 +116,8 @@ export default function ReclamationSanction() {
   const { etudiants } = useSelector((state) => state.etudiant);
 
   useEffect(() => {
-    dispatch(fetchSanction());
-    dispatch(fetchReclamation());
+    if (!sanctions) dispatch(fetchSanction());
+    if (!reclamations) dispatch(fetchReclamation());
     dispatch(fetchEtudiant());
   }, []);
 
@@ -436,6 +437,10 @@ export default function ReclamationSanction() {
       },
     );
   };
+
+  if (statusReclamation === "loading" || statusSanction === "loading") {
+    return <ReclamationAndSanctionPageSkeleton />;
+  }
 
   return (
     <div className="space-y-6">

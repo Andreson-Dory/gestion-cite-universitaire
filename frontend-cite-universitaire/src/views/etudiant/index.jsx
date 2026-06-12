@@ -41,6 +41,7 @@ import {
 } from "@/redux/features/Etudiant/etudiantThunk";
 import { toast } from "sonner";
 import z from "zod";
+import EtudiantsPageSkeleton from "@/components/skeletons/EtudiantPageSkeleton";
 
 const schema = z.object({
   Matricule: z
@@ -140,7 +141,7 @@ export default function EtudiantPage() {
     }) || [];
 
   useEffect(() => {
-    dispatch(fetchEtudiant());
+    if (!etudiants) dispatch(fetchEtudiant());
   }, []);
 
   const handleInputEtudiantChange = (e) => {
@@ -262,6 +263,10 @@ export default function EtudiantPage() {
       },
     );
   };
+
+  if (status === "loading") {
+    return <EtudiantsPageSkeleton />;
+  }
 
   if (status === "error")
     return <div className="text-red-600">Erreur de chargement</div>;
