@@ -267,32 +267,28 @@ export default function ReclamationSanction() {
     }
   };
 
-  const handleDeleteReclamation = (IdRec) => {
-    if (confirm("Êtes-vous sûr?")) {
-      dispatch(removeReclamation(IdRec))
-        .unwrap()
-        .then((response) => {
-          toast.success(response.message);
-        })
-        .catch((error) => {
-          console.error(error.error);
-          toast.error(error.message);
-        });
-    }
+  const onDeleteReclamation = async (IdRec) => {
+    dispatch(removeReclamation(IdRec))
+      .unwrap()
+      .then((response) => {
+        toast.success(response.message);
+      })
+      .catch((error) => {
+        console.error(error.error);
+        toast.error(error.message);
+      });
   };
 
-  const handleDeleteSanction = (IdSac) => {
-    if (confirm("Êtes-vous sûr?")) {
-      dispatch(removeSanction(IdSac))
-        .unwrap()
-        .then((response) => {
-          toast.success(response.message);
-        })
-        .catch((error) => {
-          console.error(error.error);
-          toast.error(error.message);
-        });
-    }
+  const onDeleteSanction = async (IdSac) => {
+    dispatch(removeSanction(IdSac))
+      .unwrap()
+      .then((response) => {
+        toast.success(response.message);
+      })
+      .catch((error) => {
+        console.error(error.error);
+        toast.error(error.message);
+      });
   };
 
   const handleEditReclamation = (item) => {
@@ -359,6 +355,86 @@ export default function ReclamationSanction() {
   const openAddSanctionDialog = () => {
     setEditingSanctionId(null);
     setIsSanctionModalOpen(true);
+  };
+
+  const handleDeleteReclamation = async (id) => {
+    toast.custom(
+      (t) => (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 w-100 flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+              Supprimer cette reclamation
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Cette action est irréversible. Toutes les données associées seront
+              perdues.
+            </p>
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => toast.dismiss(t)}
+              className="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                toast.dismiss(t);
+                await onDeleteReclamation(id);
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity, // Keep open until action
+      },
+    );
+  };
+
+  const handleDeleteSanction = async (id) => {
+    toast.custom(
+      (t) => (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 w-100 flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+              Supprimer ce sanction
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Cette action est irréversible. Toutes les données associées seront
+              perdues.
+            </p>
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => toast.dismiss(t)}
+              className="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                toast.dismiss(t);
+                await onDeleteSanction(id);
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity, // Keep open until action
+      },
+    );
   };
 
   return (
