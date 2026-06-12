@@ -52,9 +52,10 @@ const updateChambre = async (idCha, chambre) => {
     idCha,
   ];
   await db.query(query, values);
+  const updatedChambre = await findChambreById(idCha);
   const attributionInfo = await Attribuer.findIsChambreAttribuer(idCha);
   const attributionCount = Number(attributionInfo.attributionCount);
-  return { ...insertedChambre, Occupation: attributionCount };
+  return { ...updatedChambre, Occupation: attributionCount };
 };
 
 const updateToOccupedChambreStatus = async (idCha) => {

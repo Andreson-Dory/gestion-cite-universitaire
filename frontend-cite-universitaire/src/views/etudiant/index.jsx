@@ -40,6 +40,49 @@ import {
   removeEtudiant,
 } from "@/redux/features/Etudiant/etudiantThunk";
 import { toast } from "sonner";
+import z from "zod";
+import EtudiantsPageSkeleton from "@/components/skeletons/EtudiantPageSkeleton";
+
+const schema = z.object({
+  Matricule: z
+    .string()
+    .min(1, "Le matricule est obligatoire")
+    .regex(
+      /^[A-Za-z0-9.-]+$/,
+      `Les caractères spéciaux sont invalide à part "-"`,
+    ),
+  Nom: z
+    .string()
+    .min(3, "Le nom doit contenir au moins 3 caractères")
+    .regex(
+      /^[A-Za-zÀ-ÿ\s'-]+$/,
+      "Le nom ne doit pas contenir des caractères autres que l'aphabetique",
+    ),
+  Sexe: z.string().min(1, "Le sexe est obligatoire"),
+  DateNaissance: z.string().min(1, "La date de naissance est obligatoire"),
+  Telephone: z
+    .string()
+    .regex(/^(\+261|0)(32|33|34|37|38)\d{7}$/, "Téléphone invalide")
+    .optional()
+    .or(z.literal("")),
+  Email: z.email("Email invalide").min(1, "L'email est obligatoire"),
+  Filiere: z.string().optional().or(z.literal("")),
+  Niveau: z.string().min(1, "Le niveau est obligatoire"),
+  Universite: z.string().optional().or(z.literal("")),
+});
+
+const DEFAULT_ETUDIANT = {
+  IdEtu: "",
+  Matricule: "",
+  Nom: "",
+  Sexe: "",
+  DateNaissance: "",
+  Telephone: "",
+  Email: "",
+  Filiere: "",
+  Niveau: "",
+  Universite: "",
+};
 
 export default function EtudiantPage() {
   const dispatch = useDispatch();
@@ -49,18 +92,8 @@ export default function EtudiantPage() {
   const [filterFiliere, setFilterFiliere] = useState("");
   const [filterUniversity, setFilterUniversity] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [etudiant, setEtudiant] = useState({
-    IdEtu: "",
-    Matricule: "",
-    Nom: "",
-    Sexe: "",
-    DateNaissance: "",
-    Telephone: "",
-    Email: "",
-    Filiere: "",
-    Niveau: "",
-    Universite: "",
-  });
+  const [etudiant, setEtudiant] = useState(DEFAULT_ETUDIANT);
+  const [errors, setErrors] = useState({});
   const { etudiants, status } = useSelector((state) => state.etudiant);
 
   const allFilieres = useMemo(() => {
@@ -108,7 +141,7 @@ export default function EtudiantPage() {
     }) || [];
 
   useEffect(() => {
-    dispatch(fetchEtudiant());
+    if (!etudiants) dispatch(fetchEtudiant());
   }, []);
 
   const handleInputEtudiantChange = (e) => {
@@ -120,29 +153,34 @@ export default function EtudiantPage() {
         [name]: value,
       };
     });
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const result = schema.safeParse(etudiant);
+
+    if (!result.success) {
+      const tree = z.treeifyError(result.error);
+      setErrors(tree.properties);
+      return;
+    }
+
+    setErrors({});
     if (editingId) {
       dispatch(editEtudiant({ IdEtu: editingId, data: etudiant }))
         .unwrap()
         .then((response) => {
           toast.success(response.message);
           setEditingId(null);
-          setEtudiant({
-            IdEtu: "",
-            Matricule: "",
-            Nom: "",
-            Sexe: "",
-            DateNaissance: "",
-            Telephone: "",
-            Email: "",
-            Filiere: "",
-            Niveau: "",
-            Universite: "",
-          });
+          setEtudiant(DEFAULT_ETUDIANT);
           setIsOpen(false);
         })
         .catch((error) => {
@@ -154,18 +192,7 @@ export default function EtudiantPage() {
         .unwrap()
         .then((response) => {
           toast.success(response.message);
-          setEtudiant({
-            IdEtu: "",
-            Matricule: "",
-            Nom: "",
-            Sexe: "",
-            DateNaissance: "",
-            Telephone: "",
-            Email: "",
-            Filiere: "",
-            Niveau: "",
-            Universite: "",
-          });
+          setEtudiant(DEFAULT_ETUDIANT);
           setIsOpen(false);
         })
         .catch((error) => {
@@ -175,18 +202,16 @@ export default function EtudiantPage() {
     }
   };
 
-  const handleDelete = async (IdEtu) => {
-    if (confirm("Êtes-vous sûr?")) {
-      dispatch(removeEtudiant(IdEtu))
-        .unwrap()
-        .then((response) => {
-          toast.success(response.message);
-        })
-        .catch((error) => {
-          console.error(error.error);
-          toast.error(error.message);
-        });
-    }
+  const onDelete = async (IdEtu) => {
+    dispatch(removeEtudiant(IdEtu))
+      .unwrap()
+      .then((response) => {
+        toast.success(response.message);
+      })
+      .catch((error) => {
+        console.error(error.error);
+        toast.error(error.message);
+      });
   };
 
   const handleEdit = (etudiant) => {
@@ -198,6 +223,50 @@ export default function EtudiantPage() {
     }));
     setIsOpen(true);
   };
+
+  const handleDelete = async (id, nom) => {
+    toast.custom(
+      (t) => (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 w-100 flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+              Supprimer l'étudiant {nom}
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Cette action est irréversible. Toutes les données associées seront
+              perdues.
+            </p>
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => toast.dismiss(t)}
+              className="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                toast.dismiss(t);
+                await onDelete(id);
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity, // Keep open until action
+      },
+    );
+  };
+
+  if (status === "loading") {
+    return <EtudiantsPageSkeleton />;
+  }
 
   if (status === "error")
     return <div className="text-red-600">Erreur de chargement</div>;
@@ -211,7 +280,16 @@ export default function EtudiantPage() {
             Gérez les étudiants de la résidence
           </p>
         </div>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog
+          open={isOpen}
+          onOpenChange={(open) => {
+            setIsOpen(open);
+            if (!open) {
+              setEtudiant(DEFAULT_ETUDIANT);
+              setErrors({});
+            }
+          }}
+        >
           <DialogTrigger asChild>
             <Button
               onClick={() => setEditingId(null)}
@@ -221,7 +299,7 @@ export default function EtudiantPage() {
               Ajouter un Étudiant
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingId ? "Modifier" : "Ajouter"} Étudiant
@@ -241,9 +319,13 @@ export default function EtudiantPage() {
                     name="Matricule"
                     value={etudiant.Matricule}
                     onChange={handleInputEtudiantChange}
-                    required
                     placeholder="EXE001"
                   />
+                  {errors.Matricule && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.Matricule.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div className="col-span-2">
@@ -252,9 +334,13 @@ export default function EtudiantPage() {
                     name="Nom"
                     value={etudiant.Nom}
                     onChange={handleInputEtudiantChange}
-                    required
                     placeholder="Dupont Jean"
                   />
+                  {errors.Nom && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.Nom.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -267,6 +353,12 @@ export default function EtudiantPage() {
                         ...prev,
                         Sexe: value,
                       }));
+                      if (errors.Sexe) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          Sexe: undefined,
+                        }));
+                      }
                     }}
                   >
                     <SelectTrigger>
@@ -277,6 +369,11 @@ export default function EtudiantPage() {
                       <SelectItem value="Feminin">Féminin</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.Sexe && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.Sexe.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -288,8 +385,12 @@ export default function EtudiantPage() {
                     type="date"
                     value={etudiant.DateNaissance || ""}
                     onChange={handleInputEtudiantChange}
-                    required
                   />
+                  {errors.DateNaissance && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.DateNaissance.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -300,6 +401,11 @@ export default function EtudiantPage() {
                     onChange={handleInputEtudiantChange}
                     placeholder="+261..."
                   />
+                  {errors.Telephone && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.Telephone.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div className="col-span-2">
@@ -311,6 +417,11 @@ export default function EtudiantPage() {
                     onChange={handleInputEtudiantChange}
                     placeholder="email@example.com"
                   />
+                  {errors.Email && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.Email.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -321,6 +432,11 @@ export default function EtudiantPage() {
                     onChange={handleInputEtudiantChange}
                     placeholder="Informatique"
                   />
+                  {errors.Filiere && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.Filiere.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -333,6 +449,12 @@ export default function EtudiantPage() {
                         ...prev,
                         Niveau: value,
                       }));
+                      if (errors.Niveau) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          Niveau: undefined,
+                        }));
+                      }
                     }}
                   >
                     <SelectTrigger>
@@ -348,6 +470,11 @@ export default function EtudiantPage() {
                       <SelectItem value="D2">Doctorant 2</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.Niveau && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.Niveau.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div className="col-span-2">
@@ -358,6 +485,11 @@ export default function EtudiantPage() {
                     onChange={handleInputEtudiantChange}
                     placeholder="Université XYZ"
                   />
+                  {errors.Universite && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.Universite.errors[0]}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -535,7 +667,9 @@ export default function EtudiantPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => handleDelete(etudiant.IdEtu)}
+                            onClick={() =>
+                              handleDelete(etudiant.IdEtu, etudiant.Nom)
+                            }
                             className="cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4 text-red-600" />

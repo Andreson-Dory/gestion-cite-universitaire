@@ -36,6 +36,7 @@ const addChambre = async (req, res) => {
 const updateChambre = async (req, res) => {
   const { idCha } = req.params;
   const chambre = req.body;
+
   try {
     const updatedChambre = await Chambre.updateChambre(idCha, chambre);
     res.status(201).json({

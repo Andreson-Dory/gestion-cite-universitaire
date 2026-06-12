@@ -38,6 +38,30 @@ import { toast } from "sonner";
 import { fetchChambre } from "@/redux/features/chambre/chambreThunk";
 import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
 import { fetchBatiment } from "@/redux/features/batiment/batimentThunk";
+import z from "zod";
+import AttribuerPageSkeleton from "@/components/skeletons/AttribuerPageSkeleton";
+
+const schema = z.object({
+  IdCha: z
+    .string()
+    .min(1, "Veuillez choisir un chambre")
+    .regex(/^[0-9]+$/, ""),
+  IdEtu: z
+    .string()
+    .min(1, "Veuillez choisir un étudiant")
+    .regex(/^[0-9]+$/, ""),
+  DateFin: z.string().min(1, "Date d'écheance obligatoire"),
+  StatutAtt: z.string().min(1, "Veuillez indiquer le statut de l'attribution"),
+});
+
+const DEFAULT_ATTRIBUER = {
+  IdAtt: "",
+  IdCha: "",
+  IdEtu: "",
+  DateAtt: "",
+  DateFin: "",
+  StatutAtt: "",
+};
 
 export default function AttribuerPage() {
   const dispatch = useDispatch();
@@ -46,14 +70,8 @@ export default function AttribuerPage() {
   const [filterBatiment, setFilterBatiment] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [attribuer, setAttribuer] = useState({
-    IdAtt: "",
-    IdCha: "",
-    IdEtu: "",
-    DateAtt: "",
-    DateFin: "",
-    StatutAtt: "",
-  });
+  const [attribuer, setAttribuer] = useState(DEFAULT_ATTRIBUER);
+  const [errors, setErrors] = useState({});
   const { attribuers, status } = useSelector((state) => state.attribuer);
   const { etudiants } = useSelector((state) => state.etudiant);
   const { chambres } = useSelector((state) => state.chambre);
@@ -80,7 +98,7 @@ export default function AttribuerPage() {
     }) || [];
 
   useEffect(() => {
-    dispatch(fetchAttribuer());
+    if (!attribuers) dispatch(fetchAttribuer());
     dispatch(fetchChambre());
     dispatch(fetchEtudiant());
     dispatch(fetchBatiment());
@@ -89,20 +107,21 @@ export default function AttribuerPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const result = schema.safeParse(attribuer);
+
+    if (!result.success) {
+      const tree = z.treeifyError(result.error);
+      setErrors(tree.properties);
+      return;
+    }
+
     if (editingId) {
       dispatch(editAttribuer({ IdAtt: editingId, data: attribuer }))
         .unwrap()
         .then((response) => {
           toast.success(response.message);
           setEditingId(null);
-          setAttribuer({
-            IdAtt: "",
-            IdCha: "",
-            IdEtu: "",
-            DateAtt: "",
-            DateFin: "",
-            StatutAtt: "",
-          });
+          setAttribuer(DEFAULT_ATTRIBUER);
           setIsOpen(false);
         })
         .catch((error) => {
@@ -119,14 +138,7 @@ export default function AttribuerPage() {
         .unwrap()
         .then((response) => {
           toast.success(response.message);
-          setAttribuer({
-            IdAtt: "",
-            IdCha: "",
-            IdEtu: "",
-            DateAtt: "",
-            DateFin: "",
-            StatutAtt: "",
-          });
+          setAttribuer(DEFAULT_ATTRIBUER);
           setIsOpen(false);
         })
         .catch((error) => {
@@ -136,20 +148,18 @@ export default function AttribuerPage() {
     }
   };
 
-  const handleDelete = async (IdAtt) => {
-    if (confirm("Êtes-vous sûr?")) {
-      dispatch(removeAttribuer(IdAtt))
-        .unwrap()
-        .then((response) => {
-          toast.success(response.message);
-        })
-        .catch((error) => {
-          toast.error(
-            "Erreur survenue lors de la suppression de l'occupation du chambre !",
-          );
-          console.error(error);
-        });
-    }
+  const onDelete = async (IdAtt) => {
+    dispatch(removeAttribuer(IdAtt))
+      .unwrap()
+      .then((response) => {
+        toast.success(response.message);
+      })
+      .catch((error) => {
+        toast.error(
+          "Erreur survenue lors de la suppression de l'occupation du chambre !",
+        );
+        console.error(error);
+      });
   };
 
   const handleToggleAttribuer = async (IdAtt, IdCha) => {
@@ -184,7 +194,58 @@ export default function AttribuerPage() {
       ...prev,
       [name]: value,
     }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
+
+  const handleDelete = async (id) => {
+    toast.custom(
+      (t) => (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 p-6 w-100 flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+              Supprimer cet attribution de chambre
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Cette action est irréversible. Toutes les données associées seront
+              perdues.
+            </p>
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => toast.dismiss(t)}
+              className="hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                toast.dismiss(t);
+                await onDelete(id);
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity, // Keep open until action
+      },
+    );
+  };
+
+  if (status === "loading") {
+    return <AttribuerPageSkeleton />;
+  }
 
   if (status === "error")
     return <div className="text-red-600">Erreur de chargement</div>;
@@ -200,7 +261,16 @@ export default function AttribuerPage() {
             Gérez les attributions du chambre de la résidence
           </p>
         </div>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog
+          open={isOpen}
+          onOpenChange={(open) => {
+            setIsOpen(open);
+            if (!open) {
+              setAttribuer(DEFAULT_ATTRIBUER);
+              setErrors({});
+            }
+          }}
+        >
           <DialogTrigger asChild>
             <Button
               onClick={() => setEditingId(null)}
@@ -233,13 +303,18 @@ export default function AttribuerPage() {
                   <Select
                     name="IdCha"
                     value={attribuer.IdCha.toString() || ""}
-                    onValueChange={(value) =>
+                    onValueChange={(value) => {
                       setAttribuer((prev) => ({
                         ...prev,
-                        IdCha: Number(value),
-                      }))
-                    }
-                    required
+                        IdCha: value,
+                      }));
+                      if (errors.IdCha) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          IdCha: undefined,
+                        }));
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un chambre" />
@@ -252,6 +327,11 @@ export default function AttribuerPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.IdCha && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.IdCha.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 <div className="col-span-2">
@@ -259,13 +339,18 @@ export default function AttribuerPage() {
                   <Select
                     name="IdEtu"
                     value={attribuer.IdEtu.toString() || ""}
-                    onValueChange={(value) =>
+                    onValueChange={(value) => {
                       setAttribuer((prev) => ({
                         ...prev,
-                        IdEtu: Number(value),
-                      }))
-                    }
-                    required
+                        IdEtu: value,
+                      }));
+                      if (errors.IdEtu) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          IdEtu: undefined,
+                        }));
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un étudiant" />
@@ -278,6 +363,11 @@ export default function AttribuerPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.IdEtu && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.IdEtu.errors[0]}
+                    </p>
+                  )}
                 </div>
 
                 {!editingId && (
@@ -286,13 +376,18 @@ export default function AttribuerPage() {
                     <Select
                       name="StatutAtt"
                       value={attribuer.StatutAtt || ""}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
                         setAttribuer((prev) => ({
                           ...prev,
                           StatutAtt: value,
-                        }))
-                      }
-                      required
+                        }));
+                        if (errors.StatutAtt) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            StatutAtt: undefined,
+                          }));
+                        }
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Séléctionner le statut" />
@@ -302,6 +397,11 @@ export default function AttribuerPage() {
                         <SelectItem value="Terminé">Terminé</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.StatutAtt && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.StatutAtt.errors[0]}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -312,8 +412,12 @@ export default function AttribuerPage() {
                     type="date"
                     value={attribuer.DateFin}
                     onChange={handleInputAttribuerChange}
-                    required
                   />
+                  {errors.DateFin && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.DateFin.errors[0]}
+                    </p>
+                  )}
                 </div>
               </div>
 
