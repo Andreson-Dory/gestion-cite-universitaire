@@ -21,6 +21,18 @@ const findPaiementById = async (idPai) => {
   return rows[0] || null;
 };
 
+const findPaiementByEtudiant = async (idEtu) => {
+  const query = `
+        SELECT *
+        FROM Paiement 
+        WHERE IdEtu = ?
+        ORDER BY DatePai DESC 
+        LIMIT 5
+    `;
+  const [rows] = await db.query(query, [idEtu]);
+  return rows;
+};
+
 const createPaiement = async (paiement) => {
   const query = `INSERT INTO Paiement (DatePai, MontantPai, Typepai, ModePai, StatutPai, IdEtu) VALUES (?, ?, ?, ?, ?, ?);`;
   const values = [
@@ -48,4 +60,5 @@ export default {
   createPaiement,
   deletePaiement,
   findPaiementById,
+  findPaiementByEtudiant,
 };

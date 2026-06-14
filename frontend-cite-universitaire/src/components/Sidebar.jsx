@@ -50,7 +50,6 @@ export default function Sidebar() {
           );
         })}
       </nav>
-      <div className="p-4 border-t text-xs text-gray-400">v0.1 prototype</div>
     </aside>
   );
 }

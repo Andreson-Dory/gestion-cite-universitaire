@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Eye } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addEtudiant,
@@ -42,6 +42,11 @@ import {
 import { toast } from "sonner";
 import z from "zod";
 import EtudiantsPageSkeleton from "@/components/skeletons/EtudiantPageSkeleton";
+import EtudiantView from "@/components/etudiant/EtudiantView";
+import { getEtudiantChambre } from "@/services/chambreService";
+import { getReclamationByEtudiant } from "@/services/reclamationService";
+import { getSanctionByEtudiant } from "@/services/sanctionService";
+import { getPaiementByEtudiant } from "@/services/paiementService";
 
 const schema = z.object({
   Matricule: z
@@ -96,6 +101,14 @@ export default function EtudiantPage() {
   const [errors, setErrors] = useState({});
   const { etudiants, status } = useSelector((state) => state.etudiant);
 
+  // Etudiant view details constant
+  const [viewEtudiant, setViewEtudiant] = useState(false);
+  const [selectedEtudiant, setSelectedEdutiant] = useState({});
+  const [attribution, setAttribution] = useState([]);
+  const [reclamations, setReclamations] = useState([]);
+  const [sanctions, setSanctions] = useState([]);
+  const [paiements, setPaiements] = useState([]);
+
   const allFilieres = useMemo(() => {
     return [...new Set(etudiants.map((e) => e.Filiere).filter(Boolean))];
   }, [etudiants]);
@@ -141,7 +154,7 @@ export default function EtudiantPage() {
     }) || [];
 
   useEffect(() => {
-    if (!etudiants) dispatch(fetchEtudiant());
+    if (etudiants.length <= 0) dispatch(fetchEtudiant());
   }, []);
 
   const handleInputEtudiantChange = (e) => {
@@ -224,6 +237,32 @@ export default function EtudiantPage() {
     setIsOpen(true);
   };
 
+  const handleView = async (etudiant) => {
+    await getEtudiantChambre(etudiant.IdEtu)
+      .then((response) => setAttribution(response))
+      .catch((err) => {
+        // nothing
+      });
+    await getReclamationByEtudiant(etudiant.IdEtu)
+      .then((response) => setReclamations(response))
+      .catch(() => {
+        //nothing
+      });
+
+    await getSanctionByEtudiant(etudiant.IdEtu)
+      .then((response) => setSanctions(response))
+      .catch((err) => {
+        //nothing
+      });
+    await getPaiementByEtudiant(etudiant.IdEtu)
+      .then((response) => setPaiements(response))
+      .catch((err) => {
+        //nothing
+      });
+    setViewEtudiant(true);
+    setSelectedEdutiant(etudiant);
+  };
+
   const handleDelete = async (id, nom) => {
     toast.custom(
       (t) => (
@@ -300,15 +339,13 @@ export default function EtudiantPage() {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-3xl w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingId ? "Modifier" : "Ajouter"} Étudiant
-              </DialogTitle>
-              <DialogDescription>
-                Remplissez le formulaire pour{" "}
-                {editingId ? "modifier" : "ajouter"} un étudiant
-              </DialogDescription>
-            </DialogHeader>
+            <DialogTitle>
+              {editingId ? "Modifier" : "Ajouter"} Étudiant
+            </DialogTitle>
+            <DialogDescription>
+              Remplissez le formulaire pour {editingId ? "modifier" : "ajouter"}{" "}
+              un étudiant
+            </DialogDescription>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <input type="hidden" name="id" />
@@ -617,10 +654,8 @@ export default function EtudiantPage() {
                 <TableRow>
                   <TableHead>Matricule</TableHead>
                   <TableHead>Nom</TableHead>
-                  <TableHead>Date de naissance</TableHead>
                   <TableHead>Téléphone</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Filière</TableHead>
                   <TableHead>Niveau</TableHead>
                   <TableHead>Université</TableHead>
                   <TableHead>Actions</TableHead>
@@ -646,16 +681,22 @@ export default function EtudiantPage() {
                         {etudiant.Matricule}
                       </TableCell>
                       <TableCell>{etudiant.Nom}</TableCell>
-                      <TableCell>
-                        {etudiant.DateNaissance.split("T")[0]}
-                      </TableCell>
                       <TableCell>{etudiant.Telephone}</TableCell>
                       <TableCell>{etudiant.Email}</TableCell>
-                      <TableCell>{etudiant.Filiere}</TableCell>
                       <TableCell>{etudiant.Niveau}</TableCell>
                       <TableCell>{etudiant.Universite}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              handleView(etudiant);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
                           <Button
                             size="sm"
                             variant="ghost"
@@ -681,6 +722,15 @@ export default function EtudiantPage() {
                 )}
               </TableBody>
             </Table>
+            <EtudiantView
+              isOpen={viewEtudiant}
+              setIsOpen={setViewEtudiant}
+              etudiant={selectedEtudiant}
+              attribution={attribution}
+              reclamations={reclamations}
+              sanctions={sanctions}
+              paiements={paiements}
+            />
           </div>
         </CardContent>
       </Card>

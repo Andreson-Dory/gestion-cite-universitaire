@@ -9,6 +9,16 @@ const getEtudiants = async (req, res) => {
   }
 };
 
+const getEtudiantsFromChambre = async (req, res) => {
+  const { idCha } = req.params;
+  try {
+    const results = await Etudiant.findEtudiantFromChambre(idCha);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 const addEtudiant = async (req, res) => {
   const etudiant = req.body;
   try {
@@ -60,6 +70,7 @@ const deleteEtudiant = async (req, res) => {
 
 export default {
   getEtudiants,
+  getEtudiantsFromChambre,
   addEtudiant,
   updateEtudiant,
   deleteEtudiant,

@@ -13,6 +13,16 @@ const getPaiements = async (req, res) => {
   }
 };
 
+const getEtudiantPaiement = async (req, res) => {
+  const { idEtu } = req.params;
+  try {
+    const results = await Paiement.findPaiementByEtudiant(idEtu);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 const addPaiement = async (req, res) => {
   const paiement = req.body;
   try {
@@ -64,6 +74,7 @@ const deletePaiement = async (req, res) => {
 
 export default {
   getPaiements,
+  getEtudiantPaiement,
   addPaiement,
   deletePaiement,
 };

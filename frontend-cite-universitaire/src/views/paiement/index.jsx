@@ -109,7 +109,7 @@ export default function PaiementPage() {
     }) || [];
 
   useEffect(() => {
-    if (!paiements) dispatch(fetchPaiement());
+    if (paiements.length <= 0) dispatch(fetchPaiement());
     dispatch(fetchEtudiant());
   }, []);
 
@@ -524,7 +524,9 @@ export default function PaiementPage() {
                       <TableCell className="font-medium">
                         {paiement.DatePai?.split("T")[0]}
                       </TableCell>
-                      <TableCell>{paiement.MontantPai}</TableCell>
+                      <TableCell>
+                        {Number(paiement.MontantPai).toLocaleString()}
+                      </TableCell>
                       <TableCell>{paiement.TypePai}</TableCell>
                       <TableCell>{paiement.ModePai}</TableCell>
                       <TableCell>{paiement.StatutPai}</TableCell>

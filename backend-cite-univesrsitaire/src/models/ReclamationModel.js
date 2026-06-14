@@ -21,6 +21,18 @@ const findReclamationById = async (idRec) => {
   return rows[0] || null;
 };
 
+const findReclamationByEtudiant = async (idEtu) => {
+  const query = `
+    SELECT *
+    FROM Reclamation  
+    WHERE IdEtu = ?
+    ORDER BY DateRec DESC 
+    LIMIT 5
+  `;
+  const [rows] = await db.query(query, [idEtu]);
+  return rows;
+};
+
 const createReclamation = async (reclamation) => {
   const query = `INSERT INTO Reclamation (DateRec, Sujet, DescriptionRec, StatusRec, Priorite, IdEtu) VALUES (?, ?, ?, ?, ?, ?);`;
   const values = [
@@ -62,4 +74,5 @@ export default {
   updateReclamation,
   deleteReclamation,
   findReclamationById,
+  findReclamationByEtudiant,
 };
