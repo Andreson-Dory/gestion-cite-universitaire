@@ -1,8 +1,14 @@
 import db from "../config/db.js";
 
-const getAllBatiments = async () => {
-  const [rows] = await db.query("SELECT * FROM Batiment");
-  return rows;
+const getAllBatiments = async (page = 1) => {
+  const offset = (page - 1) * 100;
+  const [rows] = await db.query("SELECT * FROM Batiment LIMIT 100 OFFSET ?", [
+    offset,
+  ]);
+  const [[countResult]] = await db.query(
+    `SELECT COUNT(*) as total FROM Batiment`,
+  );
+  return { rows, countResult };
 };
 
 const findBatimentById = async (idBat) => {

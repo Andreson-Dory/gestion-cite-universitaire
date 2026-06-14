@@ -1,9 +1,20 @@
 import Batiment from "../models/BatimentModel.js";
 
 const getBatiments = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
   try {
-    const results = await Batiment.getAllBatiments();
-    res.json(results);
+    const { rows, countResult } = await Batiment.getAllBatiments(page);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / 100);
+
+    res.json({
+      batiments: rows,
+      pagination: {
+        page,
+        total,
+        totalPages,
+      },
+    });
   } catch (err) {
     res.status(500).json(err);
   }

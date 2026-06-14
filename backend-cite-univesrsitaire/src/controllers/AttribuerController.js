@@ -2,9 +2,13 @@ import Attribuer from "../models/AttribuerModel.js";
 import Chambre from "../models/ChambreModel.js";
 
 const getAttribuers = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
   try {
-    const results = await Attribuer.getAllAttribuers();
-    res.json(results);
+    const { rows, countResult } = await Attribuer.getAllAttribuers(page);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / 100);
+
+    res.json({ attribuers: rows, pagination: { page, total, totalPages } });
   } catch (err) {
     res.status(500).json(err);
   }

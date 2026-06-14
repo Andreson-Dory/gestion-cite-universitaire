@@ -7,9 +7,9 @@ import {
 
 export const fetchPaiement = createAsyncThunk(
   "paiements/fetchPaiements",
-  async (_, { rejectWithValue }) => {
+  async (page = 1, { rejectWithValue }) => {
     try {
-      const response = await getPaiements();
+      const response = await getPaiements(page);
       return response;
     } catch (error) {
       return rejectWithValue(

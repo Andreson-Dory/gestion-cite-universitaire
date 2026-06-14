@@ -5,9 +5,12 @@ import { render } from "@react-email/render";
 import React from "react";
 
 const getPaiements = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
   try {
-    const results = await Paiement.getAllPaiements();
-    res.json(results);
+    const { rows, countResult } = await Paiement.getAllPaiements(page);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / 100);
+    res.json({ paiements: rows, pagination: { page, total, totalPages } });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -15,9 +18,24 @@ const getPaiements = async (req, res) => {
 
 const getEtudiantPaiement = async (req, res) => {
   const { idEtu } = req.params;
+  const page = parseInt(req.query.page) || 1;
   try {
-    const results = await Paiement.findPaiementByEtudiant(idEtu);
-    res.json(results);
+    const { rows, countResult } = await Paiement.findPaiementByEtudiant(
+      idEtu,
+      page,
+    );
+
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / 3);
+
+    res.json({
+      paiements: rows,
+      pagination: {
+        page,
+        total,
+        totalPages,
+      },
+    });
   } catch (err) {
     res.status(500).json(err);
   }

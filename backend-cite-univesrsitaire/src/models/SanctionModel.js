@@ -1,13 +1,19 @@
 import db from "../config/db.js";
 
-const getAllSanctions = async () => {
+const getAllSanctions = async (page = 1) => {
+  const offset = (page - 1) * 100;
   const query = `
     SELECT s.*, e.Nom AS Nom 
     FROM Sanction AS s 
     JOIN Etudiant AS e ON s.IdEtu=e.IdEtu
+    ORDER BY DateSac DESC
+    LIMIT 100 OFFSET ?
   `;
-  const [rows] = await db.query(query);
-  return rows;
+  const [rows] = await db.query(query, [offset]);
+  const [[countResult]] = await db.query(
+    `SELECT COUNT(*) as total FROM Sanction`,
+  );
+  return { rows, countResult };
 };
 
 const findSanctionById = async (idSac) => {
@@ -21,16 +27,24 @@ const findSanctionById = async (idSac) => {
   return rows[0] || null;
 };
 
-const findSanctionByEtudiant = async (idEtu) => {
+const findSanctionByEtudiant = async (idEtu, page = 1) => {
+  const offset = (page - 1) * 3;
   const query = `
     SELECT *
     FROM Sanction
     WHERE IdEtu = ?
     ORDER BY DateSac DESC 
-    LIMIT 5
+    LIMIT 3 OFFSET ?
   `;
-  const [rows] = await db.query(query, [idEtu]);
-  return rows;
+  const [rows] = await db.query(query, [idEtu, offset]);
+  const [[countResult]] = await db.query(
+    `
+      SELECT COUNT(*) as total
+      FROM Sanction WHERE IdEtu = ?
+      `,
+    [idEtu],
+  );
+  return { rows, countResult };
 };
 
 const createSanction = async (sanction) => {

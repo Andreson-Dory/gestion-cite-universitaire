@@ -1,14 +1,19 @@
 import db from "../config/db.js";
 import Attribuer from "../models/AttribuerModel.js";
 
-const getAllChambres = async () => {
+const getAllChambres = async (page = 1) => {
+  const offset = (page - 1) * 100;
   const query = `
     SELECT c.*, b.NomBat AS NomBat
     FROM Chambre AS c
-    JOIN Batiment AS b ON b.IdBat=c.IdBat 
+    JOIN Batiment AS b ON b.IdBat=c.IdBat
+    LIMIT 100 OFFSET ?
   `;
-  const [rows] = await db.query(query);
-  return rows;
+  const [rows] = await db.query(query, [offset]);
+  const [[countResult]] = await db.query(
+    `SELECT COUNT(*) as total FROM Chambre`,
+  );
+  return { rows, countResult };
 };
 
 const findChambreById = async (idCha) => {

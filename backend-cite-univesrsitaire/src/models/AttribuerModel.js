@@ -1,14 +1,19 @@
 import db from "../config/db.js";
 
-const getAllAttribuers = async () => {
+const getAllAttribuers = async (page = 1) => {
+  const offset = (page - 1) * 100;
   const query = `SELECT a.*, c.NumCha AS NumCha, e.Nom AS Nom, b.NomBat AS NomBat 
                     FROM Attribuer AS a 
                     JOIN Etudiant AS e ON a.IdEtu=e.IdEtu
                     JOIN Chambre AS c ON a.IdCha=c.IdCha
                     JOIN Batiment AS b on c.IdBat=b.IdBat
-                    ORDER BY a.DateAtt DESC;`;
-  const [rows] = await db.query(query);
-  return rows;
+                    ORDER BY a.DateAtt DESC
+                    LIMIT 100 OFFSET ?;`;
+  const [rows] = await db.query(query, [offset]);
+  const [[countResult]] = await db.query(
+    `SELECT COUNT(*) as total FROM Attribuer`,
+  );
+  return { rows, countResult };
 };
 
 const findAttribuerById = async (idAtt) => {

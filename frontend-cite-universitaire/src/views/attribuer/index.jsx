@@ -72,7 +72,11 @@ export default function AttribuerPage() {
   const [editingId, setEditingId] = useState(null);
   const [attribuer, setAttribuer] = useState(DEFAULT_ATTRIBUER);
   const [errors, setErrors] = useState({});
-  const { attribuers, status } = useSelector((state) => state.attribuer);
+  const {
+    attribuers,
+    pagination: attribuerPagination = {},
+    status,
+  } = useSelector((state) => state.attribuer);
   const { etudiants } = useSelector((state) => state.etudiant);
   const { chambres } = useSelector((state) => state.chambre);
   const { batiments } = useSelector((state) => state.batiment);
@@ -97,12 +101,14 @@ export default function AttribuerPage() {
       return (matchesNom || matchesNumCha) && matchesBatiment && matchesStatus;
     }) || [];
 
+  const [page, setPage] = useState(attribuerPagination.page || 1);
+
   useEffect(() => {
-    if (attribuers.length <= 0) dispatch(fetchAttribuer());
+    dispatch(fetchAttribuer(page));
     dispatch(fetchChambre());
     dispatch(fetchEtudiant());
     dispatch(fetchBatiment());
-  }, []);
+  }, [page]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -495,9 +501,9 @@ export default function AttribuerPage() {
             </Select>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto overflow-y-auto max-h-137.5! h-137.5">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 bg-background z-10">
                 <TableRow>
                   <TableHead>Batiment</TableHead>
                   <TableHead>Chambre</TableHead>
@@ -531,8 +537,8 @@ export default function AttribuerPage() {
                         {attribuer.NumCha}
                       </TableCell>
                       <TableCell>{attribuer.Nom}</TableCell>
-                      <TableCell>{attribuer.DateAtt.split("T")[0]}</TableCell>
-                      <TableCell>{attribuer.DateFin.split("T")[0]}</TableCell>
+                      <TableCell>{attribuer.DateAtt}</TableCell>
+                      <TableCell>{attribuer.DateFin}</TableCell>
                       <TableCell>
                         <span
                           className={`px-2 py-1 text-xs rounded-full ${
@@ -584,6 +590,28 @@ export default function AttribuerPage() {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          <div className="flex justify-between gap-2 mt-4">
+            <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+              Précedent
+            </Button>
+
+            <span>
+              Page {attribuerPagination?.page || page} /{" "}
+              {attribuerPagination?.totalPages || 1}
+            </span>
+
+            <Button
+              disabled={
+                attribuerPagination?.totalPages
+                  ? page === attribuerPagination.totalPages
+                  : true
+              }
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Suivant
+            </Button>
           </div>
         </CardContent>
       </Card>

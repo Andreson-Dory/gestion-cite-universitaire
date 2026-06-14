@@ -8,9 +8,11 @@ import {
 
 export const fetchEtudiant = createAsyncThunk(
   "etudiants/fetchEtudiants",
-  async (_, { rejectWithValue }) => {
+  async (page, { rejectWithValue }) => {
     try {
-      const response = await getEtudiants();
+      console.log("page", page);
+
+      const response = await getEtudiants(page);
       return response;
     } catch (error) {
       return rejectWithValue(

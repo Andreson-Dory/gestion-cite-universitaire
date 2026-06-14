@@ -8,9 +8,9 @@ import {
 
 export const fetchBatiment = createAsyncThunk(
   "batiments/fetchBatiments",
-  async (_, { rejectWithValue }) => {
+  async (page = 1, { rejectWithValue }) => {
     try {
-      const response = await getBatiments();
+      const response = await getBatiments(page);
       return response;
     } catch (error) {
       return rejectWithValue(

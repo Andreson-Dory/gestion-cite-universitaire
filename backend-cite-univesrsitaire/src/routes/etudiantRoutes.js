@@ -3,7 +3,7 @@ import etudiantController from "../controllers/EtudiantController.js";
 
 const router = express.Router();
 
-router.get("/etudiant/", etudiantController.getEtudiants);
+router.get("/etudiant", etudiantController.getEtudiants);
 router.get(
   "/chambre/etudiant/:idCha",
   etudiantController.getEtudiantsFromChambre,

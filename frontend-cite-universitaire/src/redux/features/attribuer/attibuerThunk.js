@@ -9,9 +9,9 @@ import {
 
 export const fetchAttribuer = createAsyncThunk(
   "attribuers/fetchAttribuers",
-  async (_, { rejectWithValue }) => {
+  async (page = 1, { rejectWithValue }) => {
     try {
-      const response = await getAttribuers();
+      const response = await getAttribuers(page);
       return response;
     } catch (error) {
       return rejectWithValue(

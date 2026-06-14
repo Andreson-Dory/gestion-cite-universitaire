@@ -1,12 +1,14 @@
 import { backendApi } from "./apiService";
 
-export const getSanctions = async () => {
-  const response = await backendApi.get("/sanction/");
+export const getSanctions = async (page = 1) => {
+  const response = await backendApi.get(`/sanction/?page=${page}`);
   return response.data;
 };
 
-export const getSanctionByEtudiant = async (idEtu) => {
-  const response = await backendApi.get(`/etudiant/sanction/${idEtu}`);
+export const getSanctionByEtudiant = async (idEtu, page = 1) => {
+  const response = await backendApi.get(
+    `/etudiant/sanction/${idEtu}?page=${page}`,
+  );
   return response.data;
 };
 

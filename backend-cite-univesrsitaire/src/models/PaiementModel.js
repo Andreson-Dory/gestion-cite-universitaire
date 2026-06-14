@@ -1,13 +1,19 @@
 import db from "../config/db.js";
 
-const getAllPaiements = async () => {
+const getAllPaiements = async (page = 1) => {
+  const offset = (page - 1) * 100;
   const query = `
         SELECT p.*, e.Nom AS NomEtudiant, e.Email AS Email  
         FROM Paiement AS p 
         JOIN Etudiant AS e ON p.IdEtu=e.IdEtu
+        ORDER BY DatePai DESC
+        LIMIT 100 OFFSET ?
     `;
-  const [rows] = await db.query(query);
-  return rows;
+  const [rows] = await db.query(query, [offset]);
+  const [[countResult]] = await db.query(
+    `SELECT COUNT(*) as total FROM Paiement`,
+  );
+  return { rows, countResult };
 };
 
 const findPaiementById = async (idPai) => {
@@ -21,16 +27,24 @@ const findPaiementById = async (idPai) => {
   return rows[0] || null;
 };
 
-const findPaiementByEtudiant = async (idEtu) => {
+const findPaiementByEtudiant = async (idEtu, page = 1) => {
+  const offset = (page - 1) * 3;
   const query = `
         SELECT *
         FROM Paiement 
         WHERE IdEtu = ?
         ORDER BY DatePai DESC 
-        LIMIT 5
+        LIMIT 3 OFFSET ?
     `;
-  const [rows] = await db.query(query, [idEtu]);
-  return rows;
+  const [rows] = await db.query(query, [idEtu, offset]);
+  const [[countResult]] = await db.query(
+    `
+      SELECT COUNT(*) as total
+      FROM Paiement WHERE IdEtu = ?
+      `,
+    [idEtu],
+  );
+  return { rows, countResult };
 };
 
 const createPaiement = async (paiement) => {

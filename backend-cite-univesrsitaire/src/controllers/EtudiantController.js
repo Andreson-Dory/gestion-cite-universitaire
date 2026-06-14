@@ -1,10 +1,24 @@
 import Etudiant from "../models/EtudiantModel.js";
 
 const getEtudiants = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+
   try {
-    const results = await Etudiant.getAllEtudiants();
-    res.json(results);
+    const { rows, countResult } = await Etudiant.getAllEtudiants(page);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / 100);
+
+    res.json({
+      etudiants: rows,
+      pagination: {
+        page,
+        total,
+        totalPages,
+      },
+    });
   } catch (err) {
+    console.log("error etudiant", err);
+
     res.status(500).json(err);
   }
 };

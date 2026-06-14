@@ -10,6 +10,7 @@ const etudiantSlice = createSlice({
   name: "etudiants",
   initialState: {
     etudiants: [],
+    pagination: {},
     status: "idle",
     error: null,
   },
@@ -22,7 +23,8 @@ const etudiantSlice = createSlice({
       })
       .addCase(fetchEtudiant.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.etudiants = action.payload;
+        state.etudiants = action.payload.etudiants;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchEtudiant.rejected, (state, action) => {
         state.status = "failed";

@@ -14,16 +14,61 @@ import {
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "../ui/sheet";
 import InfoItem from "../utils/InfoItem";
+import { useEffect, useState } from "react";
+import { getPaiementByEtudiant } from "@/services/paiementService";
+import { getReclamationByEtudiant } from "@/services/reclamationService";
+import { getSanctionByEtudiant } from "@/services/sanctionService";
+import { Button } from "../ui/button";
 
 export default function EtudiantView({
   isOpen,
   setIsOpen,
   etudiant,
   attribution,
-  reclamations,
-  sanctions,
-  paiements,
 }) {
+  const [reclamations, setReclamations] = useState([]);
+  const [sanctions, setSanctions] = useState([]);
+  const [paiements, setPaiements] = useState([]);
+  const [pagePaiement, setPagePaiement] = useState(1);
+  const [pageReclamation, setPageReclamation] = useState(1);
+  const [pageSanction, setPageSanction] = useState(1);
+
+  useEffect(() => {
+    const fetchPaiement = async () => {
+      await getPaiementByEtudiant(etudiant.IdEtu, pagePaiement)
+        .then((response) => setPaiements(response))
+        .catch((err) => {
+          //nothing
+        });
+    };
+
+    fetchPaiement();
+  }, [pagePaiement, etudiant.IdEtu]);
+
+  useEffect(() => {
+    const fetchReclamation = async () => {
+      await getReclamationByEtudiant(etudiant.IdEtu, pageReclamation)
+        .then((response) => setReclamations(response))
+        .catch(() => {
+          //nothing
+        });
+    };
+
+    fetchReclamation();
+  }, [pageReclamation, etudiant.IdEtu]);
+
+  useEffect(() => {
+    const fetchSanction = async () => {
+      await getSanctionByEtudiant(etudiant.IdEtu, pageSanction)
+        .then((response) => setSanctions(response))
+        .catch((err) => {
+          //nothing
+        });
+    };
+
+    fetchSanction();
+  }, [pageSanction, etudiant.IdEtu]);
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent
@@ -148,20 +193,20 @@ export default function EtudiantView({
 
         <div className="grid grid-cols-3 gap-6">
           {/* Recent Payments */}
-          <section className="mt-10 rounded-xl border bg-card shadow-sm">
+          <section className="flex flex-col mt-4 rounded-xl border bg-card shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase">
-                Paiement{paiements?.length > 1 ? "s" : ""} récent
-                {paiements?.length > 1 ? "s" : ""}
+                Paiement{paiements?.paiements?.length > 1 ? "s" : ""} récent
+                {paiements?.paiements?.length > 1 ? "s" : ""}
               </h3>
 
               <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
-                {paiements?.length || 0}
+                {paiements?.pagination?.total || 0}
               </span>
             </div>
 
             <div className="max-h-80 overflow-y-auto divide-y">
-              {(paiements || []).map((paiement) => (
+              {(paiements?.paiements || []).map((paiement) => (
                 <div
                   key={paiement.IdPai}
                   className="flex items-start justify-between gap-4 p-4"
@@ -194,29 +239,55 @@ export default function EtudiantView({
                 </div>
               ))}
 
-              {!paiements?.length && (
+              {!paiements?.paiements?.length && (
                 <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
                   Aucun paiement récent
                 </div>
               )}
             </div>
+
+            <div className="flex mt-auto justify-between gap-2 mb-2 mx-4">
+              <Button
+                disabled={pagePaiement === 1}
+                onClick={() => setPagePaiement((p) => p - 1)}
+              >
+                Précedent
+              </Button>
+
+              <span>
+                Page {paiements?.pagination?.page} /{" "}
+                {paiements?.pagination?.totalPages}
+              </span>
+
+              <Button
+                disabled={
+                  paiements?.pagination?.totalPages
+                    ? pagePaiement === paiements.pagination.totalPages
+                    : true
+                }
+                onClick={() => setPagePaiement((p) => p + 1)}
+              >
+                Suivant
+              </Button>
+            </div>
           </section>
 
           {/* Recent Complaints */}
-          <section className="mt-10 rounded-xl border bg-card shadow-sm">
+          <section className="flex flex-col mt-4 rounded-xl border bg-card shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase">
-                Réclamation{reclamations?.length > 1 ? "s" : ""} récente
-                {reclamations?.length > 1 ? "s" : ""}
+                Réclamation{reclamations?.reclamations?.length > 1 ? "s" : ""}{" "}
+                récente
+                {reclamations?.reclamations?.length > 1 ? "s" : ""}
               </h3>
 
               <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
-                {reclamations?.length || 0}
+                {reclamations?.pagination?.total || 0}
               </span>
             </div>
 
             <div className="max-h-80 overflow-y-auto divide-y">
-              {(reclamations || []).map((reclamation) => (
+              {(reclamations?.reclamations || []).map((reclamation) => (
                 <div
                   key={reclamation.IdRec}
                   className="flex items-start justify-between gap-4 p-4"
@@ -240,29 +311,53 @@ export default function EtudiantView({
                 </div>
               ))}
 
-              {!reclamations?.length && (
+              {!reclamations?.reclamations?.length && (
                 <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
                   Aucune réclamation
                 </div>
               )}
             </div>
+            <div className="flex mt-auto justify-between gap-2 mb-2 mx-4">
+              <Button
+                disabled={pageReclamation === 1}
+                onClick={() => setPageReclamation((p) => p - 1)}
+              >
+                Précedent
+              </Button>
+
+              <span>
+                Page {reclamations?.pagination?.page} /{" "}
+                {reclamations?.pagination?.totalPages}
+              </span>
+
+              <Button
+                disabled={
+                  reclamations?.pagination?.totalPages
+                    ? pageReclamation === reclamations.pagination.totalPages
+                    : true
+                }
+                onClick={() => setPageReclamation((p) => p + 1)}
+              >
+                Suivant
+              </Button>
+            </div>
           </section>
 
           {/* Recent Penalities */}
-          <section className="mt-10 rounded-xl border bg-card shadow-sm">
+          <section className="flex flex-col mt-4 rounded-xl border bg-card shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase">
-                Sanction{sanctions?.length > 1 ? "s" : ""} récente
-                {sanctions?.length > 1 ? "s" : ""}
+                Sanction{sanctions?.sanctions?.length > 1 ? "s" : ""} récente
+                {sanctions?.sanctions?.length > 1 ? "s" : ""}
               </h3>
 
               <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
-                {sanctions?.length || 0}
+                {sanctions?.pagination?.total || 0}
               </span>
             </div>
 
             <div className="max-h-80 overflow-y-auto divide-y">
-              {(sanctions || []).map((sanction) => (
+              {(sanctions?.sanctions || []).map((sanction) => (
                 <div
                   key={sanction.IdSac}
                   className="flex items-start justify-between gap-4 p-4"
@@ -286,11 +381,35 @@ export default function EtudiantView({
                 </div>
               ))}
 
-              {!sanctions?.length && (
+              {!sanctions?.sanctions?.length && (
                 <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
                   Aucun sanction
                 </div>
               )}
+            </div>
+            <div className="flex mt-auto justify-between gap-2 mb-2 mx-4">
+              <Button
+                disabled={pageSanction === 1}
+                onClick={() => setPageSanction((p) => p - 1)}
+              >
+                Précedent
+              </Button>
+
+              <span>
+                Page {sanctions?.pagination?.page} /{" "}
+                {sanctions?.pagination?.totalPages}
+              </span>
+
+              <Button
+                disabled={
+                  sanctions?.pagination?.totalPages
+                    ? pageSanction === sanctions.pagination.totalPages
+                    : true
+                }
+                onClick={() => setPageSanction((p) => p + 1)}
+              >
+                Suivant
+              </Button>
             </div>
           </section>
         </div>
