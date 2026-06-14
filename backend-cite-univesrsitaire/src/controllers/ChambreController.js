@@ -2,16 +2,21 @@ import Chambre from "../models/ChambreModel.js";
 import Attribuer from "../models/AttribuerModel.js";
 
 const getChambres = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
   try {
-    const results = await Chambre.getAllChambres();
+    const { rows, countResult } = await Chambre.getAllChambres(page);
 
     const chambres = await Promise.all(
-      results.map(async (r) => {
+      rows.map(async (r) => {
         const attributionInfo = await Attribuer.findIsChambreAttribuer(r.IdCha);
         return { ...r, Occupation: Number(attributionInfo.attributionCount) };
       }),
     );
-    res.json(chambres);
+
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / 100);
+
+    res.json({ chambres, pagination: { page, total, totalPages } });
   } catch (err) {
     res.status(500).json(err);
   }

@@ -8,9 +8,9 @@ import {
 
 export const fetchSanction = createAsyncThunk(
   "sanctions/fetchSanctions",
-  async (_, { rejectWithValue }) => {
+  async (page = 1, { rejectWithValue }) => {
     try {
-      const response = await getSanctions();
+      const response = await getSanctions(page);
       return response;
     } catch (error) {
       return rejectWithValue(

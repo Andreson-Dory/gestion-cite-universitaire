@@ -8,9 +8,9 @@ import {
 
 export const fetchChambre = createAsyncThunk(
   "chambres/fetchChambres",
-  async (_, { rejectWithValue }) => {
+  async (page = 1, { rejectWithValue }) => {
     try {
-      const response = await getChambres();
+      const response = await getChambres(page);
       return response;
     } catch (error) {
       return rejectWithValue(

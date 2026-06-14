@@ -1,9 +1,12 @@
 import Sanction from "../models/SanctionModel.js";
 
 const getSanctions = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
   try {
-    const results = await Sanction.getAllSanctions();
-    res.json(results);
+    const { rows, countResult } = await Sanction.getAllSanctions(page);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / 100);
+    res.json({ sanctions: rows, pagination: { page, total, totalPages } });
   } catch (err) {
     res.status(500).json(err);
   }

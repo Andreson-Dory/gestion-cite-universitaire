@@ -99,15 +99,17 @@ export default function EtudiantPage() {
   const [editingId, setEditingId] = useState(null);
   const [etudiant, setEtudiant] = useState(DEFAULT_ETUDIANT);
   const [errors, setErrors] = useState({});
-  const { etudiants, status } = useSelector((state) => state.etudiant);
+  const { etudiants, status, pagination } = useSelector(
+    (state) => state.etudiant,
+  );
 
   // Etudiant view details constant
   const [viewEtudiant, setViewEtudiant] = useState(false);
   const [selectedEtudiant, setSelectedEdutiant] = useState({});
   const [attribution, setAttribution] = useState([]);
-  const [reclamations, setReclamations] = useState([]);
-  const [sanctions, setSanctions] = useState([]);
-  const [paiements, setPaiements] = useState([]);
+
+  // Pagination
+  const [page, setPage] = useState(pagination.page ? pagination.page : 1);
 
   const allFilieres = useMemo(() => {
     return [...new Set(etudiants.map((e) => e.Filiere).filter(Boolean))];
@@ -154,8 +156,8 @@ export default function EtudiantPage() {
     }) || [];
 
   useEffect(() => {
-    if (etudiants.length <= 0) dispatch(fetchEtudiant());
-  }, []);
+    dispatch(fetchEtudiant(page));
+  }, [page]);
 
   const handleInputEtudiantChange = (e) => {
     const { name, value } = e.target;
@@ -242,22 +244,6 @@ export default function EtudiantPage() {
       .then((response) => setAttribution(response))
       .catch((err) => {
         // nothing
-      });
-    await getReclamationByEtudiant(etudiant.IdEtu)
-      .then((response) => setReclamations(response))
-      .catch(() => {
-        //nothing
-      });
-
-    await getSanctionByEtudiant(etudiant.IdEtu)
-      .then((response) => setSanctions(response))
-      .catch((err) => {
-        //nothing
-      });
-    await getPaiementByEtudiant(etudiant.IdEtu)
-      .then((response) => setPaiements(response))
-      .catch((err) => {
-        //nothing
       });
     setViewEtudiant(true);
     setSelectedEdutiant(etudiant);
@@ -542,7 +528,7 @@ export default function EtudiantPage() {
         <CardHeader>
           <CardTitle>Liste des Étudiants</CardTitle>
           <CardDescription>
-            Total: {etudiants?.length || 0} étudiants
+            Total: {pagination?.total || 0} étudiants
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -648,9 +634,9 @@ export default function EtudiantPage() {
             </Select>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto overflow-y-auto max-h-137.5! h-137.5">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 bg-background z-10">
                 <TableRow>
                   <TableHead>Matricule</TableHead>
                   <TableHead>Nom</TableHead>
@@ -727,10 +713,26 @@ export default function EtudiantPage() {
               setIsOpen={setViewEtudiant}
               etudiant={selectedEtudiant}
               attribution={attribution}
-              reclamations={reclamations}
-              sanctions={sanctions}
-              paiements={paiements}
             />
+          </div>
+
+          <div className="flex justify-between gap-2">
+            <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+              Précedent
+            </Button>
+
+            <span>
+              Page {pagination?.page} / {pagination?.totalPages}
+            </span>
+
+            <Button
+              disabled={
+                pagination?.totalPages ? page === pagination.totalPages : true
+              }
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Suivant
+            </Button>
           </div>
         </CardContent>
       </Card>

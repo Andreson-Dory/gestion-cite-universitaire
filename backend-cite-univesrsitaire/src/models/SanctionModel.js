@@ -1,13 +1,18 @@
 import db from "../config/db.js";
 
-const getAllSanctions = async () => {
+const getAllSanctions = async (page = 1) => {
+  const offset = (page - 1) * 100;
   const query = `
     SELECT s.*, e.Nom AS Nom 
     FROM Sanction AS s 
     JOIN Etudiant AS e ON s.IdEtu=e.IdEtu
+    LIMIT 100 OFFSET ?
   `;
-  const [rows] = await db.query(query);
-  return rows;
+  const [rows] = await db.query(query, [offset]);
+  const [[countResult]] = await db.query(
+    `SELECT COUNT(*) as total FROM Sanction`,
+  );
+  return { rows, countResult };
 };
 
 const findSanctionById = async (idSac) => {

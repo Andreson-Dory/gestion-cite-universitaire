@@ -1,9 +1,12 @@
 import Reclamation from "../models/ReclamationModel.js";
 
 const getReclamations = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
   try {
-    const results = await Reclamation.getAllReclamations();
-    res.json(results);
+    const { rows, countResult } = await Reclamation.getAllReclamations(page);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / 100);
+    res.json({ reclamations: rows, pagination: { page, total, totalPages } });
   } catch (err) {
     res.status(500).json(err);
   }

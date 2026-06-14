@@ -76,7 +76,11 @@ export default function PaiementPage() {
   const [filterStatusPai, setFilterStatusPai] = useState("");
   const [paiement, setPaiement] = useState(DEFAULT_PAIEMENT);
   const [errors, setErrors] = useState({});
-  const { paiements, status } = useSelector((state) => state.paiement);
+  const {
+    paiements,
+    pagination: paiementPagination = {},
+    status,
+  } = useSelector((state) => state.paiement);
   const { etudiants } = useSelector((state) => state.etudiant);
 
   const filteredPaiements =
@@ -108,10 +112,12 @@ export default function PaiementPage() {
       );
     }) || [];
 
+  const [page, setPage] = useState(paiementPagination.page || 1);
+
   useEffect(() => {
-    if (paiements.length <= 0) dispatch(fetchPaiement());
+    dispatch(fetchPaiement(page));
     dispatch(fetchEtudiant());
-  }, []);
+  }, [page]);
 
   const handleInputPaiementChange = (e) => {
     const { name, value } = e.target;
@@ -425,7 +431,7 @@ export default function PaiementPage() {
         <CardHeader>
           <CardTitle>Liste des Paiements</CardTitle>
           <CardDescription>
-            Total: {paiements?.length || 0} Paiements
+            Total: {paiementPagination?.total || 0} Paiements
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -492,9 +498,9 @@ export default function PaiementPage() {
             />
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto overflow-y-auto max-h-137.5! h-137.5">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 bg-background z-10">
                 <TableRow>
                   <TableHead>Date du Paiement</TableHead>
                   <TableHead>Montant (Ar)</TableHead>
@@ -548,6 +554,28 @@ export default function PaiementPage() {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          <div className="flex justify-between gap-2 mt-4">
+            <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+              Précedent
+            </Button>
+
+            <span>
+              Page {paiementPagination?.page || page} /{" "}
+              {paiementPagination?.totalPages || 1}
+            </span>
+
+            <Button
+              disabled={
+                paiementPagination?.totalPages
+                  ? page === paiementPagination.totalPages
+                  : true
+              }
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Suivant
+            </Button>
           </div>
         </CardContent>
       </Card>

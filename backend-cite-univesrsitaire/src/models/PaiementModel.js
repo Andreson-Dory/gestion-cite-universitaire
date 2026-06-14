@@ -1,13 +1,18 @@
 import db from "../config/db.js";
 
-const getAllPaiements = async () => {
+const getAllPaiements = async (page = 1) => {
+  const offset = (page - 1) * 100;
   const query = `
         SELECT p.*, e.Nom AS NomEtudiant, e.Email AS Email  
         FROM Paiement AS p 
         JOIN Etudiant AS e ON p.IdEtu=e.IdEtu
+        LIMIT 100 OFFSET ?
     `;
-  const [rows] = await db.query(query);
-  return rows;
+  const [rows] = await db.query(query, [offset]);
+  const [[countResult]] = await db.query(
+    `SELECT COUNT(*) as total FROM Paiement`,
+  );
+  return { rows, countResult };
 };
 
 const findPaiementById = async (idPai) => {

@@ -1,7 +1,7 @@
 import { backendApi } from "./apiService";
 
-export const getChambres = async () => {
-  const response = await backendApi.get("/chambre/");
+export const getChambres = async (page = 1) => {
+  const response = await backendApi.get(`/chambre/?page=${page}`);
   return response.data;
 };
 

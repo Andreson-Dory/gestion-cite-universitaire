@@ -7,9 +7,18 @@ const findEtudiantById = async (idEtu) => {
   return rows[0] || null;
 };
 
-const getAllEtudiants = async () => {
-  const [rows] = await db.query("SELECT * FROM Etudiant");
-  return rows;
+const getAllEtudiants = async (page) => {
+  const offset = (page - 1) * 100;
+  const [rows] = await db.query("SELECT * FROM Etudiant LIMIT 100 OFFSET ?", [
+    offset,
+  ]);
+  const [[countResult]] = await db.query(
+    `
+      SELECT COUNT(*) as total
+      FROM Etudiant
+      `,
+  );
+  return { rows, countResult };
 };
 
 const findEtudiantFromChambre = async (idCha) => {

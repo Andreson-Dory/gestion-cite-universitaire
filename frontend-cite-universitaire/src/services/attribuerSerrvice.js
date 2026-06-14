@@ -1,7 +1,7 @@
 import { backendApi } from "./apiService";
 
-export const getAttribuers = async () => {
-  const response = await backendApi.get("/attribuer/");
+export const getAttribuers = async (page = 1) => {
+  const response = await backendApi.get(`/attribuer/?page=${page}`);
   return response.data;
 };
 

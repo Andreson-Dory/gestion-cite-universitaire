@@ -1,12 +1,14 @@
 import { backendApi } from "./apiService";
 
-export const getPaiements = async () => {
-  const response = await backendApi.get("/paiement/");
+export const getPaiements = async (page = 1) => {
+  const response = await backendApi.get(`/paiement/?page=${page}`);
   return response.data;
 };
 
-export const getPaiementByEtudiant = async (idEtu) => {
-  const response = await backendApi.get(`/etudiant/paiement/${idEtu}`);
+export const getPaiementByEtudiant = async (idEtu, page) => {
+  const response = await backendApi.get(
+    `/etudiant/paiement/${idEtu}?page=${page}`,
+  );
   return response.data;
 };
 

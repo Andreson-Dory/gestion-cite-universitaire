@@ -115,12 +115,21 @@ export default function BatimentPage() {
   const [chambre, setChambre] = useState(DEFAULT_CHAMBRE);
   const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
-  const { batiments, status: statusBatiment } = useSelector(
-    (state) => state.batiment,
+  const {
+    batiments,
+    pagination: batimentPagination = {},
+    status: statusBatiment,
+  } = useSelector((state) => state.batiment);
+  const {
+    chambres,
+    pagination: chambrePagination = {},
+    status: statusChambre,
+  } = useSelector((state) => state.chambre);
+
+  const [batimentPage, setBatimentPage] = useState(
+    batimentPagination.page || 1,
   );
-  const { chambres, status: statusChambre } = useSelector(
-    (state) => state.chambre,
-  );
+  const [chambrePage, setChambrePage] = useState(chambrePagination.page || 1);
 
   // Chambre view constant
   const [viewChambre, setViewChambre] = useState(false);
@@ -171,9 +180,12 @@ export default function BatimentPage() {
     }) || [];
 
   useEffect(() => {
-    if (batiments.length <= 0) dispatch(fetchBatiment());
-    if (chambres.length <= 0) dispatch(fetchChambre());
-  }, []);
+    dispatch(fetchBatiment(batimentPage));
+  }, [batimentPage]);
+
+  useEffect(() => {
+    dispatch(fetchChambre(chambrePage));
+  }, [chambrePage]);
 
   const handleSubmitBatiment = (e) => {
     e.preventDefault();
@@ -585,7 +597,9 @@ export default function BatimentPage() {
             <CardHeader>
               <CardTitle>Liste des Bâtiments</CardTitle>
               <CardDescription>
-                Total: {batiments?.length || 0} bâtiments
+                Total:{" "}
+                {batimentPagination?.total ? batimentPagination.total : 0}{" "}
+                bâtiments
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -625,9 +639,9 @@ export default function BatimentPage() {
                 </Select>
               </div>
 
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto overflow-y-auto max-h-110! h-110">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="sticky top-0 bg-background z-10">
                     <TableRow>
                       <TableHead>Nom</TableHead>
                       <TableHead>Type</TableHead>
@@ -690,6 +704,31 @@ export default function BatimentPage() {
                     )}
                   </TableBody>
                 </Table>
+              </div>
+
+              <div className="flex justify-between gap-2 mt-4">
+                <Button
+                  disabled={batimentPage === 1}
+                  onClick={() => setBatimentPage((p) => p - 1)}
+                >
+                  Précedent
+                </Button>
+
+                <span>
+                  Page {batimentPagination?.page || batimentPage} /{" "}
+                  {batimentPagination?.totalPages || 1}
+                </span>
+
+                <Button
+                  disabled={
+                    batimentPagination?.totalPages
+                      ? batimentPage === batimentPagination.totalPages
+                      : true
+                  }
+                  onClick={() => setBatimentPage((p) => p + 1)}
+                >
+                  Suivant
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -941,7 +980,8 @@ export default function BatimentPage() {
             <CardHeader>
               <CardTitle>Liste des Chambres</CardTitle>
               <CardDescription>
-                Total: {chambres?.length || 0} chambres
+                Total: {chambrePagination?.total ? chambrePagination.total : 0}{" "}
+                chambres
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1007,9 +1047,9 @@ export default function BatimentPage() {
                 </Select>
               </div>
 
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto overflow-y-auto max-h-110! h-110">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="sticky top-0 bg-background z-10">
                     <TableRow>
                       <TableHead>Numéro</TableHead>
                       <TableHead>Type</TableHead>
@@ -1106,6 +1146,31 @@ export default function BatimentPage() {
                     )}
                   </TableBody>
                 </Table>
+              </div>
+
+              <div className="flex justify-between gap-2 mt-4">
+                <Button
+                  disabled={chambrePage === 1}
+                  onClick={() => setChambrePage((p) => p - 1)}
+                >
+                  Précedent
+                </Button>
+
+                <span>
+                  Page {chambrePagination?.page || chambrePage} /{" "}
+                  {chambrePagination?.totalPages || 1}
+                </span>
+
+                <Button
+                  disabled={
+                    chambrePagination?.totalPages
+                      ? chambrePage === chambrePagination.totalPages
+                      : true
+                  }
+                  onClick={() => setChambrePage((p) => p + 1)}
+                >
+                  Suivant
+                </Button>
               </div>
             </CardContent>
           </Card>

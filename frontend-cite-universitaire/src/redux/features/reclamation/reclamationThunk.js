@@ -8,9 +8,9 @@ import {
 
 export const fetchReclamation = createAsyncThunk(
   "reclamations/fetchReclamations",
-  async (_, { rejectWithValue }) => {
+  async (page = 1, { rejectWithValue }) => {
     try {
-      const response = await getReclamations();
+      const response = await getReclamations(page);
       return response;
     } catch (error) {
       return rejectWithValue(

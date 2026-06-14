@@ -1,13 +1,18 @@
 import db from "../config/db.js";
 
-const getAllReclamations = async () => {
+const getAllReclamations = async (page = 1) => {
+  const offset = (page - 1) * 100;
   const query = `
     SELECT r.*, e.Nom AS Nom 
     FROM Reclamation AS r 
     JOIN Etudiant AS e ON r.IdEtu=e.IdEtu
+    LIMIT 100 OFFSET ?
   `;
-  const [rows] = await db.query(query);
-  return rows;
+  const [rows] = await db.query(query, [offset]);
+  const [[countResult]] = await db.query(
+    `SELECT COUNT(*) as total FROM Reclamation`,
+  );
+  return { rows, countResult };
 };
 
 const findReclamationById = async (idRec) => {

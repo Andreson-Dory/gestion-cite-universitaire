@@ -1,12 +1,14 @@
 import { backendApi } from "./apiService";
 
-export const getReclamations = async () => {
-  const response = await backendApi.get("/reclamation/");
+export const getReclamations = async (page = 1) => {
+  const response = await backendApi.get(`/reclamation/?page=${page}`);
   return response.data;
 };
 
-export const getReclamationByEtudiant = async (idEtu) => {
-  const response = await backendApi.get(`/etudiant/reclamation/${idEtu}`);
+export const getReclamationByEtudiant = async (idEtu, page = 1) => {
+  const response = await backendApi.get(
+    `/etudiant/reclamation/${idEtu}?page=${page}`,
+  );
   return response.data;
 };
 

@@ -107,19 +107,30 @@ export default function ReclamationSanction() {
   const [errors, setErrors] = useState({});
 
   const dispatch = useDispatch();
-  const { reclamations, status: statusReclamation } = useSelector(
-    (state) => state.reclamation,
-  );
-  const { sanctions, Status: statusSanction } = useSelector(
-    (state) => state.sanction,
-  );
+  const {
+    reclamations,
+    pagination: reclamationPagination = {},
+    status: statusReclamation,
+  } = useSelector((state) => state.reclamation);
+  const {
+    sanctions,
+    pagination: sanctionPagination = {},
+    status: statusSanction,
+  } = useSelector((state) => state.sanction);
   const { etudiants } = useSelector((state) => state.etudiant);
 
+  const [reclamationPage, setReclamationPage] = useState(
+    reclamationPagination.page || 1,
+  );
+  const [sanctionPage, setSanctionPage] = useState(
+    sanctionPagination.page || 1,
+  );
+
   useEffect(() => {
-    if (sanctions.length <= 0) dispatch(fetchSanction());
-    if (reclamations.length <= 0) dispatch(fetchReclamation());
+    dispatch(fetchSanction(sanctionPage));
+    dispatch(fetchReclamation(reclamationPage));
     dispatch(fetchEtudiant());
-  }, []);
+  }, [reclamationPage, sanctionPage]);
 
   // Filter Reclamation
   const [searchTermReclamation, setSearchTermReclamation] = useState("");
@@ -742,9 +753,9 @@ export default function ReclamationSanction() {
                 />
               </div>
 
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto overflow-y-auto max-h-110! h-110">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="sticky top-0 bg-background z-10">
                     <TableRow>
                       <TableHead>Date</TableHead>
                       <TableHead>Sujet</TableHead>
@@ -830,6 +841,30 @@ export default function ReclamationSanction() {
                     )}
                   </TableBody>
                 </Table>
+              </div>
+              <div className="flex justify-between gap-2 mt-4">
+                <Button
+                  disabled={reclamationPage === 1}
+                  onClick={() => setReclamationPage((p) => p - 1)}
+                >
+                  Précedent
+                </Button>
+
+                <span>
+                  Page {reclamationPagination?.page || reclamationPage} /{" "}
+                  {reclamationPagination?.totalPages || 1}
+                </span>
+
+                <Button
+                  disabled={
+                    reclamationPagination?.totalPages
+                      ? reclamationPage === reclamationPagination.totalPages
+                      : true
+                  }
+                  onClick={() => setReclamationPage((p) => p + 1)}
+                >
+                  Suivant
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -1016,7 +1051,8 @@ export default function ReclamationSanction() {
             <CardHeader>
               <CardTitle>Liste des Sanctions</CardTitle>
               <CardDescription>
-                Total: {sanctions?.length || 0} sanctions
+                Total: {sanctionPagination?.total ? sanctions?.length : 0}{" "}
+                sanctions
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1066,9 +1102,9 @@ export default function ReclamationSanction() {
                 />
               </div>
 
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto overflow-y-auto max-h-110! h-110">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="sticky top-0 bg-background z-10">
                     <TableRow>
                       <TableHead>Date</TableHead>
                       <TableHead>Motif</TableHead>
@@ -1148,6 +1184,31 @@ export default function ReclamationSanction() {
                     )}
                   </TableBody>
                 </Table>
+              </div>
+
+              <div className="flex justify-between gap-2 mt-4">
+                <Button
+                  disabled={sanctionPage === 1}
+                  onClick={() => setSanctionPage((p) => p - 1)}
+                >
+                  Précedent
+                </Button>
+
+                <span>
+                  Page {sanctionPagination?.page || sanctionPage} /{" "}
+                  {sanctionPagination?.totalPages || 1}
+                </span>
+
+                <Button
+                  disabled={
+                    sanctionPagination?.totalPages
+                      ? sanctionPage === sanctionPagination.totalPages
+                      : true
+                  }
+                  onClick={() => setSanctionPage((p) => p + 1)}
+                >
+                  Suivant
+                </Button>
               </div>
             </CardContent>
           </Card>
