@@ -14,9 +14,24 @@ const getReclamations = async (req, res) => {
 
 const getEtudiantReclamation = async (req, res) => {
   const { idEtu } = req.params;
+  const page = parseInt(req.query.page) || 1;
   try {
-    const results = await Reclamation.findReclamationByEtudiant(idEtu);
-    res.json(results);
+    const { rows, countResult } = await Reclamation.findReclamationByEtudiant(
+      idEtu,
+      page,
+    );
+
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / 3);
+
+    res.json({
+      reclamations: rows,
+      pagination: {
+        page,
+        total,
+        totalPages,
+      },
+    });
   } catch (err) {
     res.status(500).json(err);
   }

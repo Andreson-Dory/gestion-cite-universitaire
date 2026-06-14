@@ -7,7 +7,7 @@ const findEtudiantById = async (idEtu) => {
   return rows[0] || null;
 };
 
-const getAllEtudiants = async (page) => {
+const getAllEtudiants = async (page = 1) => {
   const offset = (page - 1) * 100;
   const [rows] = await db.query("SELECT * FROM Etudiant LIMIT 100 OFFSET ?", [
     offset,

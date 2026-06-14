@@ -6,6 +6,7 @@ const getAllReclamations = async (page = 1) => {
     SELECT r.*, e.Nom AS Nom 
     FROM Reclamation AS r 
     JOIN Etudiant AS e ON r.IdEtu=e.IdEtu
+    ORDER BY DateRec DESC
     LIMIT 100 OFFSET ?
   `;
   const [rows] = await db.query(query, [offset]);
@@ -26,16 +27,24 @@ const findReclamationById = async (idRec) => {
   return rows[0] || null;
 };
 
-const findReclamationByEtudiant = async (idEtu) => {
+const findReclamationByEtudiant = async (idEtu, page = 1) => {
+  const offset = (page - 1) * 3;
   const query = `
     SELECT *
     FROM Reclamation  
     WHERE IdEtu = ?
     ORDER BY DateRec DESC 
-    LIMIT 5
+    LIMIT 3 OFFSET ?
   `;
-  const [rows] = await db.query(query, [idEtu]);
-  return rows;
+  const [rows] = await db.query(query, [idEtu, offset]);
+  const [[countResult]] = await db.query(
+    `
+      SELECT COUNT(*) as total
+      FROM Reclamation WHERE IdEtu = ?
+      `,
+    [idEtu],
+  );
+  return { rows, countResult };
 };
 
 const createReclamation = async (reclamation) => {
