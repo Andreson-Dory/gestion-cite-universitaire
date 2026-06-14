@@ -12,6 +12,18 @@ const getAllEtudiants = async () => {
   return rows;
 };
 
+const findEtudiantFromChambre = async (idCha) => {
+  const query = `
+    SELECT DISTINCT e.*
+    FROM Etudiant AS e
+    JOIN Attribuer AS a ON a.IdEtu = e.IdEtu
+    WHERE a.IdCha = ?
+      AND a.StatutAtt = 'En cours'
+  `;
+  const [rows] = await db.query(query, [idCha]);
+  return rows;
+};
+
 const createEtudiant = async (etudiant) => {
   const query = `INSERT INTO Etudiant (Matricule, Nom, Sexe, DateNaissance, Telephone, Email, Filiere, Niveau, Universite) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`;
   const values = [
@@ -61,4 +73,5 @@ export default {
   updateEtudiant,
   deleteEtudiant,
   findEtudiantById,
+  findEtudiantFromChambre,
 };

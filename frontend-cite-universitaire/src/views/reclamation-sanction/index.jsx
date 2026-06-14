@@ -116,8 +116,8 @@ export default function ReclamationSanction() {
   const { etudiants } = useSelector((state) => state.etudiant);
 
   useEffect(() => {
-    if (!sanctions) dispatch(fetchSanction());
-    if (!reclamations) dispatch(fetchReclamation());
+    if (sanctions.length <= 0) dispatch(fetchSanction());
+    if (reclamations.length <= 0) dispatch(fetchReclamation());
     dispatch(fetchEtudiant());
   }, []);
 
@@ -1106,7 +1106,7 @@ export default function ReclamationSanction() {
                           </TableCell>
                           <TableCell>{sanction.Nom}</TableCell>
                           <TableCell className="font-medium">
-                            {Number(sanction.MontantAmende).toFixed(2)}
+                            {Number(sanction.MontantAmende).toLocaleString()}
                           </TableCell>
                           <TableCell>
                             <span

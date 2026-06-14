@@ -98,7 +98,7 @@ export default function AttribuerPage() {
     }) || [];
 
   useEffect(() => {
-    if (!attribuers) dispatch(fetchAttribuer());
+    if (attribuers.length <= 0) dispatch(fetchAttribuer());
     dispatch(fetchChambre());
     dispatch(fetchEtudiant());
     dispatch(fetchBatiment());

@@ -23,7 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Eye, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -50,6 +50,8 @@ import {
 import { toast } from "sonner";
 import z from "zod";
 import BatimentAndChambrePageSkeleton from "@/components/skeletons/BatimentAndChambrePageSkeleton";
+import { getEtudiantsFromChambre } from "@/services/etudiantService";
+import ChambreView from "@/components/chambres/ChambreView";
 
 const batimentSchema = z.object({
   NomBat: z.string().min(1, "Le nom du batiment est obligatoire"),
@@ -120,6 +122,11 @@ export default function BatimentPage() {
     (state) => state.chambre,
   );
 
+  // Chambre view constant
+  const [viewChambre, setViewChambre] = useState(false);
+  const [selectedChambre, setSelectedChambre] = useState({});
+  const [etudiants, setEtudiants] = useState([]);
+
   // Filter Batiment
   const [searchTermBatiment, setSearchTermBatiment] = useState("");
   const [filterTypeBatiment, setFilterTypeBatiment] = useState("");
@@ -164,8 +171,8 @@ export default function BatimentPage() {
     }) || [];
 
   useEffect(() => {
-    if (!batiments) dispatch(fetchBatiment());
-    if (!chambres) dispatch(fetchChambre());
+    if (batiments.length <= 0) dispatch(fetchBatiment());
+    if (chambres.length <= 0) dispatch(fetchChambre());
   }, []);
 
   const handleSubmitBatiment = (e) => {
@@ -262,6 +269,16 @@ export default function BatimentPage() {
     setChambre(newChambre);
     setEditingChambreId(chambre.IdCha);
     setIsOpenModalChambre(true);
+  };
+
+  const handleView = async (chambre) => {
+    await getEtudiantsFromChambre(chambre.IdCha)
+      .then((response) => setEtudiants(response))
+      .catch((err) => {
+        // nothing
+      });
+    setViewChambre(true);
+    setSelectedChambre(chambre);
   };
 
   const onDeleteBatiment = async (idBat) => {
@@ -1055,6 +1072,16 @@ export default function BatimentPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
+                                onClick={() => {
+                                  handleView(chambre);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
                                 onClick={() => handleEditChambre(chambre)}
                               >
                                 <Pencil className="w-4 h-4" />
@@ -1084,6 +1111,12 @@ export default function BatimentPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      <ChambreView
+        isOpen={viewChambre}
+        setIsOpen={setViewChambre}
+        chambre={selectedChambre}
+        etudiants={etudiants}
+      />
     </div>
   );
 }

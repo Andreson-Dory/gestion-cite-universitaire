@@ -22,6 +22,19 @@ const findChambreById = async (idCha) => {
   return rows[0] || null;
 };
 
+const findChambreByEtudiant = async (idEtu) => {
+  const query = `
+    SELECT c.NumCha AS NumCha, b.NomBat AS NomBat
+    FROM Chambre AS c 
+    JOIN Batiment AS b ON b.IdBat=c.IdBat
+    JOIN Attribuer AS a ON a.IdCha=c.IdCha
+    WHERE a.IdEtu=? 
+      AND a.StatutAtt='En cours'
+  `;
+  const [rows] = await db.query(query, [idEtu]);
+  return rows;
+};
+
 const createChambre = async (chambre) => {
   const query = `INSERT INTO Chambre (NumCha, TypeCha, Capacite, Etage, StatutCha, IdBat) VALUES (?, ?, ?, ?, ?, ?);`;
   const values = [
@@ -87,4 +100,5 @@ export default {
   updateToFreeChambreStatus,
   deleteChambre,
   findChambreById,
+  findChambreByEtudiant,
 };

@@ -21,6 +21,18 @@ const findSanctionById = async (idSac) => {
   return rows[0] || null;
 };
 
+const findSanctionByEtudiant = async (idEtu) => {
+  const query = `
+    SELECT *
+    FROM Sanction
+    WHERE IdEtu = ?
+    ORDER BY DateSac DESC 
+    LIMIT 5
+  `;
+  const [rows] = await db.query(query, [idEtu]);
+  return rows;
+};
+
 const createSanction = async (sanction) => {
   const query = `INSERT INTO Sanction (DateSac, Motif, DescriptionSac, MontantAmende, StatusSac, IdEtu) VALUES (?, ?, ?, ?, ?, ?);`;
   const values = [
@@ -62,4 +74,5 @@ export default {
   updateSanction,
   deleteSanction,
   findSanctionById,
+  findSanctionByEtudiant,
 };

@@ -8,6 +8,15 @@ const getSanctions = async (req, res) => {
     res.status(500).json(err);
   }
 };
+const getEtudiantSanction = async (req, res) => {
+  const { idEtu } = req.params;
+  try {
+    const results = await Sanction.findSanctionByEtudiant(idEtu);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
 
 const addSanction = async (req, res) => {
   const sanction = req.body;
@@ -60,6 +69,7 @@ const deleteSanction = async (req, res) => {
 
 export default {
   getSanctions,
+  getEtudiantSanction,
   addSanction,
   updateSanction,
   deleteSanction,

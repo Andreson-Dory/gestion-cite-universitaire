@@ -17,6 +17,16 @@ const getChambres = async (req, res) => {
   }
 };
 
+const getChambreByEtudiant = async (req, res) => {
+  const { idEtu } = req.params;
+  try {
+    const result = await Chambre.findChambreByEtudiant(idEtu);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 const addChambre = async (req, res) => {
   const chambre = req.body;
   try {
@@ -69,6 +79,7 @@ const deleteChambre = async (req, res) => {
 
 export default {
   getChambres,
+  getChambreByEtudiant,
   addChambre,
   updateChambre,
   deleteChambre,
