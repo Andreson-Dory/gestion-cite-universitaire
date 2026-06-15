@@ -10,6 +10,11 @@ router.get(
   reclamationController.getReclamations,
 );
 router.get(
+  "/reclamation/export",
+  AuthMiddleware,
+  reclamationController.exportAllReclamations,
+);
+router.get(
   "/etudiant/reclamation/:idEtu",
   AuthMiddleware,
   reclamationController.getEtudiantReclamation,

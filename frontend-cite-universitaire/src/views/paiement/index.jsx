@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, Search } from "lucide-react";
+import { Plus, Trash2, Search, Sheet } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import {
@@ -42,6 +42,8 @@ import {
 import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
 import z from "zod";
 import PaiementPageSkeleton from "@/components/skeletons/PaiementPageSkeleton";
+import { exportPaiements } from "@/services/paiementService";
+import { exportToExcel } from "@/lib/excelExport";
 
 const schema = z.object({
   MontantPai: z
@@ -177,6 +179,29 @@ export default function PaiementPage() {
       });
   };
 
+  const handleExport = async () => {
+    await exportPaiements()
+      .then((res) => {
+        const data = res.paiements;
+        const formatted = data.map((p) => ({
+          "Date de Paiement": p.DatePai,
+          Montant: Number(p.MontantPai).toLocaleString(),
+          "Type ": p.TypePai,
+          "Mode ": p.ModePai,
+          "Statut ": p.StatutPai,
+          "Nom de l'étudiant": p.NomEtudiant,
+          Email: p.Email,
+        }));
+
+        exportToExcel(formatted, "Liste_Paiements", "Paiements");
+
+        toast.success("Liste des paiements exporté");
+      })
+      .catch(() => {
+        toast.error("Erreur lors de l'exportation");
+      });
+  };
+
   const handleDelete = async (id) => {
     toast.custom(
       (t) => (
@@ -233,177 +258,189 @@ export default function PaiementPage() {
             Gérez les Paiement de location de la résidence
           </p>
         </div>
-        <Dialog
-          open={isOpen}
-          onOpenChange={(open) => {
-            setIsOpen(open);
-            if (!open) {
-              setPaiement(DEFAULT_PAIEMENT);
-              setErrors({});
-            }
-          }}
-        >
-          <DialogTrigger asChild>
-            <Button className="cursor-pointer">
-              <Plus className="w-4 h-4 mr-2" />
-              Effectuer un Paiement
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Effectuer un Paiement</DialogTitle>
-              <DialogDescription>
-                Remplissez le formulaire pour effectuer un paiement
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <input type="hidden" name="id" />
 
-                <div>
-                  <label className="text-sm font-medium">Montant</label>
-                  <Input
-                    name="MontantPai"
-                    value={paiement.MontantPai}
-                    title="Veuillez entrer uniquement des chiffres"
-                    onChange={handleInputPaiementChange}
-                    placeholder="60000"
-                  />
-                  {errors.MontantPai && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.MontantPai.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">
-                    Type de paiement
-                  </label>
-                  <Select
-                    name="TypePai"
-                    value={paiement.TypePai}
-                    onValueChange={(value) => {
-                      setPaiement((prev) => ({
-                        ...prev,
-                        TypePai: value,
-                      }));
-                      if (errors.TypePai) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          TypePai: undefined,
-                        }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selectionner le sexe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Loyer">Loyer</SelectItem>
-                      <SelectItem value="Sanction">Sanction</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.TypePai && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.TypePai.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">
-                    Mode de paiement
-                  </label>
-                  <Select
-                    name="ModePai"
-                    value={paiement.ModePai}
-                    onValueChange={(value) => {
-                      setPaiement((prev) => ({
-                        ...prev,
-                        ModePai: value,
-                      }));
-                      if (errors.ModePai) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          ModePai: undefined,
-                        }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selectionner le sexe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Cash">Cash</SelectItem>
-                      <SelectItem value="Mobile Money">Mobile Money</SelectItem>
-                      <SelectItem value="Virement">Virement</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.ModePai && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.ModePai.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">
-                    Statut du paiement
-                  </label>
-                  <Select
-                    name="StatutPai"
-                    value={paiement.StatutPai}
-                    onValueChange={(value) => {
-                      setPaiement((prev) => ({
-                        ...prev,
-                        StatutPai: value,
-                      }));
-                      if (errors.StatutPai) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          StatutPai: undefined,
-                        }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selectionner le sexe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Payé">Payé</SelectItem>
-                      <SelectItem value="Partiel">Partiel</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.StatutPai && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.StatutPai.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div className="col-span-2">
-                  <label className="text-sm font-medium">Étudiant</label>
-                  <Input
-                    name="IdEtu"
-                    value={paiement.IdEtu}
-                    onChange={handleInputPaiementChange}
-                    placeholder="1"
-                  />
-                  {errors.IdEtu && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.IdEtu.errors[0]}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full cursor-pointer">
-                Confirmer
+        <div>
+          <Button
+            onClick={handleExport}
+            className="cursor-pointer bg-emerald-500"
+          >
+            <Sheet className="w-4 h-4 mr-2" />
+            Exporter en Excel
+          </Button>
+          <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+              setIsOpen(open);
+              if (!open) {
+                setPaiement(DEFAULT_PAIEMENT);
+                setErrors({});
+              }
+            }}
+          >
+            <DialogTrigger asChild>
+              <Button className="cursor-pointer">
+                <Plus className="w-4 h-4 mr-2" />
+                Effectuer un Paiement
               </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Effectuer un Paiement</DialogTitle>
+                <DialogDescription>
+                  Remplissez le formulaire pour effectuer un paiement
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <input type="hidden" name="id" />
+
+                  <div>
+                    <label className="text-sm font-medium">Montant</label>
+                    <Input
+                      name="MontantPai"
+                      value={paiement.MontantPai}
+                      title="Veuillez entrer uniquement des chiffres"
+                      onChange={handleInputPaiementChange}
+                      placeholder="60000"
+                    />
+                    {errors.MontantPai && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.MontantPai.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">
+                      Type de paiement
+                    </label>
+                    <Select
+                      name="TypePai"
+                      value={paiement.TypePai}
+                      onValueChange={(value) => {
+                        setPaiement((prev) => ({
+                          ...prev,
+                          TypePai: value,
+                        }));
+                        if (errors.TypePai) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            TypePai: undefined,
+                          }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selectionner le sexe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Loyer">Loyer</SelectItem>
+                        <SelectItem value="Sanction">Sanction</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.TypePai && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.TypePai.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">
+                      Mode de paiement
+                    </label>
+                    <Select
+                      name="ModePai"
+                      value={paiement.ModePai}
+                      onValueChange={(value) => {
+                        setPaiement((prev) => ({
+                          ...prev,
+                          ModePai: value,
+                        }));
+                        if (errors.ModePai) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            ModePai: undefined,
+                          }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selectionner le sexe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Cash">Cash</SelectItem>
+                        <SelectItem value="Mobile Money">
+                          Mobile Money
+                        </SelectItem>
+                        <SelectItem value="Virement">Virement</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.ModePai && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.ModePai.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">
+                      Statut du paiement
+                    </label>
+                    <Select
+                      name="StatutPai"
+                      value={paiement.StatutPai}
+                      onValueChange={(value) => {
+                        setPaiement((prev) => ({
+                          ...prev,
+                          StatutPai: value,
+                        }));
+                        if (errors.StatutPai) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            StatutPai: undefined,
+                          }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selectionner le sexe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Payé">Payé</SelectItem>
+                        <SelectItem value="Partiel">Partiel</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.StatutPai && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.StatutPai.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="text-sm font-medium">Étudiant</label>
+                    <Input
+                      name="IdEtu"
+                      value={paiement.IdEtu}
+                      onChange={handleInputPaiementChange}
+                      placeholder="1"
+                    />
+                    {errors.IdEtu && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.IdEtu.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full cursor-pointer">
+                  Confirmer
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Card>

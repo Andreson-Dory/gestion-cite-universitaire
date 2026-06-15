@@ -22,6 +22,23 @@ const getAllEtudiants = async (page = 1) => {
   return { rows, countResult };
 };
 
+const exportEtudiants = async () => {
+  const query = `
+    SELECT e.*, 
+      GROUP_CONCAT(c.NumCha ORDER BY c.NumCha SEPARATOR ', ') AS NumChambres,
+      GROUP_CONCAT(DISTINCT b.NomBat ORDER BY b.NomBat SEPARATOR ', ') AS NomBatiments
+    FROM Etudiant AS e
+    JOIN Attribuer AS a ON a.IdEtu = e.IdEtu
+    JOIN Chambre AS c ON c.IdCha = a.IdCha
+    JOIN Batiment AS b ON b.IdBat = c.IdBat
+    WHERE a.StatutAtt = 'En cours' 
+    GROUP BY e.IdEtu
+    ORDER BY e.Nom ASC
+  `;
+  const [rows] = await db.query(query);
+  return rows;
+};
+
 const findEtudiantFromChambre = async (idCha) => {
   const query = `
     SELECT DISTINCT e.*
@@ -79,6 +96,7 @@ const deleteEtudiant = async (IdEtu) => {
 
 export default {
   getAllEtudiants,
+  exportEtudiants,
   createEtudiant,
   updateEtudiant,
   deleteEtudiant,

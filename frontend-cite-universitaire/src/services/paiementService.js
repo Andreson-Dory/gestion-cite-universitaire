@@ -5,6 +5,11 @@ export const getPaiements = async (page = 1) => {
   return response.data;
 };
 
+export const exportPaiements = async () => {
+  const response = await backendApi.get(`/paiement/export`);
+  return response.data;
+};
+
 export const getPaiementByEtudiant = async (idEtu, page) => {
   const response = await backendApi.get(
     `/etudiant/paiement/${idEtu}?page=${page}`,

@@ -6,6 +6,11 @@ const router = express.Router();
 
 router.get("/paiement/", AuthMiddleware, paiementController.getPaiements);
 router.get(
+  "/paiement/export",
+  AuthMiddleware,
+  paiementController.exportAllPaiements,
+);
+router.get(
   "/etudiant/paiement/:idEtu",
   AuthMiddleware,
   paiementController.getEtudiantPaiement,

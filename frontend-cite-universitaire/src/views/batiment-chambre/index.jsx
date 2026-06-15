@@ -938,28 +938,11 @@ export default function BatimentPage() {
                       <SelectTrigger>
                         <SelectValue placeholder="Veuillez choisir l'état actuel du chambre" />
                       </SelectTrigger>
-                      {!editingChambreId && (
-                        <SelectContent>
-                          <SelectItem value="Libre">Libre</SelectItem>
-                          <SelectItem value="Occupée">Occupée</SelectItem>
-                          <SelectItem value="Maintenance">
-                            Maintenance
-                          </SelectItem>
-                        </SelectContent>
-                      )}
-                      {editingChambreId && (
-                        <SelectContent>
-                          {chambre.StatutCha === "Maintenance" && (
-                            <SelectItem value="Libre">Libre</SelectItem>
-                          )}
-                          {chambre.StatutCha === "Maintenance" && (
-                            <SelectItem value="Occupée">Occupée</SelectItem>
-                          )}
-                          <SelectItem value="Maintenance">
-                            Maintenance
-                          </SelectItem>
-                        </SelectContent>
-                      )}
+                      <SelectContent>
+                        <SelectItem value="Libre">Libre</SelectItem>
+                        <SelectItem value="Occupée">Occupée</SelectItem>
+                        <SelectItem value="Maintenance">Maintenance</SelectItem>
+                      </SelectContent>
                     </Select>
                     {errors.StatutCha && (
                       <p className="text-red-500 text-sm mt-1">

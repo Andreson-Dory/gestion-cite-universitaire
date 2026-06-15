@@ -5,6 +5,11 @@ export const getReclamations = async (page = 1) => {
   return response.data;
 };
 
+export const exportReclamations = async () => {
+  const response = await backendApi.get(`/reclamation/export`);
+  return response.data;
+};
+
 export const getReclamationByEtudiant = async (idEtu, page = 1) => {
   const response = await backendApi.get(
     `/etudiant/reclamation/${idEtu}?page=${page}`,

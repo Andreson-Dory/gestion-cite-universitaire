@@ -16,6 +16,15 @@ const getPaiements = async (req, res) => {
   }
 };
 
+const exportAllPaiements = async (req, res) => {
+  try {
+    const results = await Paiement.exportPaiements();
+    res.json({ paiements: results });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 const getEtudiantPaiement = async (req, res) => {
   const { idEtu } = req.params;
   const page = parseInt(req.query.page) || 1;
@@ -89,6 +98,7 @@ const deletePaiement = async (req, res) => {
 
 export default {
   getPaiements,
+  exportAllPaiements,
   getEtudiantPaiement,
   addPaiement,
   deletePaiement,

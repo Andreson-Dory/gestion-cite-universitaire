@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Eye, Sheet } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addEtudiant,
@@ -47,6 +47,8 @@ import { getEtudiantChambre } from "@/services/chambreService";
 import { getReclamationByEtudiant } from "@/services/reclamationService";
 import { getSanctionByEtudiant } from "@/services/sanctionService";
 import { getPaiementByEtudiant } from "@/services/paiementService";
+import { exportEtudiant } from "@/services/etudiantService";
+import { exportToExcel } from "@/lib/excelExport";
 
 const schema = z.object({
   Matricule: z
@@ -249,6 +251,33 @@ export default function EtudiantPage() {
     setSelectedEdutiant(etudiant);
   };
 
+  const handleExport = async () => {
+    await exportEtudiant()
+      .then((res) => {
+        const data = res.etudiants;
+        const formatted = data.map((e) => ({
+          Matricule: e.Matricule,
+          Nom: e.Nom,
+          "Date de Naissance": e.DateNaissance,
+          Sexe: e.Sexe,
+          Email: e.Email,
+          Telephone: e.Telephone,
+          Filiere: e.Filiere,
+          Niveau: e.Niveau,
+          Université: e.Universite,
+          "Chambre(s)": e.NumChambres,
+          "Batiment(s)": e.NomBatiments,
+        }));
+
+        exportToExcel(formatted, "Liste_Etudiants", "Etudiants");
+
+        toast.success("Liste des etudiants exporté");
+      })
+      .catch(() => {
+        toast.error("Erreur lors de l'exportation");
+      });
+  };
+
   const handleDelete = async (id, nom) => {
     toast.custom(
       (t) => (
@@ -305,223 +334,232 @@ export default function EtudiantPage() {
             Gérez les étudiants de la résidence
           </p>
         </div>
-        <Dialog
-          open={isOpen}
-          onOpenChange={(open) => {
-            setIsOpen(open);
-            if (!open) {
-              setEtudiant(DEFAULT_ETUDIANT);
-              setErrors({});
-            }
-          }}
-        >
-          <DialogTrigger asChild>
-            <Button
-              onClick={() => setEditingId(null)}
-              className="cursor-pointer"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Ajouter un Étudiant
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogTitle>
-              {editingId ? "Modifier" : "Ajouter"} Étudiant
-            </DialogTitle>
-            <DialogDescription>
-              Remplissez le formulaire pour {editingId ? "modifier" : "ajouter"}{" "}
-              un étudiant
-            </DialogDescription>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <input type="hidden" name="id" />
-
-                <div>
-                  <label className="text-sm font-medium">Matricule</label>
-                  <Input
-                    name="Matricule"
-                    value={etudiant.Matricule}
-                    onChange={handleInputEtudiantChange}
-                    placeholder="EXE001"
-                  />
-                  {errors.Matricule && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.Matricule.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div className="col-span-2">
-                  <label className="text-sm font-medium ">Nom</label>
-                  <Input
-                    name="Nom"
-                    value={etudiant.Nom}
-                    onChange={handleInputEtudiantChange}
-                    placeholder="Dupont Jean"
-                  />
-                  {errors.Nom && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.Nom.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Sexe</label>
-                  <Select
-                    name="Sexe"
-                    value={etudiant.Sexe}
-                    onValueChange={(value) => {
-                      setEtudiant((prev) => ({
-                        ...prev,
-                        Sexe: value,
-                      }));
-                      if (errors.Sexe) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          Sexe: undefined,
-                        }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selectionner le sexe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Masculin">Masculin</SelectItem>
-                      <SelectItem value="Feminin">Féminin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.Sexe && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.Sexe.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">
-                    Date de Naissance
-                  </label>
-                  <Input
-                    name="DateNaissance"
-                    type="date"
-                    value={etudiant.DateNaissance || ""}
-                    onChange={handleInputEtudiantChange}
-                  />
-                  {errors.DateNaissance && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.DateNaissance.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Téléphone</label>
-                  <Input
-                    name="Telephone"
-                    value={etudiant.Telephone}
-                    onChange={handleInputEtudiantChange}
-                    placeholder="+261..."
-                  />
-                  {errors.Telephone && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.Telephone.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div className="col-span-2">
-                  <label className="text-sm font-medium">Email</label>
-                  <Input
-                    name="Email"
-                    type="email"
-                    value={etudiant.Email}
-                    onChange={handleInputEtudiantChange}
-                    placeholder="email@example.com"
-                  />
-                  {errors.Email && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.Email.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Filière</label>
-                  <Input
-                    name="Filiere"
-                    value={etudiant.Filiere}
-                    onChange={handleInputEtudiantChange}
-                    placeholder="Informatique"
-                  />
-                  {errors.Filiere && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.Filiere.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Niveau</label>
-                  <Select
-                    name="Niveau"
-                    value={etudiant.Niveau || ""}
-                    onValueChange={(value) => {
-                      setEtudiant((prev) => ({
-                        ...prev,
-                        Niveau: value,
-                      }));
-                      if (errors.Niveau) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          Niveau: undefined,
-                        }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selectionner le Niveau" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="L1">Licence 1</SelectItem>
-                      <SelectItem value="L2">Licence 2</SelectItem>
-                      <SelectItem value="L3">Licence 3</SelectItem>
-                      <SelectItem value="M1">Master 1</SelectItem>
-                      <SelectItem value="M2">Master 2</SelectItem>
-                      <SelectItem value="D1">Doctorant 1</SelectItem>
-                      <SelectItem value="D2">Doctorant 2</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.Niveau && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.Niveau.errors[0]}
-                    </p>
-                  )}
-                </div>
-
-                <div className="col-span-2">
-                  <label className="text-sm font-medium">Université</label>
-                  <Input
-                    name="Universite"
-                    value={etudiant.Universite}
-                    onChange={handleInputEtudiantChange}
-                    placeholder="Université XYZ"
-                  />
-                  {errors.Universite && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.Universite.errors[0]}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full cursor-pointer">
-                {editingId ? "Mettre à jour" : "Créer"}
+        <div>
+          <Button
+            onClick={handleExport}
+            className="cursor-pointer bg-emerald-500"
+          >
+            <Sheet className="w-4 h-4 mr-2" />
+            Exporter en Excel
+          </Button>
+          <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+              setIsOpen(open);
+              if (!open) {
+                setEtudiant(DEFAULT_ETUDIANT);
+                setErrors({});
+              }
+            }}
+          >
+            <DialogTrigger asChild>
+              <Button
+                onClick={() => setEditingId(null)}
+                className="cursor-pointer"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Ajouter un Étudiant
               </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogTitle>
+                {editingId ? "Modifier" : "Ajouter"} Étudiant
+              </DialogTitle>
+              <DialogDescription>
+                Remplissez le formulaire pour{" "}
+                {editingId ? "modifier" : "ajouter"} un étudiant
+              </DialogDescription>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <input type="hidden" name="id" />
+
+                  <div>
+                    <label className="text-sm font-medium">Matricule</label>
+                    <Input
+                      name="Matricule"
+                      value={etudiant.Matricule}
+                      onChange={handleInputEtudiantChange}
+                      placeholder="EXE001"
+                    />
+                    {errors.Matricule && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Matricule.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="text-sm font-medium ">Nom</label>
+                    <Input
+                      name="Nom"
+                      value={etudiant.Nom}
+                      onChange={handleInputEtudiantChange}
+                      placeholder="Dupont Jean"
+                    />
+                    {errors.Nom && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Nom.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Sexe</label>
+                    <Select
+                      name="Sexe"
+                      value={etudiant.Sexe}
+                      onValueChange={(value) => {
+                        setEtudiant((prev) => ({
+                          ...prev,
+                          Sexe: value,
+                        }));
+                        if (errors.Sexe) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            Sexe: undefined,
+                          }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selectionner le sexe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Masculin">Masculin</SelectItem>
+                        <SelectItem value="Feminin">Féminin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.Sexe && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Sexe.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">
+                      Date de Naissance
+                    </label>
+                    <Input
+                      name="DateNaissance"
+                      type="date"
+                      value={etudiant.DateNaissance || ""}
+                      onChange={handleInputEtudiantChange}
+                    />
+                    {errors.DateNaissance && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.DateNaissance.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Téléphone</label>
+                    <Input
+                      name="Telephone"
+                      value={etudiant.Telephone}
+                      onChange={handleInputEtudiantChange}
+                      placeholder="+261..."
+                    />
+                    {errors.Telephone && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Telephone.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="text-sm font-medium">Email</label>
+                    <Input
+                      name="Email"
+                      type="email"
+                      value={etudiant.Email}
+                      onChange={handleInputEtudiantChange}
+                      placeholder="email@example.com"
+                    />
+                    {errors.Email && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Email.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Filière</label>
+                    <Input
+                      name="Filiere"
+                      value={etudiant.Filiere}
+                      onChange={handleInputEtudiantChange}
+                      placeholder="Informatique"
+                    />
+                    {errors.Filiere && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Filiere.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Niveau</label>
+                    <Select
+                      name="Niveau"
+                      value={etudiant.Niveau || ""}
+                      onValueChange={(value) => {
+                        setEtudiant((prev) => ({
+                          ...prev,
+                          Niveau: value,
+                        }));
+                        if (errors.Niveau) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            Niveau: undefined,
+                          }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selectionner le Niveau" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="L1">Licence 1</SelectItem>
+                        <SelectItem value="L2">Licence 2</SelectItem>
+                        <SelectItem value="L3">Licence 3</SelectItem>
+                        <SelectItem value="M1">Master 1</SelectItem>
+                        <SelectItem value="M2">Master 2</SelectItem>
+                        <SelectItem value="D1">Doctorant 1</SelectItem>
+                        <SelectItem value="D2">Doctorant 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.Niveau && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Niveau.errors[0]}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="text-sm font-medium">Université</label>
+                    <Input
+                      name="Universite"
+                      value={etudiant.Universite}
+                      onChange={handleInputEtudiantChange}
+                      placeholder="Université XYZ"
+                    />
+                    {errors.Universite && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.Universite.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full cursor-pointer">
+                  {editingId ? "Mettre à jour" : "Créer"}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Card>

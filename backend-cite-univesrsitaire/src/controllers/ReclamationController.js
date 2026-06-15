@@ -12,6 +12,15 @@ const getReclamations = async (req, res) => {
   }
 };
 
+const exportAllReclamations = async (req, res) => {
+  try {
+    const results = await Reclamation.exportReclamations();
+    res.json({ reclamations: results });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 const getEtudiantReclamation = async (req, res) => {
   const { idEtu } = req.params;
   const page = parseInt(req.query.page) || 1;
@@ -91,6 +100,7 @@ const deleteReclamation = async (req, res) => {
 
 export default {
   getReclamations,
+  exportAllReclamations,
   getEtudiantReclamation,
   addReclamation,
   updateReclamation,
