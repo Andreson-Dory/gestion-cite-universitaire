@@ -25,7 +25,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search, Check } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+  Check,
+  ChevronsUpDown,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addAttribuer,
@@ -40,6 +47,19 @@ import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
 import { fetchBatiment } from "@/redux/features/batiment/batimentThunk";
 import z from "zod";
 import AttribuerPageSkeleton from "@/components/skeletons/AttribuerPageSkeleton";
+import { getFreeChambres } from "@/services/chambreService";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 
 const schema = z.object({
   IdCha: z
@@ -48,8 +68,8 @@ const schema = z.object({
     .regex(/^[0-9]+$/, ""),
   IdEtu: z
     .string()
-    .min(1, "Veuillez choisir un étudiant")
-    .regex(/^[0-9]+$/, ""),
+    .min(1, "Veuillez l'identifiant de l'étudiant")
+    .regex(/^[0-9]+$/, "Caractères numériques seulement autorisés"),
   DateFin: z.string().min(1, "Date d'écheance obligatoire"),
   StatutAtt: z.string().min(1, "Veuillez indiquer le statut de l'attribution"),
 });
@@ -66,6 +86,7 @@ const DEFAULT_ATTRIBUER = {
 export default function AttribuerPage() {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBatiment, setFilterBatiment] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
@@ -77,8 +98,7 @@ export default function AttribuerPage() {
     pagination: attribuerPagination = {},
     status,
   } = useSelector((state) => state.attribuer);
-  const { etudiants } = useSelector((state) => state.etudiant);
-  const { chambres } = useSelector((state) => state.chambre);
+  const [chambres, setChambres] = useState([]);
   const { batiments } = useSelector((state) => state.batiment);
 
   const filteredAttribuers =
@@ -103,10 +123,17 @@ export default function AttribuerPage() {
 
   const [page, setPage] = useState(attribuerPagination.page || 1);
 
+  const getChambres = async () => {
+    await getFreeChambres()
+      .then((res) => setChambres(res))
+      .catch(() => {
+        //nothing
+      });
+  };
+
   useEffect(() => {
     dispatch(fetchAttribuer(page));
-    dispatch(fetchChambre());
-    dispatch(fetchEtudiant());
+    getChambres();
     dispatch(fetchBatiment());
   }, [page]);
 
@@ -306,33 +333,75 @@ export default function AttribuerPage() {
 
                 <div className="col-span-2">
                   <label className="text-sm font-medium">Chambre</label>
-                  <Select
-                    name="IdCha"
-                    value={attribuer.IdCha.toString() || ""}
-                    onValueChange={(value) => {
-                      setAttribuer((prev) => ({
-                        ...prev,
-                        IdCha: value,
-                      }));
-                      if (errors.IdCha) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          IdCha: undefined,
-                        }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un chambre" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {chambres?.map((e) => (
-                        <SelectItem key={e.IdCha} value={e.IdCha.toString()}>
-                          {e.NumCha}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-full justify-between"
+                      >
+                        {attribuer.IdCha
+                          ? chambres.find(
+                              (c) =>
+                                c.IdCha.toString() ===
+                                attribuer.IdCha.toString(),
+                            )?.NumCha +
+                            "-" +
+                            chambres.find(
+                              (c) =>
+                                c.IdCha.toString() ===
+                                attribuer.IdCha.toString(),
+                            )?.NomBat
+                          : "Sélectionner une chambre"}
+
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Rechercher une chambre..." />
+
+                        <CommandEmpty>Aucune chambre trouvée.</CommandEmpty>
+
+                        <CommandGroup>
+                          {chambres?.map((c) => (
+                            <CommandItem
+                              key={c.IdCha}
+                              value={`${c.NumCha} ${c.NomBat}`}
+                              onSelect={() => {
+                                setAttribuer((prev) => ({
+                                  ...prev,
+                                  IdCha: c.IdCha.toString(),
+                                }));
+
+                                if (errors.IdCha) {
+                                  setErrors((prev) => ({
+                                    ...prev,
+                                    IdCha: undefined,
+                                  }));
+                                }
+
+                                setOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={`mr-2 h-4 w-4 ${
+                                  attribuer.IdCha.toString() ===
+                                  c.IdCha.toString()
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                }`}
+                              />
+                              {c.NumCha} - {c.NomBat}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+
                   {errors.IdCha && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.IdCha.errors[0]}
@@ -342,33 +411,12 @@ export default function AttribuerPage() {
 
                 <div className="col-span-2">
                   <label className="text-sm font-medium">Étudiant</label>
-                  <Select
+                  <Input
                     name="IdEtu"
-                    value={attribuer.IdEtu.toString() || ""}
-                    onValueChange={(value) => {
-                      setAttribuer((prev) => ({
-                        ...prev,
-                        IdEtu: value,
-                      }));
-                      if (errors.IdEtu) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          IdEtu: undefined,
-                        }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un étudiant" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {etudiants?.map((e) => (
-                        <SelectItem key={e.IdEtu} value={e.IdEtu.toString()}>
-                          {e.Nom} ({e.Matricule})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    value={attribuer.IdEtu}
+                    onChange={handleInputAttribuerChange}
+                    placeholder="1"
+                  />
                   {errors.IdEtu && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.IdEtu.errors[0]}
@@ -511,7 +559,7 @@ export default function AttribuerPage() {
                   <TableHead>Date d'attribution</TableHead>
                   <TableHead>Fin d'attribution</TableHead>
                   <TableHead>Statut</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -551,7 +599,7 @@ export default function AttribuerPage() {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
+                        <div className="flex justify-center items-center gap-2">
                           <Button
                             className="btn bg-blue-600 text-white hover:bg-blue-600/95 hover:text-white hover:shadow-2xs animate-accordion-up cursor-pointer"
                             variant="ghost"

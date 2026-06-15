@@ -16,6 +16,17 @@ const getAllChambres = async (page = 1) => {
   return { rows, countResult };
 };
 
+const getAllFreeChambres = async () => {
+  const query = `
+    SELECT c.*, b.NomBat AS NomBat
+    FROM Chambre AS c
+    JOIN Batiment AS b ON b.IdBat=c.IdBat 
+    WHERE c.StatutCha = 'Libre'
+  `;
+  const [rows] = await db.query(query);
+  return rows;
+};
+
 const findChambreById = async (idCha) => {
   const query = `
     SELECT c.*, b.NomBat AS NomBat 
@@ -99,6 +110,7 @@ const deleteChambre = async (IdCha) => {
 
 export default {
   getAllChambres,
+  getAllFreeChambres,
   createChambre,
   updateChambre,
   updateToOccupedChambreStatus,

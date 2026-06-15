@@ -58,8 +58,8 @@ const reclamationSchema = z.object({
   DescriptionRec: z.string().optional().or(z.literal("")),
   IdEtu: z
     .string()
-    .min(1, "Veuillez choisir un étudiant")
-    .regex(/^[0-9]+$/, ""),
+    .min(1, "Veuillez l'identifiant de l'étudiant")
+    .regex(/^[0-9]+$/, "Caractères numériques seulement autorisés"),
 });
 
 const sanctionSchema = z.object({
@@ -72,8 +72,8 @@ const sanctionSchema = z.object({
     .regex(/^[0-9.]+$/, "Caractères numériques seulement autorisés"),
   IdEtu: z
     .string()
-    .min(1, "Veuillez choisir un étudiant")
-    .regex(/^[0-9]+$/, ""),
+    .min(1, "Veuillez l'identifiant de l'étudiant")
+    .regex(/^[0-9]+$/, "Caractères numériques seulement autorisés"),
 });
 
 const DEFAULT_RECLAMATION = {
@@ -562,36 +562,12 @@ export default function ReclamationSanction() {
 
                     <div className="col-span-2">
                       <label className="text-sm font-medium">Étudiant</label>
-                      <Select
+                      <Input
                         name="IdEtu"
-                        value={reclamation.IdEtu.toString() || ""}
-                        onValueChange={(value) => {
-                          setReclamation((prev) => ({
-                            ...prev,
-                            IdEtu: value,
-                          }));
-                          if (errors.IdEtu) {
-                            setErrors((prev) => ({
-                              ...prev,
-                              IdEtu: undefined,
-                            }));
-                          }
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner un étudiant" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {etudiants?.map((e) => (
-                            <SelectItem
-                              key={e.IdEtu}
-                              value={e.IdEtu.toString()}
-                            >
-                              {e.Nom} ({e.Matricule})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        value={reclamation.IdEtu}
+                        onChange={handleInputReclamationChange}
+                        placeholder="1"
+                      />
                       {errors.IdEtu && (
                         <p className="text-red-500 text-sm mt-1">
                           {errors.IdEtu.errors[0]}
@@ -763,7 +739,7 @@ export default function ReclamationSanction() {
                       <TableHead>Étudiant</TableHead>
                       <TableHead>Priorité</TableHead>
                       <TableHead>Statut</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -813,7 +789,7 @@ export default function ReclamationSanction() {
                             </span>
                           </TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
+                            <div className="flex justify-center items-center gap-2">
                               <Button
                                 size="sm"
                                 variant="ghost"
@@ -940,36 +916,12 @@ export default function ReclamationSanction() {
 
                     <div className="col-span-2">
                       <label className="text-sm font-medium">Étudiant</label>
-                      <Select
+                      <Input
                         name="IdEtu"
-                        value={sanction.IdEtu.toString() || ""}
-                        onValueChange={(value) => {
-                          setSanction((prev) => ({
-                            ...prev,
-                            IdEtu: value,
-                          }));
-                          if (errors.IdEtu) {
-                            setErrors((prev) => ({
-                              ...prev,
-                              IdEtu: undefined,
-                            }));
-                          }
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner un étudiant" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {etudiants?.map((e) => (
-                            <SelectItem
-                              key={e.IdEtu}
-                              value={e.IdEtu.toString()}
-                            >
-                              {e.Nom} ({e.Matricule})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        value={sanction.IdEtu}
+                        onChange={handleInputSanctionChange}
+                        placeholder="1"
+                      />
                       {errors.IdEtu && (
                         <p className="text-red-500 text-sm mt-1">
                           {errors.IdEtu.errors[0]}
@@ -1112,7 +1064,7 @@ export default function ReclamationSanction() {
                       <TableHead>Étudiant</TableHead>
                       <TableHead>Montant (Ar)</TableHead>
                       <TableHead>Statut</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1158,7 +1110,7 @@ export default function ReclamationSanction() {
                             </span>
                           </TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
+                            <div className="flex justify-center items-center gap-2">
                               <Button
                                 size="sm"
                                 variant="ghost"

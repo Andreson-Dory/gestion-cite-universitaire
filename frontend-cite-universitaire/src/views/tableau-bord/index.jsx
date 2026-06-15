@@ -106,14 +106,14 @@ export default function TableauBord() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {statistiques?.totalSanction || 0}
+              {statistiques?.totalSanctions || 0}
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div>
         {/* Occupancy by Building */}
         <Card>
           <CardHeader>
@@ -133,40 +133,6 @@ export default function TableauBord() {
                 <Bar dataKey="occupiedRooms" fill="#3b82f6" name="Occupées" />
                 <Bar dataKey="totalRooms" fill="#e5e7eb" name="Total" />
               </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Complaints by Priority */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Réclamations par Priorité</CardTitle>
-            <CardDescription>Distribution des réclamations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={statistiques?.reclamationsParPriorite || []}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, count }) => `${name}: ${count}`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="count"
-                >
-                  {(statistiques?.reclamationsParPriorite || []).map(
-                    (entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ),
-                  )}
-                </Pie>
-                <Tooltip />
-              </PieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>

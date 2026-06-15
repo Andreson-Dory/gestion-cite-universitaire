@@ -647,7 +647,7 @@ export default function BatimentPage() {
                       <TableHead>Type</TableHead>
                       <TableHead>Étages</TableHead>
                       <TableHead>Description</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -675,7 +675,7 @@ export default function BatimentPage() {
                             {batiment.Description}
                           </TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
+                            <div className="flex justify-center items-center gap-2">
                               <Button
                                 size="sm"
                                 variant="ghost"
@@ -1057,7 +1057,7 @@ export default function BatimentPage() {
                       <TableHead>Étage</TableHead>
                       <TableHead>Bâtiment</TableHead>
                       <TableHead>Statut</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1108,7 +1108,7 @@ export default function BatimentPage() {
                             </span>
                           </TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
+                            <div className="flex justify-center items-center gap-2">
                               <Button
                                 size="sm"
                                 variant="ghost"

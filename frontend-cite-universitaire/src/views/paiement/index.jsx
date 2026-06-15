@@ -53,8 +53,8 @@ const schema = z.object({
   StatutPai: z.string().min(1, "Veuillez indiquer le statut du paiement"),
   IdEtu: z
     .string()
-    .min(1, "Veuillez choisir un étudiant")
-    .regex(/^[0-9]+$/, ""),
+    .min(1, "Veuillez l'identifiant de l'étudiant")
+    .regex(/^[0-9]+$/, "Caractères numériques seulement autorisés"),
 });
 
 const DEFAULT_PAIEMENT = {
@@ -384,33 +384,12 @@ export default function PaiementPage() {
 
                 <div className="col-span-2">
                   <label className="text-sm font-medium">Étudiant</label>
-                  <Select
+                  <Input
                     name="IdEtu"
-                    value={paiement.IdEtu.toString() || ""}
-                    onValueChange={(value) => {
-                      setPaiement((prev) => ({
-                        ...prev,
-                        IdEtu: value,
-                      }));
-                      if (errors.IdEtu) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          IdEtu: undefined,
-                        }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un étudiant" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {etudiants?.map((e) => (
-                        <SelectItem key={e.IdEtu} value={e.IdEtu.toString()}>
-                          {e.Nom} ({e.Matricule})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    value={paiement.IdEtu}
+                    onChange={handleInputPaiementChange}
+                    placeholder="1"
+                  />
                   {errors.IdEtu && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.IdEtu.errors[0]}
@@ -508,7 +487,7 @@ export default function PaiementPage() {
                   <TableHead>Mode de Paiement</TableHead>
                   <TableHead>Statut</TableHead>
                   <TableHead>Etudiant</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -538,7 +517,7 @@ export default function PaiementPage() {
                       <TableCell>{paiement.StatutPai}</TableCell>
                       <TableCell>{paiement.NomEtudiant}</TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
+                        <div className="flex justify-center items-center gap-2">
                           <Button
                             size="sm"
                             variant="ghost"

@@ -644,7 +644,7 @@ export default function EtudiantPage() {
                   <TableHead>Email</TableHead>
                   <TableHead>Niveau</TableHead>
                   <TableHead>Université</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -672,7 +672,7 @@ export default function EtudiantPage() {
                       <TableCell>{etudiant.Niveau}</TableCell>
                       <TableCell>{etudiant.Universite}</TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
+                        <div className="flex justify-center items-center gap-2">
                           <Button
                             size="sm"
                             variant="ghost"

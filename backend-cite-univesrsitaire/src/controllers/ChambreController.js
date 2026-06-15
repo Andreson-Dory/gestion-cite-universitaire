@@ -22,6 +22,16 @@ const getChambres = async (req, res) => {
   }
 };
 
+const getFreeChambres = async (req, res) => {
+  try {
+    const results = await Chambre.getAllFreeChambres();
+
+    res.json(results);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 const getChambreByEtudiant = async (req, res) => {
   const { idEtu } = req.params;
   try {
@@ -84,6 +94,7 @@ const deleteChambre = async (req, res) => {
 
 export default {
   getChambres,
+  getFreeChambres,
   getChambreByEtudiant,
   addChambre,
   updateChambre,
