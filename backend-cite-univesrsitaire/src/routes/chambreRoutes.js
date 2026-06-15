@@ -4,6 +4,7 @@ import chambreController from "../controllers/ChambreController.js";
 const router = express.Router();
 
 router.get("/chambre/", chambreController.getChambres);
+router.get("/chambre/free/", chambreController.getFreeChambres);
 router.get("/etudiant/chambre/:idEtu", chambreController.getChambreByEtudiant);
 router.post("/chambre/", chambreController.addChambre);
 router.put("/chambre/:idCha", chambreController.updateChambre);

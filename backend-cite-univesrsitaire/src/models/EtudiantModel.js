@@ -9,9 +9,10 @@ const findEtudiantById = async (idEtu) => {
 
 const getAllEtudiants = async (page = 1) => {
   const offset = (page - 1) * 100;
-  const [rows] = await db.query("SELECT * FROM Etudiant LIMIT 100 OFFSET ?", [
-    offset,
-  ]);
+  const [rows] = await db.query(
+    "SELECT * FROM Etudiant ORDER BY Created_at DESC LIMIT 100 OFFSET ?",
+    [offset],
+  );
   const [[countResult]] = await db.query(
     `
       SELECT COUNT(*) as total

@@ -10,6 +10,7 @@ import {
   Mail,
   Phone,
   UniversityIcon,
+  UserLock,
   VenusAndMars,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "../ui/sheet";
@@ -87,9 +88,9 @@ export default function EtudiantView({
 
           <div className="grid gap-4 md:grid-cols-6 xl:grid-cols-6">
             <InfoItem
-              icon={<Hash className="h-4 w-4" />}
-              label="Matricule"
-              value={etudiant.Matricule}
+              icon={<UserLock className="h-4 w-4" />}
+              label="Identifiant"
+              value={etudiant.IdEtu}
             />
 
             <InfoItem
@@ -131,6 +132,12 @@ export default function EtudiantView({
           </h3>
 
           <div className="grid gap-4 md:grid-cols-6 xl:grid-cols-6">
+            <InfoItem
+              icon={<Hash className="h-4 w-4" />}
+              label="Matricule"
+              value={etudiant.Matricule}
+            />
+
             <InfoItem
               icon={<UniversityIcon className="h-4 w-4" />}
               label="Université"
@@ -196,8 +203,7 @@ export default function EtudiantView({
           <section className="flex flex-col mt-4 rounded-xl border bg-card shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase">
-                Paiement{paiements?.paiements?.length > 1 ? "s" : ""} récent
-                {paiements?.paiements?.length > 1 ? "s" : ""}
+                Paiement{paiements?.pagination?.total?.length > 1 ? "s" : ""}
               </h3>
 
               <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
@@ -241,7 +247,7 @@ export default function EtudiantView({
 
               {!paiements?.paiements?.length && (
                 <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-                  Aucun paiement récent
+                  Aucun paiement
                 </div>
               )}
             </div>
@@ -276,9 +282,8 @@ export default function EtudiantView({
           <section className="flex flex-col mt-4 rounded-xl border bg-card shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase">
-                Réclamation{reclamations?.reclamations?.length > 1 ? "s" : ""}{" "}
-                récente
-                {reclamations?.reclamations?.length > 1 ? "s" : ""}
+                Réclamation
+                {reclamations?.pagination?.total?.length > 1 ? "s" : ""}
               </h3>
 
               <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
@@ -347,8 +352,7 @@ export default function EtudiantView({
           <section className="flex flex-col mt-4 rounded-xl border bg-card shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase">
-                Sanction{sanctions?.sanctions?.length > 1 ? "s" : ""} récente
-                {sanctions?.sanctions?.length > 1 ? "s" : ""}
+                Sanction{sanctions?.pagination?.total?.length > 1 ? "s" : ""}
               </h3>
 
               <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">

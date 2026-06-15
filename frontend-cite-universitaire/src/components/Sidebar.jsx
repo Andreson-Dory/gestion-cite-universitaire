@@ -24,9 +24,12 @@ export default function Sidebar() {
 
   return (
     <aside className="flex flex-col h-screen bg-slate-900 text-white w-64 p-4">
-      <div className="mb-8">
-        <h1 className="text-xl font-bold">Cité Universitaire</h1>
-        <p className="text-xs text-gray-400">Système de Gestion</p>
+      <div className="mb-8 flex">
+        <img alt="Logo" src="/logo.png" className="w-12 h-12" />
+        <div className="ml-2">
+          <h1 className="text-2xl font-bold">CITE-U</h1>
+          <p className="text-xs text-gray-400 ">Système de Gestion</p>
+        </div>
       </div>
       <nav className="flex-1 space-y-2">
         {menu.map((item) => {

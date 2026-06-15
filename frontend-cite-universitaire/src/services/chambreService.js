@@ -5,6 +5,11 @@ export const getChambres = async (page = 1) => {
   return response.data;
 };
 
+export const getFreeChambres = async () => {
+  const response = await backendApi.get(`/chambre/free/`);
+  return response.data;
+};
+
 export const getEtudiantChambre = async (idEtu) => {
   const response = await backendApi.get(`/etudiant/chambre/${idEtu}`);
   return response.data;
