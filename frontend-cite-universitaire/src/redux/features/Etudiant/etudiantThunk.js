@@ -10,8 +10,6 @@ export const fetchEtudiant = createAsyncThunk(
   "etudiants/fetchEtudiants",
   async (page, { rejectWithValue }) => {
     try {
-      console.log("page", page);
-
       const response = await getEtudiants(page);
       return response;
     } catch (error) {

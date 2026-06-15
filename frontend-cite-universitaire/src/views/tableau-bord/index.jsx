@@ -131,7 +131,7 @@ export default function TableauBord() {
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="occupiedRooms" fill="#3b82f6" name="Occupées" />
-                <Bar dataKey="totalRooms" fill="#e5e7eb" name="Total" />
+                <Bar dataKey="totalRooms" fill="#6a7282" name="Total" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
