@@ -90,6 +90,9 @@ export default function PaiementPage() {
       const matchesNomEtudiant = s.NomEtudiant.toLowerCase().includes(
         searchTerm.toLowerCase(),
       );
+      const matchesEmail = s.Email.toLowerCase().includes(
+        searchTerm.toLowerCase(),
+      );
       const matchesMontantPai = s.MontantPai.toLowerCase().includes(
         searchTerm.toLowerCase(),
       );
@@ -107,7 +110,7 @@ export default function PaiementPage() {
       const matchesDate = filterDate ? s.DatePai === filterDate : true;
 
       return (
-        (matchesNomEtudiant || matchesMontantPai) &&
+        (matchesNomEtudiant || matchesMontantPai || matchesEmail) &&
         matchesStatus &&
         matchesTypePai &&
         matchesDate
@@ -455,7 +458,7 @@ export default function PaiementPage() {
             <div className="flex-1 relative">
               <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
               <Input
-                placeholder="Rechercher par nom de l'étudiant ou montant du paiement"
+                placeholder="Rechercher par nom de l'étudiant, son email ou montant du paiement"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -524,6 +527,7 @@ export default function PaiementPage() {
                   <TableHead>Mode de Paiement</TableHead>
                   <TableHead>Statut</TableHead>
                   <TableHead>Etudiant</TableHead>
+                  <TableHead>Email</TableHead>
                   <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -553,6 +557,7 @@ export default function PaiementPage() {
                       <TableCell>{paiement.ModePai}</TableCell>
                       <TableCell>{paiement.StatutPai}</TableCell>
                       <TableCell>{paiement.NomEtudiant}</TableCell>
+                      <TableCell>{paiement.Email}</TableCell>
                       <TableCell>
                         <div className="flex justify-center items-center gap-2">
                           <Button

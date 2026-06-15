@@ -1,7 +1,7 @@
 import db from "../config/db.js";
 
 const findEtudiantById = async (idEtu) => {
-  const [rows] = await db.query("SELECT * FROM Etudiant WHERE IdEtu = ?", [
+  const [rows] = await db.query("SELECT * FROM Etudiant WHERE IdEtu = ?;", [
     idEtu,
   ]);
   return rows[0] || null;
@@ -10,13 +10,13 @@ const findEtudiantById = async (idEtu) => {
 const getAllEtudiants = async (page = 1) => {
   const offset = (page - 1) * 100;
   const [rows] = await db.query(
-    "SELECT * FROM Etudiant ORDER BY Created_at DESC LIMIT 100 OFFSET ?",
+    "SELECT * FROM Etudiant ORDER BY Created_at DESC LIMIT 100 OFFSET ?;",
     [offset],
   );
   const [[countResult]] = await db.query(
     `
       SELECT COUNT(*) as total
-      FROM Etudiant
+      FROM Etudiant;
       `,
   );
   return { rows, countResult };
@@ -33,7 +33,7 @@ const exportEtudiants = async () => {
     JOIN Batiment AS b ON b.IdBat = c.IdBat
     WHERE a.StatutAtt = 'En cours' 
     GROUP BY e.IdEtu
-    ORDER BY e.Nom ASC
+    ORDER BY e.Nom ASC;
   `;
   const [rows] = await db.query(query);
   return rows;
@@ -45,7 +45,7 @@ const findEtudiantFromChambre = async (idCha) => {
     FROM Etudiant AS e
     JOIN Attribuer AS a ON a.IdEtu = e.IdEtu
     WHERE a.IdCha = ?
-      AND a.StatutAtt = 'En cours'
+      AND a.StatutAtt = 'En cours';
   `;
   const [rows] = await db.query(query, [idCha]);
   return rows;
@@ -88,9 +88,16 @@ const updateEtudiant = async (idEtu, etudiant) => {
 };
 
 const deleteEtudiant = async (IdEtu) => {
-  const [result] = await db.query("DELETE FROM Etudiant WHERE idEtu= ?;", [
-    IdEtu,
-  ]);
+  const queryDelete = `
+    DELETE FROM Etudiant WHERE idEtu= ?;
+  `;
+
+  const queryFreeChambre = `
+    UPDATE Chambre SET StatutCha="Libre" WHERE IdCha IN(SELECT IdCha FROM Attribuer WHERE IdEtu = ? AND StatutAtt = 'En cours' );
+  `;
+
+  await db.query(queryFreeChambre, [IdEtu]);
+  const [result] = await db.query(queryDelete, [IdEtu]);
   return result;
 };
 
