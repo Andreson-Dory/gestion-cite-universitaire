@@ -64,9 +64,6 @@ const addPaiement = async (req, res) => {
       Paiement: createdPaiement,
     });
   } catch (err) {
-    console.log("Error", err);
-    console.error("Error", err);
-
     res.status(500).json({
       message: "Erreur lors du paiement",
       error: err,

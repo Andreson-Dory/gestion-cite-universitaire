@@ -11,9 +11,11 @@ import reclamationRoutes from "./src/routes/reclamationRoutes.js";
 import sanctionRoutes from "./src/routes/sanctionRoutes.js";
 import attribuerRoutes from "./src/routes/attribuerRoutes.js";
 import statistiqueRoutes from "./src/routes/statistiqueRoutes.js";
+import authRoutes from "./src/routes/authRoutes.js";
 
 const PORT = process.env.PORT || 5000;
 
+app.use("/api/auth", authRoutes);
 app.use("/api/v1", eutdiantRoutes);
 app.use("/api/v1", batimentRoutes);
 app.use("/api/v1", chambreRoutes);

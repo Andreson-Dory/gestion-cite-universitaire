@@ -1,11 +1,20 @@
 import express from "express";
 import paiementController from "../controllers/PaiementController.js";
+import AuthMiddleware from "../middleware/AuthMiddleware.js";
 
 const router = express.Router();
 
-router.get("/paiement/", paiementController.getPaiements);
-router.get("/etudiant/paiement/:idEtu", paiementController.getEtudiantPaiement);
-router.post("/paiement/", paiementController.addPaiement);
-router.post("/paiement/:idPai", paiementController.deletePaiement);
+router.get("/paiement/", AuthMiddleware, paiementController.getPaiements);
+router.get(
+  "/etudiant/paiement/:idEtu",
+  AuthMiddleware,
+  paiementController.getEtudiantPaiement,
+);
+router.post("/paiement/", AuthMiddleware, paiementController.addPaiement);
+router.post(
+  "/paiement/:idPai",
+  AuthMiddleware,
+  paiementController.deletePaiement,
+);
 
 export default router;
