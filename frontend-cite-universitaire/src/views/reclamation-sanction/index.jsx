@@ -32,7 +32,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, AlertTriangle, Search } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  AlertTriangle,
+  Search,
+  Sheet,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addSanction,
@@ -50,6 +57,8 @@ import { fetchEtudiant } from "@/redux/features/Etudiant/etudiantThunk";
 import { toast } from "sonner";
 import z from "zod";
 import ReclamationAndSanctionPageSkeleton from "@/components/skeletons/ReclamationAndSanctionPageSkeleton";
+import { exportReclamations } from "@/services/reclamationService";
+import { exportToExcel } from "@/lib/excelExport";
 
 const reclamationSchema = z.object({
   Sujet: z.string().min(1, "Le sujet du reclamation est obligatoire"),
@@ -369,6 +378,29 @@ export default function ReclamationSanction() {
     setIsSanctionModalOpen(true);
   };
 
+  const handleExport = async () => {
+    await exportReclamations()
+      .then((res) => {
+        const data = res.reclamations;
+        const formatted = data.map((r) => ({
+          "Date de Réclamation": r.DateRec,
+          Sujet: r.Sujet,
+          "Description ": r.DescriptionRec,
+          Statut: r.StatusRec,
+          "Priorité ": r.Priorite,
+          "Nom de l'étudiant": r.Nom,
+          Email: r.Email,
+        }));
+
+        exportToExcel(formatted, "Liste_Réclamations", "Réclamations");
+
+        toast.success("Liste des réclamations exporté");
+      })
+      .catch(() => {
+        toast.error("Erreur lors de l'exportation");
+      });
+  };
+
   const handleDeleteReclamation = async (id) => {
     toast.custom(
       (t) => (
@@ -477,173 +509,190 @@ export default function ReclamationSanction() {
         {/* Reclamations Tab */}
         <TabsContent value="reclamations" className="space-y-4">
           <div className="flex justify-end gap-4">
-            <Dialog
-              open={isReclamationModalOpen}
-              onOpenChange={(open) => {
-                setIsReclamationModalOpen(open);
-                if (!open) {
-                  setEditingReclamationId(null);
-                  setReclamation(DEFAULT_RECLAMATION);
-                  setErrors({});
-                }
-              }}
-            >
-              <DialogTrigger asChild>
-                <Button
-                  onClick={() => openAddReclamationDialog()}
-                  className="cursor-pointer"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Ajouter une Réclamation
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingReclamationId ? "Modifier" : "Ajouter"} Réclamation
-                  </DialogTitle>
-                  <DialogDescription>
-                    Remplissez le formulaire pour{" "}
-                    {editingReclamationId ? "modifier" : "ajouter"} une
-                    réclamation
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmitReclamation} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                      <label className="text-sm font-medium">Sujet</label>
-                      <Input
-                        name="Sujet"
-                        value={reclamation.Sujet}
-                        onChange={handleInputReclamationChange}
-                        placeholder="Sujet de la réclamation"
-                      />
-                      {errors.Sujet && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.Sujet.errors[0]}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium">Priorité</label>
-                      <Select
-                        name="Priorite"
-                        value={reclamation.Priorite || ""}
-                        onValueChange={(value) => {
-                          setReclamation((prev) => ({
-                            ...prev,
-                            Priorite: value,
-                          }));
-                          if (errors.Priorite) {
-                            setErrors((prev) => ({
-                              ...prev,
-                              Priorite: undefined,
-                            }));
-                          }
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner le niveau de priorité" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Basse">Basse</SelectItem>
-                          <SelectItem value="Normale">Normale</SelectItem>
-                          <SelectItem value="Haute">Haute</SelectItem>
-                          <SelectItem value="Urgente">Urgente</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.Priorite && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.Priorite.errors[0]}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="col-span-2">
-                      <label className="text-sm font-medium">Étudiant</label>
-                      <Input
-                        name="IdEtu"
-                        value={reclamation.IdEtu}
-                        onChange={handleInputReclamationChange}
-                        placeholder="1"
-                      />
-                      {errors.IdEtu && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.IdEtu.errors[0]}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium">Statut</label>
-                      <Select
-                        name="StatusRec"
-                        value={reclamation.StatusRec || ""}
-                        onValueChange={(value) => {
-                          setReclamation((prev) => ({
-                            ...prev,
-                            StatusRec: value,
-                          }));
-                          if (errors.StatusRec) {
-                            setErrors((prev) => ({
-                              ...prev,
-                              StatusRec: undefined,
-                            }));
-                          }
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Séléctionner le statut" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="En attente">En attente</SelectItem>
-                          <SelectItem value="En cours">En cours</SelectItem>
-                          <SelectItem value="Résolu">Résolu</SelectItem>
-                          <SelectItem value="Rejeté">Rejeté</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.StatusRec && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.StatusRec.errors[0]}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="col-span-2">
-                      <label className="text-sm font-medium">Description</label>
-                      <Input
-                        name="DescriptionRec"
-                        value={reclamation.DescriptionRec}
-                        onChange={handleInputReclamationChange}
-                        placeholder="Description détaillée"
-                      />
-                      {errors.DescriptionRec && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.DescriptionRec.errors[0]}
-                        </p>
-                      )}
-                    </div>
-
-                    {editingReclamationId && (
-                      <div>
-                        <label className="text-sm font-medium">Date</label>
-                        <Input
-                          name="DateRec"
-                          value={reclamation.DateRec || ""}
-                          disabled
-                          type="date"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <Button type="submit" className="w-full cursor-pointer">
-                    {editingReclamationId ? "Mettre à jour" : "Créer"}
+            <div>
+              <Button
+                onClick={handleExport}
+                className="cursor-pointer bg-emerald-500"
+              >
+                <Sheet className="w-4 h-4 mr-2" />
+                Exporter en Excel
+              </Button>
+              <Dialog
+                open={isReclamationModalOpen}
+                onOpenChange={(open) => {
+                  setIsReclamationModalOpen(open);
+                  if (!open) {
+                    setEditingReclamationId(null);
+                    setReclamation(DEFAULT_RECLAMATION);
+                    setErrors({});
+                  }
+                }}
+              >
+                <DialogTrigger asChild>
+                  <Button
+                    onClick={() => openAddReclamationDialog()}
+                    className="cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Ajouter une Réclamation
                   </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingReclamationId ? "Modifier" : "Ajouter"}{" "}
+                      Réclamation
+                    </DialogTitle>
+                    <DialogDescription>
+                      Remplissez le formulaire pour{" "}
+                      {editingReclamationId ? "modifier" : "ajouter"} une
+                      réclamation
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form
+                    onSubmit={handleSubmitReclamation}
+                    className="space-y-4"
+                  >
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="col-span-2">
+                        <label className="text-sm font-medium">Sujet</label>
+                        <Input
+                          name="Sujet"
+                          value={reclamation.Sujet}
+                          onChange={handleInputReclamationChange}
+                          placeholder="Sujet de la réclamation"
+                        />
+                        {errors.Sujet && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.Sujet.errors[0]}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium">Priorité</label>
+                        <Select
+                          name="Priorite"
+                          value={reclamation.Priorite || ""}
+                          onValueChange={(value) => {
+                            setReclamation((prev) => ({
+                              ...prev,
+                              Priorite: value,
+                            }));
+                            if (errors.Priorite) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                Priorite: undefined,
+                              }));
+                            }
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionner le niveau de priorité" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Basse">Basse</SelectItem>
+                            <SelectItem value="Normale">Normale</SelectItem>
+                            <SelectItem value="Haute">Haute</SelectItem>
+                            <SelectItem value="Urgente">Urgente</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.Priorite && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.Priorite.errors[0]}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="col-span-2">
+                        <label className="text-sm font-medium">Étudiant</label>
+                        <Input
+                          name="IdEtu"
+                          value={reclamation.IdEtu}
+                          onChange={handleInputReclamationChange}
+                          placeholder="1"
+                        />
+                        {errors.IdEtu && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.IdEtu.errors[0]}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium">Statut</label>
+                        <Select
+                          name="StatusRec"
+                          value={reclamation.StatusRec || ""}
+                          onValueChange={(value) => {
+                            setReclamation((prev) => ({
+                              ...prev,
+                              StatusRec: value,
+                            }));
+                            if (errors.StatusRec) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                StatusRec: undefined,
+                              }));
+                            }
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Séléctionner le statut" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="En attente">
+                              En attente
+                            </SelectItem>
+                            <SelectItem value="En cours">En cours</SelectItem>
+                            <SelectItem value="Résolu">Résolu</SelectItem>
+                            <SelectItem value="Rejeté">Rejeté</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.StatusRec && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.StatusRec.errors[0]}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="col-span-2">
+                        <label className="text-sm font-medium">
+                          Description
+                        </label>
+                        <Input
+                          name="DescriptionRec"
+                          value={reclamation.DescriptionRec}
+                          onChange={handleInputReclamationChange}
+                          placeholder="Description détaillée"
+                        />
+                        {errors.DescriptionRec && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.DescriptionRec.errors[0]}
+                          </p>
+                        )}
+                      </div>
+
+                      {editingReclamationId && (
+                        <div>
+                          <label className="text-sm font-medium">Date</label>
+                          <Input
+                            name="DateRec"
+                            value={reclamation.DateRec || ""}
+                            disabled
+                            type="date"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <Button type="submit" className="w-full cursor-pointer">
+                      {editingReclamationId ? "Mettre à jour" : "Créer"}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
 
           <Card>

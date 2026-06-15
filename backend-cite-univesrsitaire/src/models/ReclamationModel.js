@@ -16,6 +16,17 @@ const getAllReclamations = async (page = 1) => {
   return { rows, countResult };
 };
 
+const exportReclamations = async () => {
+  const query = `
+    SELECT r.*, e.Nom AS Nom , e.Email AS Email
+    FROM Reclamation AS r 
+    JOIN Etudiant AS e ON r.IdEtu=e.IdEtu
+    ORDER BY DateRec DESC
+  `;
+  const [rows] = await db.query(query);
+  return rows;
+};
+
 const findReclamationById = async (idRec) => {
   const query = `
     SELECT r.*, e.Nom AS Nom 
@@ -84,6 +95,7 @@ const deleteReclamation = async (IdRec) => {
 
 export default {
   getAllReclamations,
+  exportReclamations,
   createReclamation,
   updateReclamation,
   deleteReclamation,

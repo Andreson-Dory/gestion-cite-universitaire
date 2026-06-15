@@ -6,6 +6,11 @@ const router = express.Router();
 
 router.get("/etudiant", AuthMiddleware, etudiantController.getEtudiants);
 router.get(
+  "/etudiant/export",
+  AuthMiddleware,
+  etudiantController.exportAllEtudiants,
+);
+router.get(
   "/chambre/etudiant/:idCha",
   AuthMiddleware,
   etudiantController.getEtudiantsFromChambre,

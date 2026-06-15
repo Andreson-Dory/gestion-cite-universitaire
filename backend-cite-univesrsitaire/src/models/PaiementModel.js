@@ -16,6 +16,17 @@ const getAllPaiements = async (page = 1) => {
   return { rows, countResult };
 };
 
+const exportPaiements = async () => {
+  const query = `
+        SELECT p.*, e.Nom AS NomEtudiant, e.Email AS Email  
+        FROM Paiement AS p 
+        JOIN Etudiant AS e ON p.IdEtu=e.IdEtu
+        ORDER BY DatePai DESC
+    `;
+  const [rows] = await db.query(query);
+  return rows;
+};
+
 const findPaiementById = async (idPai) => {
   const query = `
         SELECT p.*, e.Nom AS NomEtudiant, e.Email AS Email 
@@ -71,6 +82,7 @@ const deletePaiement = async (IdPai) => {
 
 export default {
   getAllPaiements,
+  exportPaiements,
   createPaiement,
   deletePaiement,
   findPaiementById,

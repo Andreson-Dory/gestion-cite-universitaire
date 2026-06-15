@@ -5,6 +5,11 @@ export const getEtudiants = async (page) => {
   return response.data;
 };
 
+export const exportEtudiant = async () => {
+  const response = await backendApi.get(`/etudiant/export`);
+  return response.data;
+};
+
 export const getEtudiantsFromChambre = async (idCha) => {
   const response = await backendApi.get(`/chambre/etudiant/${idCha}`);
   return response.data;

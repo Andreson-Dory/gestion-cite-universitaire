@@ -21,6 +21,18 @@ const getEtudiants = async (req, res) => {
   }
 };
 
+const exportAllEtudiants = async (req, res) => {
+  try {
+    const results = await Etudiant.exportEtudiants();
+
+    res.json({
+      etudiants: results,
+    });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 const getEtudiantsFromChambre = async (req, res) => {
   const { idCha } = req.params;
   try {
@@ -82,6 +94,7 @@ const deleteEtudiant = async (req, res) => {
 
 export default {
   getEtudiants,
+  exportAllEtudiants,
   getEtudiantsFromChambre,
   addEtudiant,
   updateEtudiant,
